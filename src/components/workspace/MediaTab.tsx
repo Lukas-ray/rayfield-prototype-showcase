@@ -461,7 +461,7 @@ export function MediaTab() {
                       >
                         <div className="w-full h-full relative">
                           <img 
-                            src={`https://images.unsplash.com/photo-${1560448204 + idx * 1000}-e02fe7ec5bb9?w=200&h=200&fit=crop`}
+                            src="/placeholder.svg"
                             alt={photo.name}
                             className="w-full h-full object-cover"
                           />
@@ -520,7 +520,7 @@ export function MediaTab() {
                     {/* Image */}
                     <div className="aspect-square bg-muted relative">
                       <img 
-                        src="https://images.unsplash.com/photo-1560448204-e02fe7ec5bb9?w=400&h=400&fit=crop"
+                        src="/placeholder.svg"
                         alt="Preview"
                         className="w-full h-full object-cover"
                       />
@@ -561,7 +561,7 @@ export function MediaTab() {
                     {/* Image */}
                     <div className="aspect-video bg-muted">
                       <img 
-                        src="https://images.unsplash.com/photo-1560448204-e02fe7ec5bb9?w=600&h=400&fit=crop"
+                        src="/placeholder.svg"
                         alt="Preview"
                         className="w-full h-full object-cover"
                       />
@@ -579,7 +579,7 @@ export function MediaTab() {
                     {/* Video Thumbnail */}
                     <div className="aspect-video bg-muted relative">
                       <img 
-                        src="https://images.unsplash.com/photo-1560448204-e02fe7ec5bb9?w=600&h=400&fit=crop"
+                        src="/placeholder.svg"
                         alt="Preview"
                         className="w-full h-full object-cover"
                       />
