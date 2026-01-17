@@ -47,6 +47,7 @@ export default function PropertyWorkspace() {
     email: 'thomas.mueller@email.de',
     company: 'Müller Immobilien GmbH',
     since: '15.03.2024',
+    onofficeId: '12847', // CRM ID for onoffice link
   };
 
   return (
@@ -205,9 +206,20 @@ export default function PropertyWorkspace() {
               {/* Owner Info */}
               <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <User className="h-5 w-5 text-accent" />
-                    Eigentümer
+                  <CardTitle className="text-lg flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <User className="h-5 w-5 text-accent" />
+                      Eigentümer
+                    </div>
+                    <a 
+                      href={`https://app.onoffice.de/contact/${owner.onofficeId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-xs font-normal text-muted-foreground hover:text-accent transition-colors"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      onoffice CRM
+                    </a>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
