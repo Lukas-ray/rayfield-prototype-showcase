@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { documents as initialDocs, Document } from '@/data/dummyData';
+import { propertyDocuments, Document } from '@/data/dummyData';
 import { 
   RequestPacket, 
   EmailThread, 
@@ -50,30 +50,17 @@ const holderLabels: Record<string, { label: string; icon: typeof User; color: st
   authority: { label: 'Behörde', icon: Landmark, color: 'text-slate-600', bg: 'bg-slate-100' },
 };
 
-// Extended document type with holder info
-interface ExtendedDocument extends Document {
-  holder: 'seller' | 'hausverwaltung' | 'agent' | 'notary' | 'authority';
-  holderName?: string;
-  holderEmail?: string;
+interface DocumentsTabProps {
+  propertyId?: string;
 }
 
-export function DocumentsTab() {
+export function DocumentsTab({ propertyId = '3' }: DocumentsTabProps) {
   const { toast } = useToast();
   
-  // Extended documents with holder info
-  const [docs, setDocs] = useState<ExtendedDocument[]>([
-    { id: '1', name: 'Grundbuchauszug', type: 'Grundbuch', status: 'verified', uploadedAt: '2024-01-10', source: 'agent', holder: 'authority', holderName: 'Grundbuchamt München', holderEmail: 'grundbuchamt@muenchen.de' },
-    { id: '2', name: 'Energieausweis', type: 'Energieausweis', status: 'missing', holder: 'seller', holderName: 'Hans Schmidt', holderEmail: 'hans.schmidt@email.de' },
-    { id: '3', name: 'Teilungserklärung', type: 'Teilungserklärung', status: 'requested', source: 'hausverwaltung', holder: 'hausverwaltung', holderName: 'HV Müller GmbH', holderEmail: 'info@hv-mueller.de' },
-    { id: '4', name: 'Wirtschaftsplan 2024', type: 'Wirtschaftsplan', status: 'received', uploadedAt: '2024-01-12', source: 'hausverwaltung', holder: 'hausverwaltung', holderName: 'HV Müller GmbH', holderEmail: 'info@hv-mueller.de' },
-    { id: '5', name: 'Protokolle Eigentümerversammlung', type: 'Protokolle', status: 'missing', holder: 'hausverwaltung', holderName: 'HV Müller GmbH', holderEmail: 'info@hv-mueller.de' },
-    { id: '6', name: 'Hausgeldabrechnung', type: 'Hausgeldabrechnung', status: 'verified', uploadedAt: '2024-01-08', source: 'seller', holder: 'seller', holderName: 'Hans Schmidt', holderEmail: 'hans.schmidt@email.de' },
-    { id: '7', name: 'Wohnflächenberechnung', type: 'Flächenberechnung', status: 'received', uploadedAt: '2024-01-11', source: 'seller', holder: 'seller', holderName: 'Hans Schmidt', holderEmail: 'hans.schmidt@email.de' },
-    { id: '8', name: 'Mietvertrag', type: 'Mietvertrag', status: 'missing', holder: 'seller', holderName: 'Hans Schmidt', holderEmail: 'hans.schmidt@email.de' },
-    { id: '9', name: 'Baulastenverzeichnis', type: 'Baulastenverzeichnis', status: 'missing', holder: 'authority', holderName: 'Bauamt München', holderEmail: 'bauamt@muenchen.de' },
-    { id: '10', name: 'Altlastenauskunft', type: 'Altlastenauskunft', status: 'requested', holder: 'authority', holderName: 'Umweltamt München', holderEmail: 'umweltamt@muenchen.de' },
-    { id: '11', name: 'Flurkarte', type: 'Flurkarte', status: 'verified', uploadedAt: '2024-01-09', holder: 'authority', holderName: 'Katasteramt München', holderEmail: 'katasteramt@muenchen.de' },
-  ]);
+  // Get documents for this property or fallback to default
+  const initialDocs = propertyDocuments[propertyId] || propertyDocuments['3'] || [];
+  
+  const [docs, setDocs] = useState<Document[]>(initialDocs);
   
   const [showUploadPreview, setShowUploadPreview] = useState(false);
   const [previewFile, setPreviewFile] = useState({ original: '', suggested: '', type: '' });
@@ -84,7 +71,7 @@ export function DocumentsTab() {
   const [connectDialogOpen, setConnectDialogOpen] = useState(false);
   
   // Document request state
-  const [selectedDoc, setSelectedDoc] = useState<ExtendedDocument | null>(null);
+  const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
   const [emailBody, setEmailBody] = useState('');
   const [showBcc, setShowBcc] = useState(false);
@@ -122,7 +109,7 @@ export function DocumentsTab() {
     });
   };
 
-  const handleDocumentClick = (doc: ExtendedDocument) => {
+  const handleDocumentClick = (doc: Document) => {
     if (doc.status === 'missing' || doc.status === 'requested') {
       setSelectedDoc(doc);
       setEmailBody(`Sehr geehrte${doc.holder === 'seller' ? 'r Herr Schmidt' : ' Damen und Herren'},
@@ -352,7 +339,7 @@ Ihr Rayfield Team`);
     if (!acc[holder]) acc[holder] = [];
     acc[holder].push(doc);
     return acc;
-  }, {} as Record<string, ExtendedDocument[]>);
+  }, {} as Record<string, Document[]>);
 
   const missingDocsCount = docs.filter(d => d.status === 'missing').length;
   const verifiedDocsCount = docs.filter(d => d.status === 'verified').length;
