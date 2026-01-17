@@ -41,6 +41,9 @@ export interface Document {
   status: 'missing' | 'requested' | 'received' | 'verified';
   uploadedAt?: string;
   source?: 'seller' | 'hausverwaltung' | 'agent';
+  holder: 'seller' | 'hausverwaltung' | 'agent' | 'notary' | 'authority';
+  holderName?: string;
+  holderEmail?: string;
 }
 
 export interface AgentRun {
@@ -292,16 +295,80 @@ export const mediaItems: MediaItem[] = [
   { id: '6', type: 'video', name: 'Objektrundgang', url: '/placeholder.svg', variant: 'social', status: 'processing' },
 ];
 
-export const documents: Document[] = [
-  { id: '1', name: 'Grundbuchauszug', type: 'Grundbuch', status: 'verified', uploadedAt: '2024-01-10', source: 'agent' },
-  { id: '2', name: 'Energieausweis', type: 'Energieausweis', status: 'missing' },
-  { id: '3', name: 'Teilungserklärung', type: 'Teilungserklärung', status: 'requested', source: 'hausverwaltung' },
-  { id: '4', name: 'Wirtschaftsplan 2024', type: 'Wirtschaftsplan', status: 'received', uploadedAt: '2024-01-12', source: 'hausverwaltung' },
-  { id: '5', name: 'Protokolle Eigentümerversammlung', type: 'Protokolle', status: 'missing' },
-  { id: '6', name: 'Hausgeldabrechnung', type: 'Hausgeldabrechnung', status: 'verified', uploadedAt: '2024-01-08', source: 'seller' },
-  { id: '7', name: 'Wohnflächenberechnung', type: 'Flächenberechnung', status: 'received', uploadedAt: '2024-01-11', source: 'seller' },
-  { id: '8', name: 'Mietvertrag', type: 'Mietvertrag', status: 'missing' },
-];
+// Document templates per property - key is propertyId
+export const propertyDocuments: Record<string, Document[]> = {
+  // Property 1 - Bahnhofsallee, Eching - Draft, nur wenige Dokumente
+  '1': [
+    { id: '1', name: 'Grundbuchauszug', type: 'Grundbuch', status: 'missing', holder: 'authority', holderName: 'Grundbuchamt Freising', holderEmail: 'grundbuchamt@freising.de' },
+    { id: '2', name: 'Energieausweis', type: 'Energieausweis', status: 'missing', holder: 'seller', holderName: 'Hans Schmidt', holderEmail: 'hans.schmidt@email.de' },
+    { id: '3', name: 'Teilungserklärung', type: 'Teilungserklärung', status: 'missing', holder: 'hausverwaltung', holderName: 'HV Eching GmbH', holderEmail: 'info@hv-eching.de' },
+    { id: '4', name: 'Wohnflächenberechnung', type: 'Flächenberechnung', status: 'missing', holder: 'seller', holderName: 'Hans Schmidt', holderEmail: 'hans.schmidt@email.de' },
+  ],
+  // Property 2 - Glockenbachviertel - Capture Processing, einige Dokumente angefordert
+  '2': [
+    { id: '1', name: 'Grundbuchauszug', type: 'Grundbuch', status: 'verified', uploadedAt: '2024-01-10', holder: 'authority', holderName: 'Grundbuchamt München', holderEmail: 'grundbuchamt@muenchen.de' },
+    { id: '2', name: 'Energieausweis', type: 'Energieausweis', status: 'requested', holder: 'seller', holderName: 'Maria Weber', holderEmail: 'maria.weber@email.de' },
+    { id: '3', name: 'Baulastenverzeichnis', type: 'Baulastenverzeichnis', status: 'missing', holder: 'authority', holderName: 'Bauamt München', holderEmail: 'bauamt@muenchen.de' },
+    { id: '4', name: 'Mieterliste', type: 'Mieterliste', status: 'received', uploadedAt: '2024-01-08', holder: 'seller', holderName: 'Maria Weber', holderEmail: 'maria.weber@email.de' },
+    { id: '5', name: 'Gewerbemietverträge', type: 'Gewerbemietvertrag', status: 'missing', holder: 'seller', holderName: 'Maria Weber', holderEmail: 'maria.weber@email.de' },
+    { id: '6', name: 'Brandschutznachweis', type: 'Brandschutz', status: 'missing', holder: 'authority', holderName: 'Branddirektion München', holderEmail: 'branddirektion@muenchen.de' },
+  ],
+  // Property 3 - Am Schlosspark - Docs Missing, mehrere fehlen
+  '3': [
+    { id: '1', name: 'Grundbuchauszug', type: 'Grundbuch', status: 'verified', uploadedAt: '2024-01-10', holder: 'authority', holderName: 'Grundbuchamt Freising', holderEmail: 'grundbuchamt@freising.de' },
+    { id: '2', name: 'Energieausweis', type: 'Energieausweis', status: 'missing', holder: 'seller', holderName: 'Thomas Müller', holderEmail: 'thomas.mueller@email.de' },
+    { id: '3', name: 'Teilungserklärung', type: 'Teilungserklärung', status: 'requested', holder: 'hausverwaltung', holderName: 'HV Hohenkammer', holderEmail: 'info@hv-hohenkammer.de' },
+    { id: '4', name: 'Wirtschaftsplan 2024', type: 'Wirtschaftsplan', status: 'received', uploadedAt: '2024-01-12', holder: 'hausverwaltung', holderName: 'HV Hohenkammer', holderEmail: 'info@hv-hohenkammer.de' },
+    { id: '5', name: 'Protokolle Eigentümerversammlung', type: 'Protokolle', status: 'missing', holder: 'hausverwaltung', holderName: 'HV Hohenkammer', holderEmail: 'info@hv-hohenkammer.de' },
+    { id: '6', name: 'Hausgeldabrechnung', type: 'Hausgeldabrechnung', status: 'verified', uploadedAt: '2024-01-08', holder: 'seller', holderName: 'Thomas Müller', holderEmail: 'thomas.mueller@email.de' },
+  ],
+  // Property 4 - Pelkovenstraße - Ready to Publish, alles komplett
+  '4': [
+    { id: '1', name: 'Grundbuchauszug', type: 'Grundbuch', status: 'verified', uploadedAt: '2024-01-05', holder: 'authority', holderName: 'Grundbuchamt München', holderEmail: 'grundbuchamt@muenchen.de' },
+    { id: '2', name: 'Energieausweis', type: 'Energieausweis', status: 'verified', uploadedAt: '2024-01-06', holder: 'seller', holderName: 'Anna Fischer', holderEmail: 'anna.fischer@email.de' },
+    { id: '3', name: 'Teilungserklärung', type: 'Teilungserklärung', status: 'verified', uploadedAt: '2024-01-04', holder: 'hausverwaltung', holderName: 'HV Moosach GmbH', holderEmail: 'info@hv-moosach.de' },
+    { id: '4', name: 'Wirtschaftsplan 2024', type: 'Wirtschaftsplan', status: 'verified', uploadedAt: '2024-01-07', holder: 'hausverwaltung', holderName: 'HV Moosach GmbH', holderEmail: 'info@hv-moosach.de' },
+    { id: '5', name: 'Protokolle Eigentümerversammlung', type: 'Protokolle', status: 'verified', uploadedAt: '2024-01-03', holder: 'hausverwaltung', holderName: 'HV Moosach GmbH', holderEmail: 'info@hv-moosach.de' },
+    { id: '6', name: 'Hausgeldabrechnung', type: 'Hausgeldabrechnung', status: 'verified', uploadedAt: '2024-01-08', holder: 'seller', holderName: 'Anna Fischer', holderEmail: 'anna.fischer@email.de' },
+    { id: '7', name: 'Wohnflächenberechnung', type: 'Flächenberechnung', status: 'verified', uploadedAt: '2024-01-02', holder: 'seller', holderName: 'Anna Fischer', holderEmail: 'anna.fischer@email.de' },
+    { id: '8', name: 'Flurkarte', type: 'Flurkarte', status: 'verified', uploadedAt: '2024-01-01', holder: 'authority', holderName: 'Katasteramt München', holderEmail: 'katasteramt@muenchen.de' },
+  ],
+  // Property 5 - Bodenseestraße - Inquiries Active, alles vorhanden
+  '5': [
+    { id: '1', name: 'Grundbuchauszug', type: 'Grundbuch', status: 'verified', uploadedAt: '2024-01-02', holder: 'authority', holderName: 'Grundbuchamt München', holderEmail: 'grundbuchamt@muenchen.de' },
+    { id: '2', name: 'Energieausweis', type: 'Energieausweis', status: 'verified', uploadedAt: '2024-01-02', holder: 'seller', holderName: 'Frank Meier', holderEmail: 'frank.meier@email.de' },
+    { id: '3', name: 'Teilungserklärung', type: 'Teilungserklärung', status: 'verified', uploadedAt: '2024-01-01', holder: 'hausverwaltung', holderName: 'HV Pasing', holderEmail: 'info@hv-pasing.de' },
+    { id: '4', name: 'Hausgeldabrechnung', type: 'Hausgeldabrechnung', status: 'verified', uploadedAt: '2024-01-01', holder: 'seller', holderName: 'Frank Meier', holderEmail: 'frank.meier@email.de' },
+    { id: '5', name: 'Wohnflächenberechnung', type: 'Flächenberechnung', status: 'verified', uploadedAt: '2024-01-02', holder: 'seller', holderName: 'Frank Meier', holderEmail: 'frank.meier@email.de' },
+  ],
+  // Property 6 - Gutshof Amerang - Under Offer, alles komplett
+  '6': [
+    { id: '1', name: 'Grundbuchauszug', type: 'Grundbuch', status: 'verified', uploadedAt: '2023-12-15', holder: 'authority', holderName: 'Grundbuchamt Rosenheim', holderEmail: 'grundbuchamt@rosenheim.de' },
+    { id: '2', name: 'Energieausweis', type: 'Energieausweis', status: 'verified', uploadedAt: '2023-12-16', holder: 'seller', holderName: 'Klaus Becker', holderEmail: 'klaus.becker@email.de' },
+    { id: '3', name: 'Baulastenverzeichnis', type: 'Baulastenverzeichnis', status: 'verified', uploadedAt: '2023-12-14', holder: 'authority', holderName: 'Bauamt Amerang', holderEmail: 'bauamt@amerang.de' },
+    { id: '4', name: 'Flurkarte', type: 'Flurkarte', status: 'verified', uploadedAt: '2023-12-13', holder: 'authority', holderName: 'Katasteramt Rosenheim', holderEmail: 'katasteramt@rosenheim.de' },
+    { id: '5', name: 'Mieterliste', type: 'Mieterliste', status: 'verified', uploadedAt: '2023-12-17', holder: 'seller', holderName: 'Klaus Becker', holderEmail: 'klaus.becker@email.de' },
+    { id: '6', name: 'Mietverträge', type: 'Mietvertrag', status: 'verified', uploadedAt: '2023-12-18', holder: 'seller', holderName: 'Klaus Becker', holderEmail: 'klaus.becker@email.de' },
+  ],
+  // Property 7 - Englschalkinger Straße - Ready to Publish, fast alles da
+  '7': [
+    { id: '1', name: 'Grundbuchauszug', type: 'Grundbuch', status: 'verified', uploadedAt: '2024-01-08', holder: 'authority', holderName: 'Grundbuchamt München', holderEmail: 'grundbuchamt@muenchen.de' },
+    { id: '2', name: 'Energieausweis', type: 'Energieausweis', status: 'verified', uploadedAt: '2024-01-09', holder: 'seller', holderName: 'Lisa Hoffmann', holderEmail: 'lisa.hoffmann@email.de' },
+    { id: '3', name: 'Teilungserklärung', type: 'Teilungserklärung', status: 'verified', uploadedAt: '2024-01-07', holder: 'hausverwaltung', holderName: 'HV Bogenhausen', holderEmail: 'info@hv-bogenhausen.de' },
+    { id: '4', name: 'Hausgeldabrechnung', type: 'Hausgeldabrechnung', status: 'verified', uploadedAt: '2024-01-10', holder: 'seller', holderName: 'Lisa Hoffmann', holderEmail: 'lisa.hoffmann@email.de' },
+    { id: '5', name: 'Wohnflächenberechnung', type: 'Flächenberechnung', status: 'received', uploadedAt: '2024-01-11', holder: 'seller', holderName: 'Lisa Hoffmann', holderEmail: 'lisa.hoffmann@email.de' },
+  ],
+  // Property 8 - Berg-am-Laim-Straße - Inquiries Active, komplett
+  '8': [
+    { id: '1', name: 'Grundbuchauszug', type: 'Grundbuch', status: 'verified', uploadedAt: '2024-01-01', holder: 'authority', holderName: 'Grundbuchamt München', holderEmail: 'grundbuchamt@muenchen.de' },
+    { id: '2', name: 'Energieausweis', type: 'Energieausweis', status: 'verified', uploadedAt: '2024-01-02', holder: 'seller', holderName: 'Michael Braun', holderEmail: 'michael.braun@email.de' },
+    { id: '3', name: 'Teilungserklärung', type: 'Teilungserklärung', status: 'verified', uploadedAt: '2024-01-01', holder: 'hausverwaltung', holderName: 'HV Berg am Laim', holderEmail: 'info@hv-bal.de' },
+    { id: '4', name: 'Hausgeldabrechnung', type: 'Hausgeldabrechnung', status: 'verified', uploadedAt: '2024-01-03', holder: 'seller', holderName: 'Michael Braun', holderEmail: 'michael.braun@email.de' },
+  ],
+};
+
+// Legacy export for backwards compatibility
+export const documents: Document[] = propertyDocuments['3'] || [];
 
 export const agentRuns: AgentRun[] = [
   { id: '1', agentName: 'Listing Factory Agent', timestamp: '2024-01-14 14:32', status: 'completed', outputs: ['Inseratstitel generiert', '3 Beschreibungsvarianten erstellt', '12 strukturierte Felder extrahiert'] },

@@ -292,7 +292,7 @@ export default function PropertyWorkspace() {
           </TabsContent>
 
           <TabsContent value="documents" className="animate-fade-in">
-            <DocumentsTab />
+            <DocumentsTab propertyId={id} />
           </TabsContent>
 
           <TabsContent value="performance" className="animate-fade-in">
