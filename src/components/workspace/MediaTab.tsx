@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Download, Image, Video, Box, LayoutGrid, Share2, Send, Check, ExternalLink, Instagram, Youtube, Facebook, Linkedin } from 'lucide-react';
+import { Download, Image, Video, Box, LayoutGrid, Share2, Send, Check, ExternalLink, Instagram, Youtube, Facebook, Linkedin, Eye, Edit3, ArrowRight, Clock, ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { mediaItems } from '@/data/dummyData';
@@ -13,6 +14,8 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 
 const typeIcons = {
   photo: Image,
@@ -36,6 +39,7 @@ interface PlatformAccount {
   logo: string;
   connected: boolean;
   lastSync?: string;
+  url?: string;
 }
 
 const socialAccounts: SocialAccount[] = [
@@ -46,20 +50,30 @@ const socialAccounts: SocialAccount[] = [
 ];
 
 const platformAccounts: PlatformAccount[] = [
-  { id: '1', name: 'ImmoScout24', logo: '🏠', connected: true, lastSync: 'Vor 2 Stunden' },
-  { id: '2', name: 'Immowelt', logo: '🌍', connected: true, lastSync: 'Vor 5 Stunden' },
-  { id: '3', name: 'Kleinanzeigen', logo: '📢', connected: false },
-  { id: '4', name: 'Immonet', logo: '🏢', connected: false },
+  { id: '1', name: 'ImmoScout24', logo: '🏠', connected: true, lastSync: 'Vor 2 Stunden', url: 'https://www.immobilienscout24.de' },
+  { id: '2', name: 'Immowelt', logo: '🌍', connected: true, lastSync: 'Vor 5 Stunden', url: 'https://www.immowelt.de' },
+  { id: '3', name: 'Kleinanzeigen', logo: '📢', connected: false, url: 'https://www.kleinanzeigen.de' },
+  { id: '4', name: 'Immonet', logo: '🏢', connected: false, url: 'https://www.immonet.de' },
 ];
+
+const defaultPostTexts: Record<string, string> = {
+  Instagram: '🏠 Neue Immobilie in Berlin-Mitte!\n\nLichtdurchflutete 3-Zimmer Altbauwohnung mit Balkon und Stuck.\n\n✨ 85 m² Wohnfläche\n🛏️ 3 Zimmer\n🌳 Ruhige Lage\n\nJetzt Besichtigung vereinbaren! Link in Bio.\n\n#immobilien #berlin #wohnung #altbau #berlinmitte',
+  YouTube: '🏠 Exklusive Wohnungsbesichtigung: 3-Zimmer Altbau in Berlin-Mitte\n\nIn diesem Video zeigen wir Ihnen eine wunderschöne Altbauwohnung im Herzen von Berlin. Mit 85 m², hohen Decken und originalem Stuck ist diese Wohnung ein echtes Schmuckstück.\n\n⏱️ Kapitel:\n0:00 Einführung\n0:30 Wohnzimmer\n1:45 Küche\n2:30 Schlafzimmer\n3:15 Bad\n4:00 Balkon\n\nKontaktieren Sie uns für eine Besichtigung!',
+  LinkedIn: '🏠 Neues Objekt im Portfolio: Exklusive Altbauwohnung in Berlin-Mitte\n\nWir freuen uns, eine außergewöhnliche 3-Zimmer Wohnung in einer der begehrtesten Lagen Berlins präsentieren zu dürfen.\n\nHighlights:\n• 85 m² Wohnfläche\n• Originalstuck und Dielenboden\n• Balkon mit Südausrichtung\n• Hervorragende Verkehrsanbindung\n\nFür weitere Informationen kontaktieren Sie unser Team.\n\n#Immobilien #Berlin #RealEstate #Investment',
+};
 
 export function MediaTab() {
   const { toast } = useToast();
   const [activeSection, setActiveSection] = useState<'overview' | 'social' | 'platforms'>('overview');
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
-  const [postDialogOpen, setPostDialogOpen] = useState(false);
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
-  const [selectedSocial, setSelectedSocial] = useState<string | null>(null);
-  const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
+  const [selectedSocial, setSelectedSocial] = useState<SocialAccount | null>(null);
+  const [selectedPlatform, setSelectedPlatform] = useState<PlatformAccount | null>(null);
+  const [platformPreviewOpen, setPlatformPreviewOpen] = useState(false);
+  const [postText, setPostText] = useState('');
+  const [selectedMedia, setSelectedMedia] = useState<string[]>(['hero_1', 'hero_2']);
+  const [postStep, setPostStep] = useState<'preview' | 'ready'>('preview');
 
   const photos = mediaItems.filter(m => m.type === 'photo');
   const videos = mediaItems.filter(m => m.type === 'video');
@@ -77,32 +91,58 @@ export function MediaTab() {
     }
   };
 
-  const handleSocialPost = (platform: string) => {
-    setSelectedSocial(platform);
-    setPostDialogOpen(true);
+  const handleSocialPost = (account: SocialAccount) => {
+    setSelectedSocial(account);
+    setPostText(defaultPostTexts[account.name] || '');
+    setPostStep('preview');
+    setPreviewDialogOpen(true);
   };
 
-  const handlePlatformPublish = (platform: string) => {
+  const handlePlatformPublish = (platform: PlatformAccount) => {
     setSelectedPlatform(platform);
+    setPlatformPreviewOpen(true);
+  };
+
+  const confirmSocialPost = () => {
+    if (postStep === 'preview') {
+      setPostStep('ready');
+      return;
+    }
+    
+    setPreviewDialogOpen(false);
+    toast({
+      title: 'Beitrag veröffentlicht',
+      description: `Beitrag wurde erfolgreich auf ${selectedSocial?.name} veröffentlicht.`,
+    });
+    setSelectedSocial(null);
+    setPostStep('preview');
+  };
+
+  const openPlatformDirect = () => {
+    if (selectedSocial) {
+      toast({
+        title: 'Weiterleitung',
+        description: `Sie werden zu ${selectedSocial.name} weitergeleitet. Alle Inhalte wurden in die Zwischenablage kopiert.`,
+      });
+      setPreviewDialogOpen(false);
+      setSelectedSocial(null);
+      setPostStep('preview');
+    }
+  };
+
+  const confirmPlatformPublish = () => {
+    setPlatformPreviewOpen(false);
     toast({
       title: 'Veröffentlichung gestartet',
-      description: `Inserat wird auf ${platform} veröffentlicht...`,
+      description: `Inserat wird auf ${selectedPlatform?.name} veröffentlicht...`,
     });
     setTimeout(() => {
       toast({
         title: 'Erfolgreich veröffentlicht',
-        description: `Inserat ist jetzt auf ${platform} live.`,
+        description: `Inserat ist jetzt auf ${selectedPlatform?.name} live.`,
       });
     }, 2000);
-  };
-
-  const confirmSocialPost = () => {
-    setPostDialogOpen(false);
-    toast({
-      title: 'Beitrag geplant',
-      description: `Beitrag wird auf ${selectedSocial} veröffentlicht.`,
-    });
-    setSelectedSocial(null);
+    setSelectedPlatform(null);
   };
 
   return (
@@ -272,9 +312,9 @@ export function MediaTab() {
                             <Check className="h-3 w-3 mr-1" />
                             Verbunden
                           </Badge>
-                          <Button size="sm" onClick={() => handleSocialPost(account.name)} className="gap-2">
-                            <Send className="h-4 w-4" />
-                            Jetzt posten
+                          <Button size="sm" onClick={() => handleSocialPost(account)} className="gap-2">
+                            <Eye className="h-4 w-4" />
+                            Vorschau & Posten
                           </Button>
                         </>
                       ) : (
@@ -329,9 +369,9 @@ export function MediaTab() {
                           <Check className="h-3 w-3 mr-1" />
                           Verbunden
                         </Badge>
-                        <Button size="sm" onClick={() => handlePlatformPublish(platform.name)} className="gap-2">
-                          <ExternalLink className="h-4 w-4" />
-                          Veröffentlichen
+                        <Button size="sm" onClick={() => handlePlatformPublish(platform)} className="gap-2">
+                          <Eye className="h-4 w-4" />
+                          Vorschau & Veröffentlichen
                         </Button>
                       </>
                     ) : (
@@ -347,30 +387,239 @@ export function MediaTab() {
         </TabsContent>
       </Tabs>
 
-      {/* Social Post Dialog */}
-      <Dialog open={postDialogOpen} onOpenChange={setPostDialogOpen}>
-        <DialogContent>
+      {/* Social Post Preview Dialog */}
+      <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Auf {selectedSocial} posten</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              {selectedSocial && <selectedSocial.icon className="h-5 w-5" />}
+              Beitrag für {selectedSocial?.name}
+            </DialogTitle>
+            <DialogDescription>
+              Überprüfen und bearbeiten Sie Ihren Beitrag vor der Veröffentlichung
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="p-4 rounded-lg bg-secondary/50">
-              <p className="text-sm font-medium mb-2">Vorschau</p>
-              <div className="aspect-video rounded-md bg-muted flex items-center justify-center mb-3">
-                <Image className="h-8 w-8 text-muted-foreground" />
+          
+          {postStep === 'preview' ? (
+            <div className="space-y-4">
+              {/* Media Selection */}
+              <div>
+                <Label className="text-sm font-medium mb-2 block">Ausgewählte Medien</Label>
+                <div className="grid grid-cols-4 gap-2">
+                  {photos.slice(0, 4).map((photo, idx) => (
+                    <div 
+                      key={photo.id}
+                      className={cn(
+                        "aspect-square rounded-lg overflow-hidden border-2 cursor-pointer transition-all",
+                        selectedMedia.includes(photo.id) 
+                          ? "border-accent ring-2 ring-accent/30" 
+                          : "border-border opacity-60 hover:opacity-100"
+                      )}
+                      onClick={() => {
+                        setSelectedMedia(prev => 
+                          prev.includes(photo.id) 
+                            ? prev.filter(id => id !== photo.id)
+                            : [...prev, photo.id]
+                        );
+                      }}
+                    >
+                      <div className="w-full h-full bg-muted flex items-center justify-center relative">
+                        <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                        {selectedMedia.includes(photo.id) && (
+                          <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-accent flex items-center justify-center">
+                            <Check className="h-3 w-3 text-accent-foreground" />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">{selectedMedia.length} Medien ausgewählt</p>
               </div>
-              <p className="text-sm">🏠 Neue Immobilie in Berlin-Mitte! Lichtdurchflutete 3-Zimmer Altbauwohnung mit Balkon. Jetzt Besichtigung vereinbaren! #immobilien #berlin #wohnung</p>
+
+              {/* Post Text */}
+              <div>
+                <Label className="text-sm font-medium mb-2 block">Beitragstext</Label>
+                <Textarea
+                  value={postText}
+                  onChange={(e) => setPostText(e.target.value)}
+                  rows={6}
+                  className="resize-none"
+                />
+                <p className="text-xs text-muted-foreground mt-1">{postText.length} Zeichen</p>
+              </div>
+
+              {/* Platform-specific hints */}
+              <div className="p-3 rounded-lg bg-secondary/50 border border-border">
+                <p className="text-sm font-medium flex items-center gap-2">
+                  <Check className="h-4 w-4 text-green-600" />
+                  Optimiert für {selectedSocial?.name}
+                </p>
+                <ul className="text-xs text-muted-foreground mt-2 space-y-1">
+                  {selectedSocial?.name === 'Instagram' && (
+                    <>
+                      <li>• Hashtags am Ende platziert</li>
+                      <li>• Emojis für bessere Sichtbarkeit</li>
+                      <li>• Quadratisches Format wird empfohlen</li>
+                    </>
+                  )}
+                  {selectedSocial?.name === 'YouTube' && (
+                    <>
+                      <li>• Kapitelmarken eingefügt</li>
+                      <li>• SEO-optimierter Titel</li>
+                      <li>• Call-to-Action am Ende</li>
+                    </>
+                  )}
+                  {selectedSocial?.name === 'LinkedIn' && (
+                    <>
+                      <li>• Professioneller Tonfall</li>
+                      <li>• Relevante Business-Hashtags</li>
+                      <li>• Kontaktaufforderung integriert</li>
+                    </>
+                  )}
+                </ul>
+              </div>
             </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Check className="h-4 w-4 text-green-600" />
-              <span>Inhalte werden automatisch für {selectedSocial} optimiert</span>
+          ) : (
+            <div className="space-y-4">
+              {/* Ready to post confirmation */}
+              <div className="text-center py-6">
+                <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-4">
+                  <Check className="h-8 w-8 text-green-600" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Beitrag ist bereit!</h3>
+                <p className="text-muted-foreground">Ihr Beitrag wurde vorbereitet und kann jetzt veröffentlicht werden.</p>
+              </div>
+
+              {/* Summary */}
+              <div className="p-4 rounded-lg bg-secondary/50 border border-border space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Plattform:</span>
+                  <span className="font-medium">{selectedSocial?.name}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Konto:</span>
+                  <span className="font-medium">{selectedSocial?.handle}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Medien:</span>
+                  <span className="font-medium">{selectedMedia.length} Dateien</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Textlänge:</span>
+                  <span className="font-medium">{postText.length} Zeichen</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="flex gap-2 mt-4">
+            {postStep === 'preview' ? (
+              <>
+                <Button variant="outline" className="flex-1" onClick={() => setPreviewDialogOpen(false)}>
+                  Abbrechen
+                </Button>
+                <Button variant="outline" className="flex-1 gap-2" onClick={openPlatformDirect}>
+                  <ExternalLink className="h-4 w-4" />
+                  Direkt auf {selectedSocial?.name}
+                </Button>
+                <Button className="flex-1 gap-2" onClick={confirmSocialPost}>
+                  <ArrowRight className="h-4 w-4" />
+                  Weiter
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="outline" className="flex-1" onClick={() => setPostStep('preview')}>
+                  <Edit3 className="h-4 w-4 mr-2" />
+                  Zurück bearbeiten
+                </Button>
+                <Button className="flex-1 gap-2" onClick={confirmSocialPost}>
+                  <Send className="h-4 w-4" />
+                  Jetzt veröffentlichen
+                </Button>
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Platform Publish Preview Dialog */}
+      <Dialog open={platformPreviewOpen} onOpenChange={setPlatformPreviewOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <span className="text-xl">{selectedPlatform?.logo}</span>
+              Inserat auf {selectedPlatform?.name} veröffentlichen
+            </DialogTitle>
+            <DialogDescription>
+              Überprüfen Sie die Daten vor der Veröffentlichung
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* Listing Preview */}
+            <div className="p-4 rounded-lg border border-border">
+              <div className="flex gap-4">
+                <div className="w-32 h-24 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                  <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-semibold">3-Zimmer Altbauwohnung mit Balkon</h4>
+                  <p className="text-sm text-muted-foreground">Musterstraße 123, 10115 Berlin-Mitte</p>
+                  <div className="flex gap-4 mt-2 text-sm">
+                    <span>85 m²</span>
+                    <span>3 Zimmer</span>
+                    <span>€ 450.000</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Data Checklist */}
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Daten-Check:</p>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { label: 'Grunddaten', status: 'ok' },
+                  { label: 'Fotos (12)', status: 'ok' },
+                  { label: 'Grundriss', status: 'ok' },
+                  { label: 'Energieausweis', status: 'ok' },
+                  { label: 'Beschreibung', status: 'ok' },
+                  { label: 'Kontaktdaten', status: 'ok' },
+                ].map((item) => (
+                  <div key={item.label} className="flex items-center gap-2 text-sm">
+                    <Check className="h-4 w-4 text-green-600" />
+                    <span>{item.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Sync info */}
+            <div className="p-3 rounded-lg bg-secondary/50 border border-border">
+              <p className="text-sm flex items-center gap-2">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                <span>Das Inserat wird sofort nach Bestätigung live geschaltet.</span>
+              </p>
             </div>
           </div>
+
           <div className="flex gap-2 mt-4">
-            <Button variant="outline" className="flex-1" onClick={() => setPostDialogOpen(false)}>
+            <Button variant="outline" className="flex-1" onClick={() => setPlatformPreviewOpen(false)}>
               Abbrechen
             </Button>
-            <Button className="flex-1 gap-2" onClick={confirmSocialPost}>
+            <Button variant="outline" className="flex-1 gap-2" onClick={() => {
+              toast({
+                title: 'Weiterleitung',
+                description: `Sie werden zu ${selectedPlatform?.name} weitergeleitet.`,
+              });
+              setPlatformPreviewOpen(false);
+            }}>
+              <ExternalLink className="h-4 w-4" />
+              Auf {selectedPlatform?.name} öffnen
+            </Button>
+            <Button className="flex-1 gap-2" onClick={confirmPlatformPublish}>
               <Send className="h-4 w-4" />
               Jetzt veröffentlichen
             </Button>
