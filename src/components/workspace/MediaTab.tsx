@@ -196,7 +196,7 @@ export function MediaTab() {
                     <div key={item.id} className="workspace-card p-2 group">
                       <div className="aspect-video rounded-md overflow-hidden bg-muted relative">
                         <img 
-                          src={`https://images.unsplash.com/photo-${1560448204 + idx * 1000}-e02fe7ec5bb9?w=300&h=200&fit=crop`}
+                          src="/placeholder.svg"
                           alt={item.name} 
                           className="w-full h-full object-cover" 
                         />
@@ -225,7 +225,7 @@ export function MediaTab() {
                     <div key={item.id} className="workspace-card p-2 group">
                       <div className="aspect-video rounded-md overflow-hidden bg-muted relative">
                         <img 
-                          src={`https://images.unsplash.com/photo-${1558618666 + idx * 500}-fcd25c85cd64?w=300&h=200&fit=crop`}
+                          src="/placeholder.svg"
                           alt={item.name}
                           className="w-full h-full object-cover"
                         />
