@@ -9,7 +9,7 @@ import { EvidenceSection } from '@/components/workspace/EvidenceSection';
 import { CaptureTab } from '@/components/workspace/CaptureTab';
 import { MediaTab } from '@/components/workspace/MediaTab';
 import { DocumentsTab } from '@/components/workspace/DocumentsTab';
-import { WorkflowTab } from '@/components/workspace/WorkflowTab';
+
 import { ActivityTab } from '@/components/workspace/ActivityTab';
 
 import { AskRayfieldWidget } from '@/components/workspace/AskRayfieldWidget';
@@ -81,7 +81,7 @@ export default function PropertyWorkspace() {
             <TabsTrigger value="media">Medien</TabsTrigger>
             <TabsTrigger value="documents">Dokumente</TabsTrigger>
             
-            <TabsTrigger value="workflow">Workflow</TabsTrigger>
+            
             <TabsTrigger value="activity">Aktivität</TabsTrigger>
           </TabsList>
 
@@ -145,11 +145,6 @@ export default function PropertyWorkspace() {
 
           <TabsContent value="documents" className="animate-fade-in">
             <DocumentsTab />
-          </TabsContent>
-
-
-          <TabsContent value="workflow" className="animate-fade-in">
-            <WorkflowTab />
           </TabsContent>
 
           <TabsContent value="activity" className="animate-fade-in">
