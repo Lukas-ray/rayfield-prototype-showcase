@@ -1,5 +1,12 @@
 export type WorkflowState = 'draft' | 'capture_processing' | 'docs_missing' | 'ready_to_publish' | 'inquiries_active' | 'under_offer';
 
+export interface Agent {
+  name: string;
+  title: string;
+  email: string;
+  phone: string;
+}
+
 export interface Property {
   id: string;
   address: string;
@@ -15,6 +22,7 @@ export interface Property {
   completionPercent: number;
   thumbnail: string;
   createdAt: string;
+  agent?: Agent;
 }
 
 export interface MediaItem {
@@ -89,6 +97,12 @@ export const properties: Property[] = [
     completionPercent: 15,
     thumbnail: 'https://immosmart.de/wp-content/uploads/immomakler/attachments/5bac552036276bbb916dbbdab4cfa978/9f9299a3-d7dc-4531-8948-bbef1b02789f-900x600.avif',
     createdAt: '2024-01-15',
+    agent: {
+      name: 'Lars Roth',
+      title: 'Geschäftsführer / Leiter Immobilienvertrieb',
+      email: 'lars.roth@immosmart.de',
+      phone: '+49 89 4141888-00',
+    },
   },
   {
     id: '2',
@@ -105,6 +119,12 @@ export const properties: Property[] = [
     completionPercent: 35,
     thumbnail: 'https://immosmart.de/wp-content/uploads/immomakler/attachments/08a59dc1e6be04e28f81e3ef55976c12/01f2c2b1-4e87-449e-9d62-eb06184e1e5f-900x599.avif',
     createdAt: '2024-01-12',
+    agent: {
+      name: 'Fritz Stelzer',
+      title: 'Geschäftsführender Gesellschafter',
+      email: 'fritz.stelzer@immosmart.de',
+      phone: '+49 89 4141888-00',
+    },
   },
   {
     id: '3',
@@ -121,6 +141,12 @@ export const properties: Property[] = [
     completionPercent: 55,
     thumbnail: 'https://immosmart.de/wp-content/uploads/immomakler/attachments/88733dc72d3d0ed52a8960af789d758e/76925-900x600.avif',
     createdAt: '2024-01-08',
+    agent: {
+      name: 'Florian Hubrich',
+      title: 'Prokurist / Immobilienmakler',
+      email: 'florian.hubrich@immosmart.de',
+      phone: '+49 89 4141888-86',
+    },
   },
   {
     id: '4',
@@ -137,6 +163,12 @@ export const properties: Property[] = [
     completionPercent: 90,
     thumbnail: 'https://immosmart.de/wp-content/uploads/immomakler/attachments/a778be3f2716cc6486df38ff4bfcb5b5/c370ecb5-5137-47f0-9048-c2f8153b5113-900x600.avif',
     createdAt: '2024-01-05',
+    agent: {
+      name: 'Doreen Hesse',
+      title: 'Immobilienmaklerin',
+      email: 'doreen.hesse@immosmart.de',
+      phone: '+49 89 4141888-00',
+    },
   },
   {
     id: '5',
@@ -152,6 +184,12 @@ export const properties: Property[] = [
     completionPercent: 100,
     thumbnail: 'https://immosmart.de/wp-content/uploads/immomakler/attachments/3500dea561948c22f21eacc4d10ebc06/a1f85964-0b13-45a2-b714-8b837e747e28-900x600.avif',
     createdAt: '2024-01-02',
+    agent: {
+      name: 'Florian Hubrich',
+      title: 'Prokurist / Immobilienmakler',
+      email: 'florian.hubrich@immosmart.de',
+      phone: '+49 89 4141888-86',
+    },
   },
   {
     id: '6',
@@ -168,6 +206,12 @@ export const properties: Property[] = [
     completionPercent: 100,
     thumbnail: 'https://immosmart.de/wp-content/uploads/immomakler/attachments/dd80ee0be55a944d68a0d508ee3d3639/76171-900x600.avif',
     createdAt: '2023-12-20',
+    agent: {
+      name: 'Doreen Hesse',
+      title: 'Immobilienmaklerin',
+      email: 'doreen.hesse@immosmart.de',
+      phone: '+49 89 4141888-00',
+    },
   },
   {
     id: '7',
@@ -184,6 +228,12 @@ export const properties: Property[] = [
     completionPercent: 85,
     thumbnail: 'https://immosmart.de/wp-content/uploads/immomakler/attachments/4e41cede93095c3dacd186a326689b50/ae8c1bb9-1a22-4f15-b4ac-33e03088bda5-900x600.avif',
     createdAt: '2024-01-10',
+    agent: {
+      name: 'Florian Hubrich',
+      title: 'Prokurist / Immobilienmakler',
+      email: 'florian.hubrich@immosmart.de',
+      phone: '+49 89 4141888-86',
+    },
   },
   {
     id: '8',
@@ -200,6 +250,12 @@ export const properties: Property[] = [
     completionPercent: 100,
     thumbnail: 'https://immosmart.de/wp-content/uploads/immomakler/attachments/5a057afaa77e6bfdab2832f456cd6c8a/bfb8bd98-6b2b-4a5c-af6e-3e2591e32851-900x600.avif',
     createdAt: '2024-01-03',
+    agent: {
+      name: 'Moritz Kalb',
+      title: 'Immobilienmakler',
+      email: 'moritz.kalb@immosmart.de',
+      phone: '+49 89 4141888-00',
+    },
   },
 ];
 

@@ -407,8 +407,8 @@ export default function PropertyExpose() {
                       setEngagementScore(prev => prev + 50);
                     }
                   }}
-                  agentName="Maria Schmidt"
-                  agentTitle="Immobilienberaterin"
+                  agentName={property.agent?.name || 'Florian Hubrich'}
+                  agentTitle={property.agent?.title || 'Immobilienmakler'}
                 />
               </CardContent>
             </Card>
