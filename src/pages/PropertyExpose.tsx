@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { GatedContentCard } from '@/components/expose/GatedContentCard';
 import { QuickUnlockForm } from '@/components/expose/QuickUnlockForm';
 import { UnlockRewardToast } from '@/components/expose/UnlockRewardToast';
+import { LocationMapSection } from '@/components/expose/LocationMapSection';
 
 // Property images
 import propertyLivingRoom from '@/assets/property-living-room.jpg';
@@ -410,28 +411,12 @@ export default function PropertyExpose() {
             {/* Location */}
             <Card>
               <CardContent className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Lage</h2>
-                <div className="aspect-video rounded-xl bg-muted flex items-center justify-center">
-                  <div className="text-center text-muted-foreground">
-                    <MapPin className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                    <p>Kartenansicht</p>
-                    <p className="text-sm">{property.address}, {property.city}</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-4 mt-4">
-                  <div className="text-center p-3 rounded-lg bg-secondary/30">
-                    <p className="font-semibold">5 Min</p>
-                    <p className="text-sm text-muted-foreground">zur U-Bahn</p>
-                  </div>
-                  <div className="text-center p-3 rounded-lg bg-secondary/30">
-                    <p className="font-semibold">10 Min</p>
-                    <p className="text-sm text-muted-foreground">zum Supermarkt</p>
-                  </div>
-                  <div className="text-center p-3 rounded-lg bg-secondary/30">
-                    <p className="font-semibold">15 Min</p>
-                    <p className="text-sm text-muted-foreground">zum Park</p>
-                  </div>
-                </div>
+                <h2 className="text-xl font-semibold mb-4">Lage & Umgebung</h2>
+                <LocationMapSection 
+                  address={property.address} 
+                  city={property.city}
+                  editable={false}
+                />
               </CardContent>
             </Card>
           </div>
