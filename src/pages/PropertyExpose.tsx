@@ -1,18 +1,15 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, Ruler, BedDouble, Bath, Calendar, Euro, Home, Car, Leaf, Phone, Mail, User, ChevronLeft, ChevronRight, X, Box, Play, Lock, Eye, FileText, TrendingUp, Star, Crown, Gift, Sparkles } from 'lucide-react';
+import { ArrowLeft, MapPin, Ruler, BedDouble, Bath, Calendar, Home, ChevronLeft, ChevronRight, X, Box, Lock, FileText, TrendingUp, Crown, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { properties } from '@/data/dummyData';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { GatedContentCard } from '@/components/expose/GatedContentCard';
-import { QuickUnlockForm } from '@/components/expose/QuickUnlockForm';
 import { UnlockRewardToast } from '@/components/expose/UnlockRewardToast';
 import { LocationMapSection } from '@/components/expose/LocationMapSection';
+import { SignupGamificationCard } from '@/components/expose/SignupGamificationCard';
 
 // Property images
 import propertyLivingRoom from '@/assets/property-living-room.jpg';
@@ -48,7 +45,6 @@ export default function PropertyExpose() {
   const { toast } = useToast();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [contactForm, setContactForm] = useState({ name: '', email: '', phone: '', message: '' });
   
   // Gamification state
   const [unlockLevel, setUnlockLevel] = useState(0);
@@ -56,44 +52,7 @@ export default function PropertyExpose() {
   const [showRewardToast, setShowRewardToast] = useState(false);
   const [lastReward, setLastReward] = useState('');
   const [nextReward, setNextReward] = useState('');
-  const [viewedSections, setViewedSections] = useState<string[]>([]);
-  const [showUnlockPrompt, setShowUnlockPrompt] = useState(false);
-  
-  // Track engagement
   const [engagementScore, setEngagementScore] = useState(0);
-  
-  const rewards = [
-    { level: 1, reward: '3D-Tour & alle Bilder' },
-    { level: 2, reward: 'Grundrisse & Energieausweis' },
-    { level: 3, reward: 'Priority-Status & Preishistorie' }
-  ];
-  
-  // Auto-show unlock prompt after viewing 2 images
-  useEffect(() => {
-    if (viewedSections.length >= 2 && unlockLevel === 0 && !showUnlockPrompt) {
-      setShowUnlockPrompt(true);
-    }
-  }, [viewedSections, unlockLevel, showUnlockPrompt]);
-  
-  const trackSection = (section: string) => {
-    if (!viewedSections.includes(section)) {
-      setViewedSections(prev => [...prev, section]);
-      setEngagementScore(prev => prev + 10);
-    }
-  };
-  
-  const handleUnlock = (level: number, data: { email?: string; phone?: string; name?: string }) => {
-    setUserData(prev => ({ ...prev, ...data }));
-    setUnlockLevel(level);
-    
-    const currentReward = rewards.find(r => r.level === level);
-    const next = rewards.find(r => r.level === level + 1);
-    
-    setLastReward(currentReward?.reward || '');
-    setNextReward(next?.reward || '');
-    setShowRewardToast(true);
-    setEngagementScore(prev => prev + 50);
-  };
   
   const scrollToUnlock = () => {
     document.getElementById('unlock-section')?.scrollIntoView({ behavior: 'smooth' });
@@ -107,15 +66,6 @@ export default function PropertyExpose() {
 
   const prevImage = () => {
     setCurrentImageIndex((prev) => (prev - 1 + propertyImages.length) % propertyImages.length);
-  };
-
-  const handleContactSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast({
-      title: 'Anfrage gesendet',
-      description: 'Vielen Dank für Ihr Interesse! Wir melden uns in Kürze bei Ihnen.',
-    });
-    setContactForm({ name: '', email: '', phone: '', message: '' });
   };
 
   return (
@@ -421,137 +371,35 @@ export default function PropertyExpose() {
             </Card>
           </div>
 
-          {/* Right Column - Contact & Unlock */}
+          {/* Right Column - Combined Signup & Gamification */}
           <div className="space-y-6">
-            {/* Unlock Progress Section */}
-            <Card id="unlock-section" className="border-accent/30 bg-gradient-to-br from-accent/5 to-primary/5">
+            <Card id="unlock-section" className="sticky top-24">
               <CardContent className="p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Sparkles className="h-5 w-5 text-accent" />
-                  <h2 className="text-lg font-semibold">Mehr entdecken</h2>
-                </div>
-                
-                {/* Engagement Score */}
-                <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 mb-4">
-                  <div className="flex items-center gap-2">
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">Ihr Engagement</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 w-20 bg-secondary rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-gradient-to-r from-accent to-primary transition-all duration-500"
-                        style={{ width: `${Math.min(engagementScore, 100)}%` }}
-                      />
-                    </div>
-                    <span className="text-xs font-medium">{engagementScore} Punkte</span>
-                  </div>
-                </div>
-                
-                <QuickUnlockForm 
-                  currentLevel={unlockLevel} 
-                  onUnlock={handleUnlock}
+                <SignupGamificationCard
+                  onProfileUpdate={(profile, level) => {
+                    setUnlockLevel(level);
+                    setUserData({ 
+                      email: profile.email, 
+                      phone: profile.phone, 
+                      name: profile.name 
+                    });
+                    
+                    const rewards = [
+                      '3D-Tour, alle Bilder & Grundrisse',
+                      'Preishistorie & Marktanalyse',
+                      'Priority-Status & Direkte Makler-Linie'
+                    ];
+                    
+                    if (level > 0 && level <= 3) {
+                      setLastReward(rewards[level - 1]);
+                      setNextReward(level < 3 ? rewards[level] : '');
+                      setShowRewardToast(true);
+                      setEngagementScore(prev => prev + 50);
+                    }
+                  }}
+                  agentName="Maria Schmidt"
+                  agentTitle="Immobilienberaterin"
                 />
-                
-                {/* What you unlock */}
-                <div className="mt-4 space-y-2">
-                  <p className="text-xs text-muted-foreground font-medium">Freischaltbare Inhalte:</p>
-                  {[
-                    { level: 1, icon: Box, label: '3D-Tour & alle Bilder', reward: 'E-Mail' },
-                    { level: 2, icon: FileText, label: 'Grundrisse & Energieausweis', reward: 'Telefon' },
-                    { level: 3, icon: Crown, label: 'Priority-Status & Preishistorie', reward: 'Name' },
-                  ].map(item => (
-                    <div 
-                      key={item.level}
-                      className={`flex items-center gap-2 p-2 rounded-lg text-sm transition-colors ${
-                        unlockLevel >= item.level 
-                          ? 'bg-accent/20 text-accent' 
-                          : 'bg-secondary/30 text-muted-foreground'
-                      }`}
-                    >
-                      {unlockLevel >= item.level ? (
-                        <Gift className="h-4 w-4" />
-                      ) : (
-                        <Lock className="h-4 w-4" />
-                      )}
-                      <span className="flex-1">{item.label}</span>
-                      {unlockLevel < item.level && (
-                        <span className="text-xs opacity-70">+ {item.reward}</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="sticky top-24">
-              <CardContent className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Interesse? Kontaktieren Sie uns!</h2>
-                
-                {/* Agent Info */}
-                <div className="flex items-center gap-4 p-4 rounded-xl bg-secondary/50 mb-6">
-                  <div className="w-14 h-14 rounded-full bg-accent/20 flex items-center justify-center">
-                    <User className="h-7 w-7 text-accent" />
-                  </div>
-                  <div>
-                    <p className="font-semibold">Maria Schmidt</p>
-                    <p className="text-sm text-muted-foreground">Immobilienberaterin</p>
-                  </div>
-                </div>
-
-                {/* Contact Form */}
-                <form onSubmit={handleContactSubmit} className="space-y-4">
-                  <div>
-                    <Label htmlFor="name">Name *</Label>
-                    <Input
-                      id="name"
-                      value={contactForm.name}
-                      onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="email">E-Mail *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={contactForm.email}
-                      onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="phone">Telefon</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={contactForm.phone}
-                      onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="message">Nachricht</Label>
-                    <Textarea
-                      id="message"
-                      rows={4}
-                      value={contactForm.message}
-                      onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
-                      placeholder="Ich interessiere mich für diese Immobilie und würde gerne einen Besichtigungstermin vereinbaren..."
-                    />
-                  </div>
-                  <Button type="submit" className="w-full" size="lg">
-                    Anfrage senden
-                  </Button>
-                </form>
-
-                {/* Quick Contact */}
-                <div className="mt-6 pt-6 border-t space-y-3">
-                  <p className="text-sm text-muted-foreground text-center">Oder rufen Sie uns direkt an:</p>
-                  <Button variant="outline" className="w-full gap-2">
-                    <Phone className="h-4 w-4" />
-                    +49 89 123 456 78
-                  </Button>
-                </div>
               </CardContent>
             </Card>
 
