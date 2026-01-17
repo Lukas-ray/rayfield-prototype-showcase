@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { User, Mail, Phone, Calendar, Globe, Instagram, MessageSquare, Star, StarOff, Clock, CheckCircle2 } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { User, Mail, Phone, Calendar, Globe, Instagram, MessageSquare, Star, StarOff, Clock, CheckCircle2, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -89,6 +90,8 @@ const getStatusClass = (status: Lead['status']) => {
 };
 
 export function LeadsTab() {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [leads, setLeads] = useState(initialLeads);
   const [filter, setFilter] = useState<'all' | Lead['status']>('all');
 
@@ -239,9 +242,13 @@ export function LeadsTab() {
                   </div>
                 </div>
                 <div className="flex justify-end gap-2 mt-3 pt-3 border-t">
-                  <Button variant="outline" size="sm">
-                    <Mail className="h-4 w-4 mr-1" />
-                    Antworten
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigate(`/property/${id}/expose`)}
+                  >
+                    <ExternalLink className="h-4 w-4 mr-1" />
+                    Exposé senden
                   </Button>
                   <Button size="sm">
                     <Phone className="h-4 w-4 mr-1" />
