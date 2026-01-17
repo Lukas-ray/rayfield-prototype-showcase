@@ -41,10 +41,10 @@ export function PropertyCard({ property, onClick }: PropertyCardProps) {
 
           <div className="mt-3 flex items-center gap-6 text-sm text-muted-foreground">
             <span>{property.propertyType}</span>
-            <span>{property.rooms} rooms</span>
+            <span>{property.rooms} Zimmer</span>
             <span>{property.area} m²</span>
             <span className="font-medium text-foreground">
-              €{property.price.toLocaleString()}
+              {property.price.toLocaleString('de-DE')} €
             </span>
           </div>
 
@@ -60,7 +60,7 @@ export function PropertyCard({ property, onClick }: PropertyCardProps) {
               </div>
             </div>
             <Button variant="ghost" size="sm" className="gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              Open <ArrowRight className="h-4 w-4" />
+              Öffnen <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -69,7 +69,7 @@ export function PropertyCard({ property, onClick }: PropertyCardProps) {
       {/* Next Action */}
       <div className="mt-3 pt-3 border-t">
         <p className="text-sm">
-          <span className="text-muted-foreground">Next: </span>
+          <span className="text-muted-foreground">Nächster Schritt: </span>
           <span className="font-medium text-accent">{property.nextAction}</span>
         </p>
       </div>

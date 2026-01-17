@@ -6,16 +6,16 @@ interface PipelineVisualizationProps {
 }
 
 const steps = [
-  { id: 1, name: 'Scan Once', description: 'Capture property data', icon: Scan },
-  { id: 2, name: 'Property Record', description: 'Structured data store', icon: Database },
-  { id: 3, name: 'Capture Agents', description: 'Generate marketing assets', icon: Camera },
-  { id: 4, name: 'Workflow Agents', description: 'Execute operations', icon: Workflow },
+  { id: 1, name: 'Einmal scannen', description: 'Objektdaten erfassen', icon: Scan },
+  { id: 2, name: 'Objektdatensatz', description: 'Strukturierte Daten', icon: Database },
+  { id: 3, name: 'Capture Agents', description: 'Marketing-Assets erstellen', icon: Camera },
+  { id: 4, name: 'Workflow Agents', description: 'Prozesse ausführen', icon: Workflow },
 ];
 
 export function PipelineVisualization({ currentStep }: PipelineVisualizationProps) {
   return (
     <div className="workspace-card">
-      <h3 className="font-semibold mb-4">Value Pipeline</h3>
+      <h3 className="font-semibold mb-4">Wertschöpfungs-Pipeline</h3>
       <div className="flex items-center justify-between">
         {steps.map((step, index) => (
           <div key={step.id} className="flex items-center">

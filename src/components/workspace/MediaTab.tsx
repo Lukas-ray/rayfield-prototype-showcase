@@ -40,12 +40,12 @@ export function MediaTab() {
     shortDescription: 'Traumhafte Altbauwohnung mit Stuck, Dielen und Balkon in bester Lage.',
     longDescription: 'Diese wunderschöne 3-Zimmer Wohnung besticht durch ihren klassischen Altbaucharme mit hohen Decken, originalen Stuckelementen und gepflegten Dielenböden. Die großzügige Wohnfläche von 85 m² verteilt sich optimal auf Wohnzimmer, Schlafzimmer, Arbeitszimmer sowie eine moderne Einbauküche. Der sonnige Südbalkon lädt zum Verweilen ein.',
     fields: [
-      { name: 'Living Area', value: '85 m²', source: 'scan' },
-      { name: 'Rooms', value: '3', source: 'scan' },
-      { name: 'Floor', value: '3rd of 5', source: 'scan' },
-      { name: 'Year Built', value: '1998', source: 'document' },
-      { name: 'Heating', value: 'District heating', source: 'scan' },
-      { name: 'Parking', value: 'Street parking', source: 'manual' },
+      { name: 'Wohnfläche', value: '85 m²', source: 'scan' },
+      { name: 'Zimmer', value: '3', source: 'scan' },
+      { name: 'Etage', value: '3 von 5', source: 'scan' },
+      { name: 'Baujahr', value: '1998', source: 'dokument' },
+      { name: 'Heizung', value: 'Fernwärme', source: 'scan' },
+      { name: 'Parken', value: 'Straßenparken', source: 'manuell' },
     ],
   };
 
@@ -54,8 +54,8 @@ export function MediaTab() {
       setExportDialogOpen(false);
       setSelectedPreset(null);
       toast({
-        title: 'Export generated',
-        description: `${selectedPreset} package has been created and added to exports.`,
+        title: 'Export generiert',
+        description: `${selectedPreset}-Paket wurde erstellt und zu den Exporten hinzugefügt.`,
       });
     }
   };
@@ -66,19 +66,19 @@ export function MediaTab() {
       <div className="flex items-center justify-between">
         <Tabs value={variant} onValueChange={(v) => setVariant(v as typeof variant)}>
           <TabsList>
-            <TabsTrigger value="hero">Hero Set</TabsTrigger>
-            <TabsTrigger value="portal">Portal Set</TabsTrigger>
+            <TabsTrigger value="hero">Hero-Set</TabsTrigger>
+            <TabsTrigger value="portal">Portal-Set</TabsTrigger>
             <TabsTrigger value="social">Social Reels</TabsTrigger>
           </TabsList>
         </Tabs>
         <div className="flex gap-2">
           <Button onClick={() => setListingDialogOpen(true)} className="gap-2">
             <Play className="h-4 w-4" />
-            Run Listing Factory Agent
+            Listing Factory Agent starten
           </Button>
           <Button variant="outline" onClick={() => setExportDialogOpen(true)} className="gap-2">
             <Download className="h-4 w-4" />
-            Export Bundle
+            Bundle exportieren
           </Button>
         </div>
       </div>
@@ -99,7 +99,7 @@ export function MediaTab() {
                 )}
                 {item.status === 'processing' && (
                   <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
-                    <span className="text-xs font-medium text-muted-foreground">Processing...</span>
+                    <span className="text-xs font-medium text-muted-foreground">Wird verarbeitet...</span>
                   </div>
                 )}
               </div>
@@ -114,36 +114,36 @@ export function MediaTab() {
       <Dialog open={listingDialogOpen} onOpenChange={setListingDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Listing Factory Agent Output</DialogTitle>
+            <DialogTitle>Listing Factory Agent - Ergebnis</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="p-4 rounded-lg bg-secondary/50">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">Suggested Title</span>
-                <span className="evidence-badge">AI Generated</span>
+                <span className="text-sm font-medium">Vorgeschlagener Titel</span>
+                <span className="evidence-badge">KI-generiert</span>
               </div>
               <p className="font-semibold">{listingOutput.title}</p>
             </div>
             
             <div className="p-4 rounded-lg bg-secondary/50">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">Short Description</span>
-                <span className="evidence-badge">AI Generated</span>
+                <span className="text-sm font-medium">Kurzbeschreibung</span>
+                <span className="evidence-badge">KI-generiert</span>
               </div>
               <p className="text-sm">{listingOutput.shortDescription}</p>
             </div>
 
             <div className="p-4 rounded-lg bg-secondary/50">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">Long Description</span>
-                <span className="evidence-badge">AI Generated</span>
+                <span className="text-sm font-medium">Langbeschreibung</span>
+                <span className="evidence-badge">KI-generiert</span>
               </div>
               <p className="text-sm">{listingOutput.longDescription}</p>
             </div>
 
             <div className="p-4 rounded-lg bg-secondary/50">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">Structured Fields</span>
+                <span className="text-sm font-medium">Strukturierte Felder</span>
               </div>
               <div className="grid grid-cols-3 gap-2">
                 {listingOutput.fields.map((field, i) => (
@@ -165,11 +165,11 @@ export function MediaTab() {
       <Dialog open={exportDialogOpen} onOpenChange={setExportDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Export Bundle</DialogTitle>
+            <DialogTitle>Bundle exportieren</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">Choose a portal preset:</p>
-            {['Generic', 'ImmoScout24', 'Kleinanzeigen'].map((preset) => (
+            <p className="text-sm text-muted-foreground">Portal-Vorlage auswählen:</p>
+            {['Generisch', 'ImmoScout24', 'Kleinanzeigen'].map((preset) => (
               <div
                 key={preset}
                 onClick={() => setSelectedPreset(preset)}
@@ -188,7 +188,7 @@ export function MediaTab() {
             ))}
           </div>
           <Button onClick={handleExport} disabled={!selectedPreset} className="w-full mt-4">
-            Generate Export
+            Export generieren
           </Button>
         </DialogContent>
       </Dialog>

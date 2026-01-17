@@ -8,12 +8,12 @@ interface EvidenceItem {
 }
 
 const evidenceItems: EvidenceItem[] = [
-  { fact: 'Living Area', source: 'scan', value: '85 m²' },
-  { fact: 'Room Count', source: 'scan', value: '3 rooms' },
-  { fact: 'Year Built', source: 'document', value: '1998' },
-  { fact: 'Energy Class', source: 'document', value: 'C' },
-  { fact: 'Floor Level', source: 'scan', value: '3rd floor' },
-  { fact: 'Balcony Size', source: 'manual', value: '8 m²' },
+  { fact: 'Wohnfläche', source: 'scan', value: '85 m²' },
+  { fact: 'Zimmeranzahl', source: 'scan', value: '3 Zimmer' },
+  { fact: 'Baujahr', source: 'document', value: '1998' },
+  { fact: 'Energieklasse', source: 'document', value: 'C' },
+  { fact: 'Etage', source: 'scan', value: '3. OG' },
+  { fact: 'Balkongröße', source: 'manual', value: '8 m²' },
 ];
 
 const sourceIcons = {
@@ -24,16 +24,16 @@ const sourceIcons = {
 
 const sourceLabels = {
   scan: 'Scan',
-  document: 'Document',
-  manual: 'Manual',
+  document: 'Dokument',
+  manual: 'Manuell',
 };
 
 export function EvidenceSection() {
   return (
     <div className="workspace-card">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold">Evidence-First Data</h3>
-        <span className="text-xs text-muted-foreground">All facts are traceable</span>
+        <h3 className="font-semibold">Evidenzbasierte Daten</h3>
+        <span className="text-xs text-muted-foreground">Alle Fakten sind nachverfolgbar</span>
       </div>
       <div className="grid grid-cols-2 gap-3">
         {evidenceItems.map((item, index) => {

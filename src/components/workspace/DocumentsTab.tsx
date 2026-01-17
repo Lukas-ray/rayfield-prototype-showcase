@@ -12,10 +12,10 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
 const statusConfig = {
-  missing: { icon: AlertCircle, label: 'Missing', class: 'text-destructive' },
-  requested: { icon: Clock, label: 'Requested', class: 'text-warning' },
-  received: { icon: FileText, label: 'Received', class: 'text-info' },
-  verified: { icon: Check, label: 'Verified', class: 'text-success' },
+  missing: { icon: AlertCircle, label: 'Fehlt', class: 'text-destructive' },
+  requested: { icon: Clock, label: 'Angefordert', class: 'text-warning' },
+  received: { icon: FileText, label: 'Erhalten', class: 'text-info' },
+  verified: { icon: Check, label: 'Verifiziert', class: 'text-success' },
 };
 
 interface AgentResult {
@@ -32,9 +32,9 @@ export function DocumentsTab() {
 
   const agentResult: AgentResult = {
     classified: [
-      { name: 'grundbuch_scan.pdf', type: 'Land Registry' },
-      { name: 'energie.pdf', type: 'Energy Certificate' },
-      { name: 'wplan_2024.pdf', type: 'Economic Plan' },
+      { name: 'grundbuch_scan.pdf', type: 'Grundbuch' },
+      { name: 'energie.pdf', type: 'Energieausweis' },
+      { name: 'wplan_2024.pdf', type: 'Wirtschaftsplan' },
     ],
     missing: ['Energieausweis', 'Protokolle Eigentümerversammlung', 'Mietvertrag'],
   };
@@ -45,7 +45,7 @@ export function DocumentsTab() {
     setPreviewFile({
       original: 'hausgeld_jan2024.pdf',
       suggested: 'Hausgeldabrechnung_Muellerstr42_2024.pdf',
-      type: 'Service Charge Statement',
+      type: 'Hausgeldabrechnung',
     });
     setShowUploadPreview(true);
   };
@@ -53,30 +53,30 @@ export function DocumentsTab() {
   const handleConfirmUpload = () => {
     setShowUploadPreview(false);
     toast({
-      title: 'Document uploaded',
-      description: 'File has been classified and renamed.',
+      title: 'Dokument hochgeladen',
+      description: 'Datei wurde klassifiziert und umbenannt.',
     });
   };
 
   const handleGenerateRequest = () => {
     toast({
-      title: 'Request message generated',
-      description: 'Email draft created for missing documents.',
+      title: 'Anfragenachricht generiert',
+      description: 'E-Mail-Entwurf für fehlende Dokumente erstellt.',
     });
   };
 
   const handleGenerateBuyerPack = () => {
     toast({
-      title: 'Buyer Safe Pack generated',
-      description: 'Document package ready for download.',
+      title: 'Käufer-Dokumentenpaket generiert',
+      description: 'Dokumentenpaket steht zum Download bereit.',
     });
   };
 
   const copyUploadLink = () => {
     navigator.clipboard.writeText('https://upload.rayfield.io/p/abc123');
     toast({
-      title: 'Link copied',
-      description: 'Seller upload link copied to clipboard.',
+      title: 'Link kopiert',
+      description: 'Verkäufer-Upload-Link in die Zwischenablage kopiert.',
     });
   };
 
@@ -85,10 +85,10 @@ export function DocumentsTab() {
       {/* Document Checklist */}
       <div className="col-span-2 workspace-card">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold">Document Checklist</h3>
+          <h3 className="font-semibold">Dokumenten-Checkliste</h3>
           <Button onClick={() => setAgentDialogOpen(true)} className="gap-2">
             <Play className="h-4 w-4" />
-            Run Document Pack Agent
+            Document Pack Agent starten
           </Button>
         </div>
         
@@ -123,7 +123,7 @@ export function DocumentsTab() {
       <div className="space-y-6">
         {/* Upload Area */}
         <div className="workspace-card">
-          <h3 className="font-semibold mb-4">Upload Documents</h3>
+          <h3 className="font-semibold mb-4">Dokumente hochladen</h3>
           <div
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
@@ -131,21 +131,21 @@ export function DocumentsTab() {
           >
             <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
             <p className="text-sm text-muted-foreground">
-              Drop files here or click to browse
+              Dateien hier ablegen oder klicken zum Durchsuchen
             </p>
           </div>
         </div>
 
         {/* External Portal Link */}
         <div className="workspace-card">
-          <h3 className="font-semibold mb-4">Seller Upload Portal</h3>
+          <h3 className="font-semibold mb-4">Verkäufer-Upload-Portal</h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Share this link with sellers or Hausverwaltung to request documents.
+            Teilen Sie diesen Link mit Verkäufern oder der Hausverwaltung, um Dokumente anzufordern.
           </p>
           <div className="flex gap-2">
             <Button variant="outline" onClick={copyUploadLink} className="flex-1 gap-2">
               <Link className="h-4 w-4" />
-              Copy Link
+              Link kopieren
             </Button>
             <Button variant="outline" asChild>
               <a href="/external-upload" target="_blank">
@@ -160,24 +160,24 @@ export function DocumentsTab() {
       <Dialog open={showUploadPreview} onOpenChange={setShowUploadPreview}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Document Classification Preview</DialogTitle>
+            <DialogTitle>Dokumentenklassifizierung - Vorschau</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="p-4 rounded-lg bg-secondary/50">
-              <p className="text-sm text-muted-foreground">Original filename</p>
+              <p className="text-sm text-muted-foreground">Originaler Dateiname</p>
               <p className="font-medium">{previewFile.original}</p>
             </div>
             <div className="flex items-center justify-center">
               <span className="text-muted-foreground">↓</span>
             </div>
             <div className="p-4 rounded-lg bg-accent/10 border border-accent">
-              <p className="text-sm text-muted-foreground">Suggested name</p>
+              <p className="text-sm text-muted-foreground">Vorgeschlagener Name</p>
               <p className="font-medium">{previewFile.suggested}</p>
-              <p className="text-sm text-accent mt-1">Type: {previewFile.type}</p>
+              <p className="text-sm text-accent mt-1">Typ: {previewFile.type}</p>
             </div>
           </div>
           <Button onClick={handleConfirmUpload} className="w-full mt-4">
-            Confirm & Upload
+            Bestätigen & Hochladen
           </Button>
         </DialogContent>
       </Dialog>
@@ -186,11 +186,11 @@ export function DocumentsTab() {
       <Dialog open={agentDialogOpen} onOpenChange={setAgentDialogOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Document Pack Agent Results</DialogTitle>
+            <DialogTitle>Document Pack Agent - Ergebnisse</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <h4 className="font-medium mb-2">Classified Documents</h4>
+              <h4 className="font-medium mb-2">Klassifizierte Dokumente</h4>
               <div className="space-y-2">
                 {agentResult.classified.map((doc, i) => (
                   <div key={i} className="flex items-center justify-between p-2 rounded bg-secondary/50">
@@ -201,7 +201,7 @@ export function DocumentsTab() {
               </div>
             </div>
             <div>
-              <h4 className="font-medium mb-2">Missing Documents</h4>
+              <h4 className="font-medium mb-2">Fehlende Dokumente</h4>
               <div className="space-y-2">
                 {agentResult.missing.map((doc, i) => (
                   <div key={i} className="flex items-center gap-2 p-2 rounded bg-destructive/10">
@@ -214,11 +214,11 @@ export function DocumentsTab() {
             <div className="flex gap-2">
               <Button onClick={handleGenerateRequest} variant="outline" className="flex-1 gap-2">
                 <Send className="h-4 w-4" />
-                Generate Request Message
+                Anfragenachricht generieren
               </Button>
               <Button onClick={handleGenerateBuyerPack} className="flex-1 gap-2">
                 <FileText className="h-4 w-4" />
-                Generate Buyer Safe Pack
+                Käufer-Paket generieren
               </Button>
             </div>
           </div>

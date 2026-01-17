@@ -12,9 +12,9 @@ interface Message {
 }
 
 const suggestedQuestions = [
-  { text: "What's missing to publish?", navigateTo: 'workflow' },
-  { text: "Generate request message for docs", navigateTo: 'documents' },
-  { text: "Show me the latest agent output", navigateTo: 'overview' },
+  { text: "Was fehlt zur Veröffentlichung?", navigateTo: 'workflow' },
+  { text: "Anfragenachricht für Dokumente erstellen", navigateTo: 'documents' },
+  { text: "Zeige die letzte Agent-Ausgabe", navigateTo: 'overview' },
 ];
 
 export function AskRayfieldWidget() {
@@ -22,7 +22,7 @@ export function AskRayfieldWidget() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Hi! I'm your Rayfield assistant. I can help you understand this property's status and take actions.",
+      content: "Hallo! Ich bin Ihr Rayfield-Assistent. Ich kann Ihnen helfen, den Status dieses Objekts zu verstehen und Aktionen durchzuführen.",
     },
   ]);
   const [input, setInput] = useState('');
@@ -42,23 +42,23 @@ export function AskRayfieldWidget() {
     // Simulate AI response
     setTimeout(() => {
       let response: Message;
-      if (userMessage.toLowerCase().includes('missing') || userMessage.toLowerCase().includes('publish')) {
+      if (userMessage.toLowerCase().includes('fehlt') || userMessage.toLowerCase().includes('veröffentlich')) {
         response = {
           role: 'assistant',
-          content: "To publish this property, you still need: 1) Energieausweis document, 2) Complete the Minimum doc pack gate. The hero photos and floor plan requirements are already met.",
-          source: 'property_record',
-          link: { label: 'View Workflow', tab: 'workflow' },
+          content: "Um dieses Objekt zu veröffentlichen, benötigen Sie noch: 1) Energieausweis-Dokument, 2) Mindest-Dokumentenpaket-Gate erfüllen. Die Hero-Fotos und der Grundriss sind bereits vorhanden.",
+          source: 'objektdatensatz',
+          link: { label: 'Workflow anzeigen', tab: 'workflow' },
         };
-      } else if (userMessage.toLowerCase().includes('request') || userMessage.toLowerCase().includes('message')) {
+      } else if (userMessage.toLowerCase().includes('anfrage') || userMessage.toLowerCase().includes('nachricht')) {
         response = {
           role: 'assistant',
-          content: "I've prepared a request message for the missing documents. You can find it in the Documents tab under 'Generate Request Message'.",
-          link: { label: 'Go to Documents', tab: 'documents' },
+          content: "Ich habe eine Anfragenachricht für die fehlenden Dokumente vorbereitet. Sie finden sie im Dokumente-Tab unter 'Anfragenachricht generieren'.",
+          link: { label: 'Zu Dokumente', tab: 'documents' },
         };
       } else {
         response = {
           role: 'assistant',
-          content: "I can help you with workflow status, document requests, and property information. Try asking about what's needed to publish or generate request messages.",
+          content: "Ich kann Ihnen bei Workflow-Status, Dokumentenanforderungen und Objektinformationen helfen. Fragen Sie mich, was zur Veröffentlichung fehlt oder lassen Sie Anfragenachrichten generieren.",
         };
       }
       setMessages(prev => [...prev, response]);
@@ -70,25 +70,25 @@ export function AskRayfieldWidget() {
     
     setTimeout(() => {
       let response: Message;
-      if (suggestion.text.includes('missing')) {
+      if (suggestion.text.includes('fehlt')) {
         response = {
           role: 'assistant',
-          content: "To move to Published state, you need: ✓ Hero photos (met), ✓ Floor plan (met), ✗ Minimum doc pack (not met - missing Energieausweis).",
+          content: "Um zum Status 'Veröffentlicht' zu gelangen, benötigen Sie: ✓ Hero-Fotos (erfüllt), ✓ Grundriss (erfüllt), ✗ Mindest-Dokumentenpaket (nicht erfüllt - Energieausweis fehlt).",
           source: 'workflow_gates',
-          link: { label: 'View Gates', tab: 'workflow' },
+          link: { label: 'Gates anzeigen', tab: 'workflow' },
         };
-      } else if (suggestion.text.includes('request')) {
+      } else if (suggestion.text.includes('Anfrage')) {
         response = {
           role: 'assistant',
-          content: "I can generate an email requesting the Energieausweis and Protokolle from the Hausverwaltung. Click below to go to Documents and generate it.",
-          link: { label: 'Generate in Documents', tab: 'documents' },
+          content: "Ich kann eine E-Mail zur Anforderung des Energieausweises und der Protokolle von der Hausverwaltung erstellen. Klicken Sie unten, um zu Dokumente zu gehen und sie zu generieren.",
+          link: { label: 'In Dokumente generieren', tab: 'documents' },
         };
       } else {
         response = {
           role: 'assistant',
-          content: "The latest agent run was Listing Factory Agent at 14:32 today. It generated 3 listing variants and extracted 12 structured fields from the scan.",
+          content: "Der letzte Agent-Lauf war der Listing Factory Agent heute um 14:32. Er hat 3 Inseratsvarianten generiert und 12 strukturierte Felder aus dem Scan extrahiert.",
           source: 'agent_runs',
-          link: { label: 'View Output', tab: 'media' },
+          link: { label: 'Ausgabe anzeigen', tab: 'media' },
         };
       }
       setMessages(prev => [...prev, response]);
@@ -117,8 +117,8 @@ export function AskRayfieldWidget() {
         <div className="fixed bottom-24 right-6 w-96 bg-card rounded-xl shadow-modal border z-50 animate-slide-up">
           {/* Header */}
           <div className="p-4 border-b">
-            <h3 className="font-semibold">Ask Rayfield</h3>
-            <p className="text-xs text-muted-foreground">AI assistant for this property</p>
+            <h3 className="font-semibold">Rayfield fragen</h3>
+            <p className="text-xs text-muted-foreground">KI-Assistent für dieses Objekt</p>
           </div>
 
           {/* Messages */}
@@ -160,7 +160,7 @@ export function AskRayfieldWidget() {
           {/* Input */}
           <div className="p-4 border-t flex gap-2">
             <Input
-              placeholder="Ask about this property..."
+              placeholder="Fragen zu diesem Objekt..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}

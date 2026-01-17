@@ -23,7 +23,7 @@ export function TopBar({ currentProperty, onPropertyChange }: TopBarProps) {
       <div className="relative w-80">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search properties, documents, leads..."
+          placeholder="Objekte, Dokumente, Leads suchen..."
           className="pl-10 bg-secondary border-0"
         />
       </div>
@@ -36,7 +36,7 @@ export function TopBar({ currentProperty, onPropertyChange }: TopBarProps) {
               <Button variant="outline" className="gap-2">
                 <Building2 className="h-4 w-4" />
                 <span className="max-w-[200px] truncate">
-                  {selectedProperty ? selectedProperty.address : 'Select property'}
+                  {selectedProperty ? selectedProperty.address : 'Objekt auswählen'}
                 </span>
                 <ChevronDown className="h-4 w-4" />
               </Button>

@@ -38,8 +38,8 @@ const Index = () => {
       city: 'Berlin',
       propertyType: data.propertyType,
       workflowState: 'draft' as WorkflowState,
-      lastActivity: 'Just now',
-      nextAction: 'Upload capture scan',
+      lastActivity: 'Gerade eben',
+      nextAction: 'Capture-Scan hochladen',
       clientName: data.clientName || undefined,
       price: 0,
       area: 0,
@@ -52,8 +52,8 @@ const Index = () => {
     setProperties([newProperty, ...properties]);
     setCreateDialogOpen(false);
     toast({
-      title: 'Property created',
-      description: `${data.address} has been added to your workspace.`,
+      title: 'Objekt erstellt',
+      description: `${data.address} wurde zu Ihrem Arbeitsbereich hinzugefügt.`,
     });
     navigate(`/property/${newProperty.id}`);
   };
@@ -64,14 +64,14 @@ const Index = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Properties</h1>
+            <h1 className="text-2xl font-bold text-foreground">Objekte</h1>
             <p className="text-muted-foreground mt-1">
-              {properties.length} properties · {properties.filter(p => p.workflowState === 'inquiries_active').length} with active inquiries
+              {properties.length} Objekte · {properties.filter(p => p.workflowState === 'inquiries_active').length} mit aktiven Anfragen
             </p>
           </div>
           <Button onClick={() => setCreateDialogOpen(true)} className="gap-2">
             <Plus className="h-4 w-4" />
-            Create Property
+            Objekt erstellen
           </Button>
         </div>
 
@@ -80,19 +80,19 @@ const Index = () => {
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search properties..."
+              placeholder="Objekte suchen..."
               className="pl-10"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           <Select value={filter} onValueChange={setFilter}>
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-[220px]">
               <Filter className="h-4 w-4 mr-2" />
-              <SelectValue placeholder="All states" />
+              <SelectValue placeholder="Alle Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All States</SelectItem>
+              <SelectItem value="all">Alle Status</SelectItem>
               <SelectItem value="draft">{getWorkflowStateLabel('draft')}</SelectItem>
               <SelectItem value="capture_processing">{getWorkflowStateLabel('capture_processing')}</SelectItem>
               <SelectItem value="docs_missing">{getWorkflowStateLabel('docs_missing')}</SelectItem>
@@ -116,7 +116,7 @@ const Index = () => {
 
         {filteredProperties.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">No properties found matching your criteria.</p>
+            <p className="text-muted-foreground">Keine Objekte gefunden, die Ihren Kriterien entsprechen.</p>
           </div>
         )}
       </div>

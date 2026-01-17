@@ -24,7 +24,7 @@ export default function Admin() {
       <div className="max-w-6xl mx-auto">
         <div className="mb-6">
           <h1 className="text-2xl font-bold">Admin</h1>
-          <p className="text-muted-foreground">System configuration and settings</p>
+          <p className="text-muted-foreground">Systemkonfiguration und Einstellungen</p>
         </div>
 
         <div className="grid grid-cols-2 gap-6">
@@ -33,11 +33,11 @@ export default function Admin() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <FileText className="h-5 w-5 text-muted-foreground" />
-                <h3 className="font-semibold">Checklist Templates</h3>
+                <h3 className="font-semibold">Checklisten-Vorlagen</h3>
               </div>
               <Button size="sm" variant="outline">
                 <Plus className="h-4 w-4 mr-1" />
-                Add
+                Hinzufügen
               </Button>
             </div>
             <div className="space-y-3">
@@ -45,7 +45,7 @@ export default function Admin() {
                 <div key={template.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
                   <div>
                     <p className="font-medium">{template.name}</p>
-                    <p className="text-xs text-muted-foreground">{template.items} items</p>
+                    <p className="text-xs text-muted-foreground">{template.items} Einträge</p>
                   </div>
                   <Switch
                     checked={template.active}
@@ -60,25 +60,25 @@ export default function Admin() {
           <div className="workspace-card">
             <div className="flex items-center gap-2 mb-4">
               <Settings className="h-5 w-5 text-muted-foreground" />
-              <h3 className="font-semibold">Naming Conventions</h3>
+              <h3 className="font-semibold">Benennungskonventionen</h3>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="text-sm text-muted-foreground">Document Pattern</label>
+                <label className="text-sm text-muted-foreground">Dokumenten-Muster</label>
                 <Input
-                  defaultValue="{DocType}_{Address}_{Year}.pdf"
+                  defaultValue="{DokTyp}_{Adresse}_{Jahr}.pdf"
                   className="mt-1 font-mono text-sm"
                 />
               </div>
               <div>
-                <label className="text-sm text-muted-foreground">Media Pattern</label>
+                <label className="text-sm text-muted-foreground">Medien-Muster</label>
                 <Input
-                  defaultValue="{PropertyID}_{Room}_{Variant}_{Seq}.jpg"
+                  defaultValue="{ObjektID}_{Raum}_{Variante}_{Nr}.jpg"
                   className="mt-1 font-mono text-sm"
                 />
               </div>
               <div className="p-3 rounded-lg bg-secondary/50">
-                <p className="text-xs text-muted-foreground mb-1">Preview:</p>
+                <p className="text-xs text-muted-foreground mb-1">Vorschau:</p>
                 <p className="text-sm font-mono">Grundbuchauszug_Muellerstr42_2024.pdf</p>
               </div>
             </div>
@@ -89,11 +89,11 @@ export default function Admin() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <FileText className="h-5 w-5 text-muted-foreground" />
-                <h3 className="font-semibold">Export Presets</h3>
+                <h3 className="font-semibold">Export-Vorlagen</h3>
               </div>
               <Button size="sm" variant="outline">
                 <Plus className="h-4 w-4 mr-1" />
-                Add
+                Hinzufügen
               </Button>
             </div>
             <div className="space-y-3">
@@ -101,7 +101,7 @@ export default function Admin() {
                 <div key={preset.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
                   <div>
                     <p className="font-medium">{preset.name}</p>
-                    <p className="text-xs text-muted-foreground">{preset.fields} fields mapped</p>
+                    <p className="text-xs text-muted-foreground">{preset.fields} Felder zugeordnet</p>
                   </div>
                   <Switch
                     checked={preset.active}
@@ -117,11 +117,11 @@ export default function Admin() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Shield className="h-5 w-5 text-muted-foreground" />
-                <h3 className="font-semibold">Roles & Permissions</h3>
+                <h3 className="font-semibold">Rollen & Berechtigungen</h3>
               </div>
               <Button size="sm" variant="outline">
                 <Plus className="h-4 w-4 mr-1" />
-                Add Role
+                Rolle hinzufügen
               </Button>
             </div>
             <div className="space-y-3">
@@ -132,7 +132,7 @@ export default function Admin() {
                       <Users className="h-4 w-4 text-muted-foreground" />
                       <p className="font-medium">{role.name}</p>
                     </div>
-                    <span className="text-xs text-muted-foreground">{role.users} users</span>
+                    <span className="text-xs text-muted-foreground">{role.users} Benutzer</span>
                   </div>
                   <div className="flex flex-wrap gap-1">
                     {role.permissions.map((perm) => (
