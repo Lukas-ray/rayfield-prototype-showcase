@@ -4,6 +4,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import PropertyWorkspace from "./pages/PropertyWorkspace";
+import Documents from "./pages/Documents";
+import Publishing from "./pages/Publishing";
+import Leads from "./pages/Leads";
+import Admin from "./pages/Admin";
+import ExternalUpload from "./pages/ExternalUpload";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -16,7 +22,12 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/property/:id" element={<PropertyWorkspace />} />
+          <Route path="/documents" element={<Documents />} />
+          <Route path="/publishing" element={<Publishing />} />
+          <Route path="/leads" element={<Leads />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/external-upload" element={<ExternalUpload />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
