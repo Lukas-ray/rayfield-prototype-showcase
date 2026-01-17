@@ -15,8 +15,8 @@ export function ActivityTab() {
   return (
     <div className="workspace-card max-w-3xl">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="font-semibold">Aktivitäts-Timeline</h3>
-        <span className="text-xs text-muted-foreground">Unveränderliches Audit-Log</span>
+        <h3 className="font-semibold">Audit-Log</h3>
+        <span className="text-xs text-muted-foreground">Unveränderliches Protokoll aller Aktionen</span>
       </div>
 
       <div className="relative">

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, Home, Euro, Ruler, BedDouble, Bath, Calendar, User, Phone, Mail, Building2, ExternalLink, TrendingUp, Users } from 'lucide-react';
+import { ArrowLeft, MapPin, Home, Euro, Ruler, BedDouble, Bath, Calendar, User, Phone, Mail, Building2, ExternalLink, TrendingUp, Users, Lock, ClipboardList } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -26,6 +26,9 @@ export default function PropertyWorkspace() {
 
   const property = properties.find(p => p.id === id) || properties[0];
   const pendingTasks = tasks.filter(t => t.status !== 'completed');
+
+  // Check if property is published (has active inquiries or is under offer)
+  const isPublished = property.workflowState === 'inquiries_active' || property.workflowState === 'under_offer';
 
   // Determine pipeline step based on workflow state
   const getPipelineStep = () => {
@@ -98,15 +101,28 @@ export default function PropertyWorkspace() {
             <TabsTrigger value="capture">Capture</TabsTrigger>
             <TabsTrigger value="media">Medien</TabsTrigger>
             <TabsTrigger value="documents">Dokumente</TabsTrigger>
-            <TabsTrigger value="performance" className="gap-1.5">
+            <TabsTrigger 
+              value="performance" 
+              className="gap-1.5"
+              disabled={!isPublished}
+            >
+              {!isPublished && <Lock className="h-3 w-3" />}
               <TrendingUp className="h-4 w-4" />
               Performance
             </TabsTrigger>
-            <TabsTrigger value="leads" className="gap-1.5">
+            <TabsTrigger 
+              value="leads" 
+              className="gap-1.5"
+              disabled={!isPublished}
+            >
+              {!isPublished && <Lock className="h-3 w-3" />}
               <Users className="h-4 w-4" />
               Leads
             </TabsTrigger>
-            <TabsTrigger value="activity">Aktivität</TabsTrigger>
+            <TabsTrigger value="audit" className="gap-1.5">
+              <ClipboardList className="h-4 w-4" />
+              Audit-Log
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6 animate-fade-in">
@@ -268,14 +284,34 @@ export default function PropertyWorkspace() {
           </TabsContent>
 
           <TabsContent value="performance" className="animate-fade-in">
-            <PerformanceTab />
+            {isPublished ? (
+              <PerformanceTab />
+            ) : (
+              <div className="workspace-card text-center py-12">
+                <Lock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Performance-Daten nicht verfügbar</h3>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  Performance-Statistiken werden erst angezeigt, wenn das Objekt veröffentlicht wurde und aktive Anfragen vorliegen.
+                </p>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="leads" className="animate-fade-in">
-            <LeadsTab />
+            {isPublished ? (
+              <LeadsTab />
+            ) : (
+              <div className="workspace-card text-center py-12">
+                <Lock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Leads nicht verfügbar</h3>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  Leads werden erst angezeigt, wenn das Objekt veröffentlicht wurde. Schließen Sie zunächst die Objektaufnahme ab.
+                </p>
+              </div>
+            )}
           </TabsContent>
 
-          <TabsContent value="activity" className="animate-fade-in">
+          <TabsContent value="audit" className="animate-fade-in">
             <ActivityTab />
           </TabsContent>
         </Tabs>
