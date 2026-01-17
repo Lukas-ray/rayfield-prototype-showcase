@@ -1,0 +1,396 @@
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, MapPin, Ruler, BedDouble, Bath, Calendar, Euro, Home, Car, Leaf, Phone, Mail, User, ChevronLeft, ChevronRight, X, Box, Play } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { properties } from '@/data/dummyData';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
+
+// Property images
+import propertyLivingRoom from '@/assets/property-living-room.jpg';
+import propertyKitchen from '@/assets/property-kitchen.jpg';
+import propertyBedroom from '@/assets/property-bedroom.jpg';
+import propertyBathroom from '@/assets/property-bathroom.jpg';
+import propertyBalcony from '@/assets/property-balcony.jpg';
+import propertyExterior from '@/assets/property-exterior.jpg';
+
+const propertyImages = [
+  { src: propertyLivingRoom, label: 'Wohnzimmer' },
+  { src: propertyKitchen, label: 'Küche' },
+  { src: propertyBedroom, label: 'Schlafzimmer' },
+  { src: propertyBathroom, label: 'Badezimmer' },
+  { src: propertyBalcony, label: 'Balkon' },
+  { src: propertyExterior, label: 'Außenansicht' },
+];
+
+const features = [
+  'Einbauküche',
+  'Parkett',
+  'Fußbodenheizung',
+  'Balkon/Terrasse',
+  'Aufzug',
+  'Tiefgarage',
+  'Keller',
+  'Gäste-WC',
+];
+
+export default function PropertyExpose() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [contactForm, setContactForm] = useState({ name: '', email: '', phone: '', message: '' });
+
+  const property = properties.find(p => p.id === id) || properties[0];
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % propertyImages.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + propertyImages.length) % propertyImages.length);
+  };
+
+  const handleContactSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast({
+      title: 'Anfrage gesendet',
+      description: 'Vielen Dank für Ihr Interesse! Wir melden uns in Kürze bei Ihnen.',
+    });
+    setContactForm({ name: '', email: '', phone: '', message: '' });
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <Button variant="ghost" onClick={() => navigate(`/property/${id}`)} className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Zurück zur Verwaltung
+          </Button>
+          <div className="flex items-center gap-4">
+            <Badge variant="secondary" className="text-sm">
+              Exposé-Vorschau
+            </Badge>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="relative">
+        <div className="relative h-[60vh] overflow-hidden">
+          <img
+            src={propertyImages[currentImageIndex].src}
+            alt={propertyImages[currentImageIndex].label}
+            className="w-full h-full object-cover cursor-pointer"
+            onClick={() => setLightboxOpen(true)}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+          
+          {/* Navigation Arrows */}
+          <button
+            onClick={prevImage}
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-background/80 backdrop-blur flex items-center justify-center hover:bg-background transition-colors"
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </button>
+          <button
+            onClick={nextImage}
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-background/80 backdrop-blur flex items-center justify-center hover:bg-background transition-colors"
+          >
+            <ChevronRight className="h-6 w-6" />
+          </button>
+
+          {/* Image Counter */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur px-4 py-2 rounded-full text-sm font-medium">
+            {currentImageIndex + 1} / {propertyImages.length} — {propertyImages[currentImageIndex].label}
+          </div>
+
+          {/* Quick Info Overlay */}
+          <div className="absolute bottom-0 left-0 right-0 p-8">
+            <div className="max-w-7xl mx-auto">
+              <Badge className="mb-4 bg-accent text-accent-foreground">Exklusives Angebot</Badge>
+              <h1 className="text-4xl font-bold text-foreground mb-2">{property.address}</h1>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <MapPin className="h-5 w-5" />
+                <span className="text-lg">{property.city}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Thumbnail Strip */}
+        <div className="max-w-7xl mx-auto px-4 -mt-12 relative z-10">
+          <div className="flex gap-2 overflow-x-auto pb-4">
+            {propertyImages.map((img, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentImageIndex(idx)}
+                className={`flex-shrink-0 w-24 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                  idx === currentImageIndex ? 'border-accent ring-2 ring-accent/30' : 'border-transparent opacity-70 hover:opacity-100'
+                }`}
+              >
+                <img src={img.src} alt={img.label} className="w-full h-full object-cover" />
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 py-12">
+        <div className="grid grid-cols-3 gap-8">
+          {/* Left Column - Details */}
+          <div className="col-span-2 space-y-8">
+            {/* Price & Key Stats */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between mb-6">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Kaufpreis</p>
+                    <p className="text-4xl font-bold text-accent">{property.price.toLocaleString('de-DE')} €</p>
+                  </div>
+                  <Badge variant="outline" className="text-lg px-4 py-2">
+                    {property.propertyType}
+                  </Badge>
+                </div>
+                
+                <div className="grid grid-cols-4 gap-4">
+                  <div className="text-center p-4 rounded-xl bg-secondary/50">
+                    <Ruler className="h-6 w-6 mx-auto mb-2 text-accent" />
+                    <p className="text-2xl font-bold">120</p>
+                    <p className="text-sm text-muted-foreground">m² Wohnfläche</p>
+                  </div>
+                  <div className="text-center p-4 rounded-xl bg-secondary/50">
+                    <BedDouble className="h-6 w-6 mx-auto mb-2 text-accent" />
+                    <p className="text-2xl font-bold">4</p>
+                    <p className="text-sm text-muted-foreground">Zimmer</p>
+                  </div>
+                  <div className="text-center p-4 rounded-xl bg-secondary/50">
+                    <Bath className="h-6 w-6 mx-auto mb-2 text-accent" />
+                    <p className="text-2xl font-bold">2</p>
+                    <p className="text-sm text-muted-foreground">Bäder</p>
+                  </div>
+                  <div className="text-center p-4 rounded-xl bg-secondary/50">
+                    <Calendar className="h-6 w-6 mx-auto mb-2 text-accent" />
+                    <p className="text-2xl font-bold">1985</p>
+                    <p className="text-sm text-muted-foreground">Baujahr</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Description */}
+            <Card>
+              <CardContent className="p-6">
+                <h2 className="text-xl font-semibold mb-4">Objektbeschreibung</h2>
+                <div className="prose prose-neutral dark:prose-invert max-w-none">
+                  <p className="text-muted-foreground leading-relaxed">
+                    Diese exklusive {property.propertyType} in {property.city} bietet Ihnen höchsten Wohnkomfort in 
+                    einer der begehrtesten Lagen der Stadt. Mit einer großzügigen Wohnfläche von 120 m² und 4 Zimmern 
+                    ist dieses Objekt ideal für Familien oder als repräsentatives Zuhause.
+                  </p>
+                  <p className="text-muted-foreground leading-relaxed mt-4">
+                    Die Wohnung besticht durch ihre hellen, lichtdurchfluteten Räume, hochwertige Ausstattung und 
+                    einen herrlichen Balkon mit Blick ins Grüne. Die moderne Einbauküche, edle Parkettböden und 
+                    Fußbodenheizung sorgen für ein angenehmes Wohngefühl.
+                  </p>
+                  <p className="text-muted-foreground leading-relaxed mt-4">
+                    Die zentrale Lage ermöglicht eine optimale Anbindung an öffentliche Verkehrsmittel, 
+                    Einkaufsmöglichkeiten und Naherholungsgebiete. Überzeugen Sie sich selbst bei einer 
+                    persönlichen Besichtigung!
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Features */}
+            <Card>
+              <CardContent className="p-6">
+                <h2 className="text-xl font-semibold mb-4">Ausstattung</h2>
+                <div className="grid grid-cols-2 gap-3">
+                  {features.map((feature, idx) => (
+                    <div key={idx} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30">
+                      <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
+                        <Home className="h-4 w-4 text-accent" />
+                      </div>
+                      <span className="font-medium">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Virtual Tour */}
+            <Card>
+              <CardContent className="p-6">
+                <h2 className="text-xl font-semibold mb-4">Virtuelle Besichtigung</h2>
+                <div className="aspect-video rounded-xl bg-gradient-to-br from-accent/20 to-primary/20 flex items-center justify-center relative overflow-hidden">
+                  <img src={propertyLivingRoom} alt="360° Tour" className="absolute inset-0 w-full h-full object-cover opacity-30" />
+                  <div className="relative text-center">
+                    <div className="w-20 h-20 rounded-full bg-accent/90 flex items-center justify-center mx-auto mb-4 cursor-pointer hover:scale-110 transition-transform">
+                      <Box className="h-10 w-10 text-accent-foreground" />
+                    </div>
+                    <p className="font-semibold text-lg">360° Tour starten</p>
+                    <p className="text-sm text-muted-foreground">Erkunden Sie die Wohnung virtuell</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Location */}
+            <Card>
+              <CardContent className="p-6">
+                <h2 className="text-xl font-semibold mb-4">Lage</h2>
+                <div className="aspect-video rounded-xl bg-muted flex items-center justify-center">
+                  <div className="text-center text-muted-foreground">
+                    <MapPin className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p>Kartenansicht</p>
+                    <p className="text-sm">{property.address}, {property.city}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4 mt-4">
+                  <div className="text-center p-3 rounded-lg bg-secondary/30">
+                    <p className="font-semibold">5 Min</p>
+                    <p className="text-sm text-muted-foreground">zur U-Bahn</p>
+                  </div>
+                  <div className="text-center p-3 rounded-lg bg-secondary/30">
+                    <p className="font-semibold">10 Min</p>
+                    <p className="text-sm text-muted-foreground">zum Supermarkt</p>
+                  </div>
+                  <div className="text-center p-3 rounded-lg bg-secondary/30">
+                    <p className="font-semibold">15 Min</p>
+                    <p className="text-sm text-muted-foreground">zum Park</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Column - Contact */}
+          <div className="space-y-6">
+            <Card className="sticky top-24">
+              <CardContent className="p-6">
+                <h2 className="text-xl font-semibold mb-4">Interesse? Kontaktieren Sie uns!</h2>
+                
+                {/* Agent Info */}
+                <div className="flex items-center gap-4 p-4 rounded-xl bg-secondary/50 mb-6">
+                  <div className="w-14 h-14 rounded-full bg-accent/20 flex items-center justify-center">
+                    <User className="h-7 w-7 text-accent" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">Maria Schmidt</p>
+                    <p className="text-sm text-muted-foreground">Immobilienberaterin</p>
+                  </div>
+                </div>
+
+                {/* Contact Form */}
+                <form onSubmit={handleContactSubmit} className="space-y-4">
+                  <div>
+                    <Label htmlFor="name">Name *</Label>
+                    <Input
+                      id="name"
+                      value={contactForm.name}
+                      onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="email">E-Mail *</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={contactForm.email}
+                      onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="phone">Telefon</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={contactForm.phone}
+                      onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="message">Nachricht</Label>
+                    <Textarea
+                      id="message"
+                      rows={4}
+                      value={contactForm.message}
+                      onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
+                      placeholder="Ich interessiere mich für diese Immobilie und würde gerne einen Besichtigungstermin vereinbaren..."
+                    />
+                  </div>
+                  <Button type="submit" className="w-full" size="lg">
+                    Anfrage senden
+                  </Button>
+                </form>
+
+                {/* Quick Contact */}
+                <div className="mt-6 pt-6 border-t space-y-3">
+                  <p className="text-sm text-muted-foreground text-center">Oder rufen Sie uns direkt an:</p>
+                  <Button variant="outline" className="w-full gap-2">
+                    <Phone className="h-4 w-4" />
+                    +49 89 123 456 78
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Download Exposé */}
+            <Card>
+              <CardContent className="p-6 text-center">
+                <h3 className="font-semibold mb-2">Exposé herunterladen</h3>
+                <p className="text-sm text-muted-foreground mb-4">Alle Informationen als PDF</p>
+                <Button variant="outline" className="w-full">
+                  PDF herunterladen
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </main>
+
+      {/* Lightbox */}
+      {lightboxOpen && (
+        <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur flex items-center justify-center">
+          <button
+            onClick={() => setLightboxOpen(false)}
+            className="absolute top-4 right-4 w-12 h-12 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80"
+          >
+            <X className="h-6 w-6" />
+          </button>
+          <button
+            onClick={prevImage}
+            className="absolute left-4 w-12 h-12 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80"
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </button>
+          <button
+            onClick={nextImage}
+            className="absolute right-4 w-12 h-12 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80"
+          >
+            <ChevronRight className="h-6 w-6" />
+          </button>
+          <img
+            src={propertyImages[currentImageIndex].src}
+            alt={propertyImages[currentImageIndex].label}
+            className="max-h-[80vh] max-w-[90vw] object-contain rounded-lg"
+          />
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-secondary px-6 py-3 rounded-full">
+            <p className="font-medium">{propertyImages[currentImageIndex].label}</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

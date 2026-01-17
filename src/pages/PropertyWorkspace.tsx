@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, Home, Euro, Ruler, BedDouble, Bath, Calendar, User, Phone, Mail, Building2 } from 'lucide-react';
+import { ArrowLeft, MapPin, Home, Euro, Ruler, BedDouble, Bath, Calendar, User, Phone, Mail, Building2, ExternalLink } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -71,6 +71,14 @@ export default function PropertyWorkspace() {
             </div>
           </div>
           <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate(`/property/${id}/expose`)}
+              className="gap-2"
+            >
+              <ExternalLink className="h-4 w-4" />
+              Exposé-Vorschau
+            </Button>
             <div className="text-right">
               <p className="text-sm text-muted-foreground">Fortschritt</p>
               <div className="flex items-center gap-2">
