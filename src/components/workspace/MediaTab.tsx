@@ -192,10 +192,14 @@ export function MediaTab() {
                   </h4>
                 </div>
                 <div className="grid grid-cols-4 gap-3">
-                  {photos.map((item) => (
+                  {photos.map((item, idx) => (
                     <div key={item.id} className="workspace-card p-2 group">
                       <div className="aspect-video rounded-md overflow-hidden bg-muted relative">
-                        <img src={item.url} alt={item.name} className="w-full h-full object-cover" />
+                        <img 
+                          src={`https://images.unsplash.com/photo-${1560448204 + idx * 1000}-e02fe7ec5bb9?w=300&h=200&fit=crop`}
+                          alt={item.name} 
+                          className="w-full h-full object-cover" 
+                        />
                         {item.status === 'processing' && (
                           <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
                             <span className="text-xs font-medium text-muted-foreground">Wird verarbeitet...</span>
@@ -217,10 +221,22 @@ export function MediaTab() {
                   </h4>
                 </div>
                 <div className="grid grid-cols-4 gap-3">
-                  {videos.map((item) => (
+                  {videos.map((item, idx) => (
                     <div key={item.id} className="workspace-card p-2 group">
-                      <div className="aspect-video rounded-md overflow-hidden bg-muted relative flex items-center justify-center">
-                        <Video className="h-8 w-8 text-muted-foreground" />
+                      <div className="aspect-video rounded-md overflow-hidden bg-muted relative">
+                        <img 
+                          src={`https://images.unsplash.com/photo-${1558618666 + idx * 500}-fcd25c85cd64?w=300&h=200&fit=crop`}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                          <div className="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center">
+                            <div className="w-0 h-0 border-l-[12px] border-l-foreground border-y-[7px] border-y-transparent ml-1"></div>
+                          </div>
+                        </div>
+                        <div className="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1 rounded">
+                          2:34
+                        </div>
                       </div>
                       <p className="mt-2 text-sm font-medium truncate">{item.name}</p>
                     </div>
@@ -238,10 +254,18 @@ export function MediaTab() {
                     </h4>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
-                    {tours.map((item) => (
+                    {tours.map((item, idx) => (
                       <div key={item.id} className="workspace-card p-2 group">
-                        <div className="aspect-video rounded-md overflow-hidden bg-muted relative flex items-center justify-center">
-                          <Box className="h-8 w-8 text-muted-foreground" />
+                        <div className="aspect-video rounded-md overflow-hidden bg-gradient-to-br from-accent/20 to-primary/20 relative flex items-center justify-center">
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="text-center">
+                              <Box className="h-8 w-8 text-accent mx-auto mb-1" />
+                              <span className="text-xs font-medium text-muted-foreground">360° Tour</span>
+                            </div>
+                          </div>
+                          <div className="absolute top-2 right-2">
+                            <Badge variant="secondary" className="text-xs">Interaktiv</Badge>
+                          </div>
                         </div>
                         <p className="mt-2 text-sm font-medium truncate">{item.name}</p>
                       </div>
@@ -256,10 +280,20 @@ export function MediaTab() {
                     </h4>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
-                    {floorPlans.map((item) => (
+                    {floorPlans.map((item, idx) => (
                       <div key={item.id} className="workspace-card p-2 group">
-                        <div className="aspect-video rounded-md overflow-hidden bg-muted relative flex items-center justify-center">
-                          <LayoutGrid className="h-8 w-8 text-muted-foreground" />
+                        <div className="aspect-video rounded-md overflow-hidden bg-muted relative p-3">
+                          {/* Simplified floor plan placeholder */}
+                          <svg viewBox="0 0 100 60" className="w-full h-full text-muted-foreground/50">
+                            <rect x="5" y="5" width="40" height="25" fill="none" stroke="currentColor" strokeWidth="1"/>
+                            <rect x="50" y="5" width="45" height="50" fill="none" stroke="currentColor" strokeWidth="1"/>
+                            <rect x="5" y="35" width="40" height="20" fill="none" stroke="currentColor" strokeWidth="1"/>
+                            <line x1="25" y1="5" x2="25" y2="0" stroke="currentColor" strokeWidth="1"/>
+                            <line x1="72" y1="55" x2="72" y2="60" stroke="currentColor" strokeWidth="1"/>
+                            <text x="25" y="18" fontSize="6" fill="currentColor" textAnchor="middle">Wohnen</text>
+                            <text x="72" y="30" fontSize="6" fill="currentColor" textAnchor="middle">Schlafzimmer</text>
+                            <text x="25" y="47" fontSize="5" fill="currentColor" textAnchor="middle">Küche</text>
+                          </svg>
                         </div>
                         <p className="mt-2 text-sm font-medium truncate">{item.name}</p>
                       </div>
@@ -389,7 +423,7 @@ export function MediaTab() {
 
       {/* Social Post Preview Dialog */}
       <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {selectedSocial && <selectedSocial.icon className="h-5 w-5" />}
@@ -401,83 +435,202 @@ export function MediaTab() {
           </DialogHeader>
           
           {postStep === 'preview' ? (
-            <div className="space-y-4">
-              {/* Media Selection */}
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Ausgewählte Medien</Label>
-                <div className="grid grid-cols-4 gap-2">
-                  {photos.slice(0, 4).map((photo, idx) => (
-                    <div 
-                      key={photo.id}
-                      className={cn(
-                        "aspect-square rounded-lg overflow-hidden border-2 cursor-pointer transition-all",
-                        selectedMedia.includes(photo.id) 
-                          ? "border-accent ring-2 ring-accent/30" 
-                          : "border-border opacity-60 hover:opacity-100"
-                      )}
-                      onClick={() => {
-                        setSelectedMedia(prev => 
-                          prev.includes(photo.id) 
-                            ? prev.filter(id => id !== photo.id)
-                            : [...prev, photo.id]
-                        );
-                      }}
-                    >
-                      <div className="w-full h-full bg-muted flex items-center justify-center relative">
-                        <ImageIcon className="h-6 w-6 text-muted-foreground" />
-                        {selectedMedia.includes(photo.id) && (
-                          <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-accent flex items-center justify-center">
-                            <Check className="h-3 w-3 text-accent-foreground" />
-                          </div>
+            <div className="grid grid-cols-2 gap-6">
+              {/* Left: Edit Area */}
+              <div className="space-y-4">
+                {/* Media Selection */}
+                <div>
+                  <Label className="text-sm font-medium mb-2 block">Medien auswählen</Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {photos.slice(0, 6).map((photo, idx) => (
+                      <div 
+                        key={photo.id}
+                        className={cn(
+                          "aspect-square rounded-lg overflow-hidden border-2 cursor-pointer transition-all",
+                          selectedMedia.includes(photo.id) 
+                            ? "border-accent ring-2 ring-accent/30" 
+                            : "border-border opacity-60 hover:opacity-100"
                         )}
+                        onClick={() => {
+                          setSelectedMedia(prev => 
+                            prev.includes(photo.id) 
+                              ? prev.filter(id => id !== photo.id)
+                              : [...prev, photo.id]
+                          );
+                        }}
+                      >
+                        <div className="w-full h-full relative">
+                          <img 
+                            src={`https://images.unsplash.com/photo-${1560448204 + idx * 1000}-e02fe7ec5bb9?w=200&h=200&fit=crop`}
+                            alt={photo.name}
+                            className="w-full h-full object-cover"
+                          />
+                          {selectedMedia.includes(photo.id) && (
+                            <div className="absolute inset-0 bg-accent/20 flex items-center justify-center">
+                              <div className="w-6 h-6 rounded-full bg-accent flex items-center justify-center">
+                                <Check className="h-4 w-4 text-accent-foreground" />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">{selectedMedia.length} Medien ausgewählt</p>
+                </div>
+
+                {/* Post Text */}
+                <div>
+                  <Label className="text-sm font-medium mb-2 block">Beitragstext</Label>
+                  <Textarea
+                    value={postText}
+                    onChange={(e) => setPostText(e.target.value)}
+                    rows={8}
+                    className="resize-none text-sm"
+                    placeholder="Schreiben Sie Ihren Beitrag hier..."
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                    <span>{postText.length} Zeichen</span>
+                    {selectedSocial?.name === 'Instagram' && postText.length > 2200 && (
+                      <span className="text-destructive">Max. 2200 Zeichen</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: Live Preview */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium block">Live-Vorschau</Label>
+                
+                {/* Platform-specific Preview */}
+                {selectedSocial?.name === 'Instagram' && (
+                  <div className="border border-border rounded-xl overflow-hidden bg-background">
+                    {/* Instagram Header */}
+                    <div className="flex items-center gap-3 p-3 border-b border-border">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 flex items-center justify-center">
+                        <div className="w-7 h-7 rounded-full bg-background flex items-center justify-center">
+                          <span className="text-xs font-bold">R</span>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold">rayfield_immobilien</p>
+                        <p className="text-xs text-muted-foreground">Berlin, Germany</p>
                       </div>
                     </div>
-                  ))}
+                    {/* Image */}
+                    <div className="aspect-square bg-muted relative">
+                      <img 
+                        src="https://images.unsplash.com/photo-1560448204-e02fe7ec5bb9?w=400&h=400&fit=crop"
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                      {selectedMedia.length > 1 && (
+                        <div className="absolute top-3 right-3 bg-background/80 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-medium">
+                          1/{selectedMedia.length}
+                        </div>
+                      )}
+                    </div>
+                    {/* Caption Preview */}
+                    <div className="p-3">
+                      <p className="text-sm line-clamp-3">
+                        <span className="font-semibold">rayfield_immobilien</span>{' '}
+                        {postText.slice(0, 100)}...
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">Vor 0 Minuten</p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedSocial?.name === 'LinkedIn' && (
+                  <div className="border border-border rounded-xl overflow-hidden bg-background">
+                    {/* LinkedIn Header */}
+                    <div className="flex items-center gap-3 p-3">
+                      <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
+                        <span className="text-lg font-bold text-accent">R</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold">Rayfield GmbH</p>
+                        <p className="text-xs text-muted-foreground">1.234 Follower</p>
+                        <p className="text-xs text-muted-foreground">Jetzt • 🌐</p>
+                      </div>
+                    </div>
+                    {/* Content */}
+                    <div className="px-3 pb-3">
+                      <p className="text-sm line-clamp-4">{postText.slice(0, 150)}...</p>
+                    </div>
+                    {/* Image */}
+                    <div className="aspect-video bg-muted">
+                      <img 
+                        src="https://images.unsplash.com/photo-1560448204-e02fe7ec5bb9?w=600&h=400&fit=crop"
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    {/* Reactions */}
+                    <div className="p-3 border-t border-border flex items-center gap-2 text-xs text-muted-foreground">
+                      <span>👍 ❤️ 💡</span>
+                      <span>0 Reaktionen</span>
+                    </div>
+                  </div>
+                )}
+
+                {selectedSocial?.name === 'YouTube' && (
+                  <div className="border border-border rounded-xl overflow-hidden bg-background">
+                    {/* Video Thumbnail */}
+                    <div className="aspect-video bg-muted relative">
+                      <img 
+                        src="https://images.unsplash.com/photo-1560448204-e02fe7ec5bb9?w=600&h=400&fit=crop"
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-16 h-16 rounded-full bg-red-600 flex items-center justify-center">
+                          <div className="w-0 h-0 border-l-[20px] border-l-white border-y-[12px] border-y-transparent ml-1"></div>
+                        </div>
+                      </div>
+                      <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-1 rounded">
+                        4:32
+                      </div>
+                    </div>
+                    {/* Video Info */}
+                    <div className="p-3">
+                      <p className="font-semibold text-sm line-clamp-2">
+                        {postText.split('\n')[0] || 'Videotitel hier...'}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Rayfield Immobilien • 0 Aufrufe • Jetzt
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Platform Tips */}
+                <div className="p-3 rounded-lg bg-accent/5 border border-accent/20">
+                  <p className="text-xs font-medium text-accent flex items-center gap-2">
+                    <Check className="h-3 w-3" />
+                    Optimiert für {selectedSocial?.name}
+                  </p>
+                  <ul className="text-xs text-muted-foreground mt-2 space-y-0.5">
+                    {selectedSocial?.name === 'Instagram' && (
+                      <>
+                        <li>• Hashtags am Ende platziert</li>
+                        <li>• Quadratisches Format verwendet</li>
+                      </>
+                    )}
+                    {selectedSocial?.name === 'YouTube' && (
+                      <>
+                        <li>• Kapitelmarken eingefügt</li>
+                        <li>• SEO-optimierter Titel</li>
+                      </>
+                    )}
+                    {selectedSocial?.name === 'LinkedIn' && (
+                      <>
+                        <li>• Professioneller Tonfall</li>
+                        <li>• Business-Hashtags integriert</li>
+                      </>
+                    )}
+                  </ul>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">{selectedMedia.length} Medien ausgewählt</p>
-              </div>
-
-              {/* Post Text */}
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Beitragstext</Label>
-                <Textarea
-                  value={postText}
-                  onChange={(e) => setPostText(e.target.value)}
-                  rows={6}
-                  className="resize-none"
-                />
-                <p className="text-xs text-muted-foreground mt-1">{postText.length} Zeichen</p>
-              </div>
-
-              {/* Platform-specific hints */}
-              <div className="p-3 rounded-lg bg-secondary/50 border border-border">
-                <p className="text-sm font-medium flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-600" />
-                  Optimiert für {selectedSocial?.name}
-                </p>
-                <ul className="text-xs text-muted-foreground mt-2 space-y-1">
-                  {selectedSocial?.name === 'Instagram' && (
-                    <>
-                      <li>• Hashtags am Ende platziert</li>
-                      <li>• Emojis für bessere Sichtbarkeit</li>
-                      <li>• Quadratisches Format wird empfohlen</li>
-                    </>
-                  )}
-                  {selectedSocial?.name === 'YouTube' && (
-                    <>
-                      <li>• Kapitelmarken eingefügt</li>
-                      <li>• SEO-optimierter Titel</li>
-                      <li>• Call-to-Action am Ende</li>
-                    </>
-                  )}
-                  {selectedSocial?.name === 'LinkedIn' && (
-                    <>
-                      <li>• Professioneller Tonfall</li>
-                      <li>• Relevante Business-Hashtags</li>
-                      <li>• Kontaktaufforderung integriert</li>
-                    </>
-                  )}
-                </ul>
               </div>
             </div>
           ) : (
@@ -492,10 +645,13 @@ export function MediaTab() {
               </div>
 
               {/* Summary */}
-              <div className="p-4 rounded-lg bg-secondary/50 border border-border space-y-2">
+              <div className="p-4 rounded-lg bg-secondary/50 border border-border space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Plattform:</span>
-                  <span className="font-medium">{selectedSocial?.name}</span>
+                  <span className="font-medium flex items-center gap-2">
+                    {selectedSocial && <selectedSocial.icon className="h-4 w-4" />}
+                    {selectedSocial?.name}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Konto:</span>
@@ -510,6 +666,21 @@ export function MediaTab() {
                   <span className="font-medium">{postText.length} Zeichen</span>
                 </div>
               </div>
+
+              {/* Preview Thumbnail */}
+              <div className="flex items-center gap-4 p-4 rounded-lg border border-border">
+                <img 
+                  src="https://images.unsplash.com/photo-1560448204-e02fe7ec5bb9?w=100&h=100&fit=crop"
+                  alt="Preview"
+                  className="w-16 h-16 rounded-lg object-cover"
+                />
+                <div className="flex-1">
+                  <p className="text-sm font-medium line-clamp-1">{postText.split('\n')[0]}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {selectedMedia.length} Medien • {postText.length} Zeichen
+                  </p>
+                </div>
+              </div>
             </div>
           )}
 
@@ -521,11 +692,11 @@ export function MediaTab() {
                 </Button>
                 <Button variant="outline" className="flex-1 gap-2" onClick={openPlatformDirect}>
                   <ExternalLink className="h-4 w-4" />
-                  Direkt auf {selectedSocial?.name}
+                  Direkt öffnen
                 </Button>
                 <Button className="flex-1 gap-2" onClick={confirmSocialPost}>
                   <ArrowRight className="h-4 w-4" />
-                  Weiter
+                  Weiter zur Bestätigung
                 </Button>
               </>
             ) : (
