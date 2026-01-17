@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, Home, Euro, Ruler, BedDouble, Bath, Calendar, User, Phone, Mail, Building2, ExternalLink } from 'lucide-react';
+import { ArrowLeft, MapPin, Home, Euro, Ruler, BedDouble, Bath, Calendar, User, Phone, Mail, Building2, ExternalLink, TrendingUp, Users } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -10,6 +10,8 @@ import { CaptureTab } from '@/components/workspace/CaptureTab';
 import { MediaTab } from '@/components/workspace/MediaTab';
 import { DocumentsTab } from '@/components/workspace/DocumentsTab';
 import { ActivityTab } from '@/components/workspace/ActivityTab';
+import { PerformanceTab } from '@/components/workspace/PerformanceTab';
+import { LeadsTab } from '@/components/workspace/LeadsTab';
 import { AskRayfieldWidget } from '@/components/workspace/AskRayfieldWidget';
 import { properties, getWorkflowStateLabel, getWorkflowStateClass, tasks } from '@/data/dummyData';
 import { Progress } from '@/components/ui/progress';
@@ -96,6 +98,14 @@ export default function PropertyWorkspace() {
             <TabsTrigger value="capture">Capture</TabsTrigger>
             <TabsTrigger value="media">Medien</TabsTrigger>
             <TabsTrigger value="documents">Dokumente</TabsTrigger>
+            <TabsTrigger value="performance" className="gap-1.5">
+              <TrendingUp className="h-4 w-4" />
+              Performance
+            </TabsTrigger>
+            <TabsTrigger value="leads" className="gap-1.5">
+              <Users className="h-4 w-4" />
+              Leads
+            </TabsTrigger>
             <TabsTrigger value="activity">Aktivität</TabsTrigger>
           </TabsList>
 
@@ -255,6 +265,14 @@ export default function PropertyWorkspace() {
 
           <TabsContent value="documents" className="animate-fade-in">
             <DocumentsTab />
+          </TabsContent>
+
+          <TabsContent value="performance" className="animate-fade-in">
+            <PerformanceTab />
+          </TabsContent>
+
+          <TabsContent value="leads" className="animate-fade-in">
+            <LeadsTab />
           </TabsContent>
 
           <TabsContent value="activity" className="animate-fade-in">
