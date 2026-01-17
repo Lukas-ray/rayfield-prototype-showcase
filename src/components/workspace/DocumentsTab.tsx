@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Upload, Play, FileText, Check, Clock, AlertCircle, Send, Link, ExternalLink, Mail, User, Building2, Scale, Landmark, Eye, Pause, ChevronRight, Paperclip, RefreshCw, Plus, MessageSquare, Inbox } from 'lucide-react';
+import { Upload, FileText, Check, Clock, AlertCircle, Send, Link, ExternalLink, Mail, User, Building2, Scale, Landmark, Eye, Pause, ChevronRight, Paperclip, Plus, MessageSquare, Inbox, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -36,21 +36,42 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
 const docStatusConfig = {
-  missing: { icon: AlertCircle, label: 'Fehlt', class: 'text-destructive' },
-  requested: { icon: Clock, label: 'Angefordert', class: 'text-warning' },
-  received: { icon: FileText, label: 'Erhalten', class: 'text-info' },
-  verified: { icon: Check, label: 'Verifiziert', class: 'text-success' },
+  missing: { icon: AlertCircle, label: 'Fehlt', class: 'text-destructive', bg: 'bg-destructive/10' },
+  requested: { icon: Clock, label: 'Angefordert', class: 'text-amber-600', bg: 'bg-amber-50' },
+  received: { icon: FileText, label: 'Erhalten', class: 'text-blue-600', bg: 'bg-blue-50' },
+  verified: { icon: Check, label: 'Verifiziert', class: 'text-green-600', bg: 'bg-green-50' },
 };
 
-interface AgentResult {
-  classified: { name: string; type: string }[];
-  missing: string[];
+const holderLabels: Record<string, { label: string; icon: typeof User; color: string; bg: string }> = {
+  seller: { label: 'Verkäufer', icon: User, color: 'text-blue-600', bg: 'bg-blue-100' },
+  hausverwaltung: { label: 'Hausverwaltung', icon: Building2, color: 'text-purple-600', bg: 'bg-purple-100' },
+  agent: { label: 'Makler', icon: User, color: 'text-slate-600', bg: 'bg-slate-100' },
+  notary: { label: 'Notar', icon: Scale, color: 'text-amber-600', bg: 'bg-amber-100' },
+  authority: { label: 'Behörde', icon: Landmark, color: 'text-slate-600', bg: 'bg-slate-100' },
+};
+
+// Extended document type with holder info
+interface ExtendedDocument extends Document {
+  holder: 'seller' | 'hausverwaltung' | 'agent' | 'notary' | 'authority';
+  holderName?: string;
+  holderEmail?: string;
 }
 
 export function DocumentsTab() {
   const { toast } = useToast();
-  const [docs, setDocs] = useState<Document[]>(initialDocs);
-  const [agentDialogOpen, setAgentDialogOpen] = useState(false);
+  
+  // Extended documents with holder info
+  const [docs, setDocs] = useState<ExtendedDocument[]>([
+    { id: '1', name: 'Grundbuchauszug', type: 'Grundbuch', status: 'verified', uploadedAt: '2024-01-10', source: 'agent', holder: 'agent' },
+    { id: '2', name: 'Energieausweis', type: 'Energieausweis', status: 'missing', holder: 'seller', holderName: 'Hans Schmidt', holderEmail: 'hans.schmidt@email.de' },
+    { id: '3', name: 'Teilungserklärung', type: 'Teilungserklärung', status: 'requested', source: 'hausverwaltung', holder: 'hausverwaltung', holderName: 'HV Müller GmbH', holderEmail: 'info@hv-mueller.de' },
+    { id: '4', name: 'Wirtschaftsplan 2024', type: 'Wirtschaftsplan', status: 'received', uploadedAt: '2024-01-12', source: 'hausverwaltung', holder: 'hausverwaltung', holderName: 'HV Müller GmbH', holderEmail: 'info@hv-mueller.de' },
+    { id: '5', name: 'Protokolle Eigentümerversammlung', type: 'Protokolle', status: 'missing', holder: 'hausverwaltung', holderName: 'HV Müller GmbH', holderEmail: 'info@hv-mueller.de' },
+    { id: '6', name: 'Hausgeldabrechnung', type: 'Hausgeldabrechnung', status: 'verified', uploadedAt: '2024-01-08', source: 'seller', holder: 'seller', holderName: 'Hans Schmidt', holderEmail: 'hans.schmidt@email.de' },
+    { id: '7', name: 'Wohnflächenberechnung', type: 'Flächenberechnung', status: 'received', uploadedAt: '2024-01-11', source: 'seller', holder: 'seller', holderName: 'Hans Schmidt', holderEmail: 'hans.schmidt@email.de' },
+    { id: '8', name: 'Mietvertrag', type: 'Mietvertrag', status: 'missing', holder: 'seller', holderName: 'Hans Schmidt', holderEmail: 'hans.schmidt@email.de' },
+  ]);
+  
   const [showUploadPreview, setShowUploadPreview] = useState(false);
   const [previewFile, setPreviewFile] = useState({ original: '', suggested: '', type: '' });
   const [activeTab, setActiveTab] = useState('checklist');
@@ -59,31 +80,9 @@ export function DocumentsTab() {
   const [mailboxSettings, setMailboxSettings] = useState<MailboxSettings>(defaultMailboxSettings);
   const [connectDialogOpen, setConnectDialogOpen] = useState(false);
   
-  // Request packets state
-  const [requestPackets, setRequestPackets] = useState<RequestPacket[]>([
-    {
-      id: '1',
-      holder: 'seller',
-      holderName: 'Hans Schmidt',
-      email: 'hans.schmidt@email.de',
-      requestedItems: ['Grundbuchauszug', 'Energieausweis', 'Wohnflächenberechnung', 'Mietvertrag'],
-      status: 'not_started',
-      followUpsPaused: false,
-    },
-    {
-      id: '2',
-      holder: 'hausverwaltung',
-      holderName: 'Hausverwaltung Müller GmbH',
-      email: 'info@hv-mueller.de',
-      requestedItems: ['Teilungserklärung', 'Wirtschaftsplan 2024', 'Protokolle Eigentümerversammlung', 'Hausgeldabrechnung'],
-      status: 'not_started',
-      followUpsPaused: false,
-    },
-  ]);
-  
-  // Email preview state
-  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
-  const [selectedPacket, setSelectedPacket] = useState<RequestPacket | null>(null);
+  // Document request state
+  const [selectedDoc, setSelectedDoc] = useState<ExtendedDocument | null>(null);
+  const [requestDialogOpen, setRequestDialogOpen] = useState(false);
   const [emailBody, setEmailBody] = useState('');
   const [showBcc, setShowBcc] = useState(false);
   
@@ -93,15 +92,6 @@ export function DocumentsTab() {
   const [exceptions, setExceptions] = useState<MailException[]>([]);
   const [simulateDialogOpen, setSimulateDialogOpen] = useState(false);
   const [selectedReplyType, setSelectedReplyType] = useState<string>('docs_attached');
-
-  const agentResult: AgentResult = {
-    classified: [
-      { name: 'grundbuch_scan.pdf', type: 'Grundbuch' },
-      { name: 'energie.pdf', type: 'Energieausweis' },
-      { name: 'wplan_2024.pdf', type: 'Wirtschaftsplan' },
-    ],
-    missing: ['Energieausweis', 'Protokolle Eigentümerversammlung', 'Mietvertrag'],
-  };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -121,20 +111,6 @@ export function DocumentsTab() {
     });
   };
 
-  const handleGenerateRequest = () => {
-    toast({
-      title: 'Anfragenachricht generiert',
-      description: 'E-Mail-Entwurf für fehlende Dokumente erstellt.',
-    });
-  };
-
-  const handleGenerateBuyerPack = () => {
-    toast({
-      title: 'Käufer-Dokumentenpaket generiert',
-      description: 'Dokumentenpaket steht zum Download bereit.',
-    });
-  };
-
   const copyUploadLink = () => {
     navigator.clipboard.writeText('https://upload.rayfield.io/p/abc123');
     toast({
@@ -143,83 +119,92 @@ export function DocumentsTab() {
     });
   };
 
-  const getHolderIcon = (holder: string) => {
-    switch (holder) {
-      case 'seller': return User;
-      case 'hausverwaltung': return Building2;
-      case 'notary': return Scale;
-      case 'authority': return Landmark;
-      default: return User;
-    }
-  };
+  const handleDocumentClick = (doc: ExtendedDocument) => {
+    if (doc.status === 'missing' || doc.status === 'requested') {
+      setSelectedDoc(doc);
+      setEmailBody(`Sehr geehrte${doc.holder === 'seller' ? 'r Herr Schmidt' : ' Damen und Herren'},
 
-  const handlePreviewEmail = (packet: RequestPacket) => {
-    setSelectedPacket(packet);
-    setEmailBody(`Sehr geehrte${packet.holder === 'seller' ? 'r Herr Schmidt' : ' Damen und Herren'},
+im Rahmen des Verkaufsprozesses für die Immobilie Maximilianstraße 42, München benötigen wir folgendes Dokument:
 
-im Rahmen des Verkaufsprozesses für die Immobilie Maximilianstraße 42, München benötigen wir folgende Unterlagen:
+• ${doc.name}
 
-${packet.requestedItems.map(item => `• ${item}`).join('\n')}
-
-Bitte laden Sie die Dokumente über den folgenden Link hoch:
-https://upload.rayfield.io/p/${packet.id}
+Bitte laden Sie das Dokument über den folgenden Link hoch:
+https://upload.rayfield.io/p/${doc.id}
 
 Frist: 25. Januar 2024
 
 Mit freundlichen Grüßen
 Ihr Rayfield Team`);
-    setPreviewDialogOpen(true);
+      setRequestDialogOpen(true);
+    } else {
+      toast({
+        title: doc.name,
+        description: `Status: ${docStatusConfig[doc.status].label}${doc.uploadedAt ? ` • Hochgeladen: ${doc.uploadedAt}` : ''}`,
+      });
+    }
   };
 
-  const handleSendPacket = (packetId: string) => {
-    const packet = requestPackets.find(p => p.id === packetId);
-    if (!packet) return;
+  const handleSendRequest = () => {
+    if (!selectedDoc) return;
 
-    // Update packet status
-    setRequestPackets(prev => prev.map(p => 
-      p.id === packetId 
-        ? { ...p, status: 'sent', sentAt: new Date().toLocaleString('de-DE'), nextFollowUp: '3 Tage' }
-        : p
+    // Update document status
+    setDocs(prev => prev.map(d => 
+      d.id === selectedDoc.id 
+        ? { ...d, status: 'requested' as const }
+        : d
     ));
 
-    // Create email thread
-    const newThread: EmailThread = {
-      id: `thread_${packetId}`,
-      holder: packet.holderName,
-      holderType: packet.holder,
-      subject: `Dokumentenanfrage - Maximilianstraße 42`,
-      status: 'waiting',
-      lastActivity: 'Gerade eben',
-      messages: [{
+    // Check if thread exists for this holder
+    const existingThread = threads.find(t => t.holder === selectedDoc.holderName);
+    
+    // Map holder type for thread (agent doesn't need email threads)
+    const threadHolderType = selectedDoc.holder === 'agent' ? 'seller' : selectedDoc.holder;
+    
+    if (existingThread) {
+      // Add message to existing thread
+      const newMessage: EmailMessage = {
         id: `msg_${Date.now()}`,
         direction: 'outgoing',
         from: 'makler@rayfield-immobilien.de',
-        to: packet.email,
-        subject: `Dokumentenanfrage - Maximilianstraße 42`,
-        body: emailBody || `Anfrage für: ${packet.requestedItems.join(', ')}`,
+        to: selectedDoc.holderEmail || '',
+        subject: `Dokumentenanfrage: ${selectedDoc.name}`,
+        body: emailBody,
         timestamp: new Date().toLocaleString('de-DE'),
         attachments: [],
-      }],
-    };
+      };
+      
+      setThreads(prev => prev.map(t => 
+        t.id === existingThread.id
+          ? { ...t, messages: [...t.messages, newMessage], lastActivity: 'Gerade eben' }
+          : t
+      ));
+    } else {
+      // Create new thread
+      const newThread: EmailThread = {
+        id: `thread_${Date.now()}`,
+        holder: selectedDoc.holderName || selectedDoc.holder,
+        holderType: threadHolderType,
+        subject: `Dokumentenanfrage - Maximilianstraße 42`,
+        status: 'waiting',
+        lastActivity: 'Gerade eben',
+        messages: [{
+          id: `msg_${Date.now()}`,
+          direction: 'outgoing',
+          from: 'makler@rayfield-immobilien.de',
+          to: selectedDoc.holderEmail || '',
+          subject: `Dokumentenanfrage: ${selectedDoc.name}`,
+          body: emailBody,
+          timestamp: new Date().toLocaleString('de-DE'),
+          attachments: [],
+        }],
+      };
+      setThreads(prev => [...prev, newThread]);
+    }
 
-    setThreads(prev => [...prev, newThread]);
-    setPreviewDialogOpen(false);
-
+    setRequestDialogOpen(false);
     toast({
       title: 'Anfrage gesendet',
-      description: `E-Mail an ${packet.holderName} wurde versendet.`,
-    });
-  };
-
-  const handlePauseFollowUps = (packetId: string) => {
-    setRequestPackets(prev => prev.map(p => 
-      p.id === packetId ? { ...p, followUpsPaused: !p.followUpsPaused } : p
-    ));
-    
-    const packet = requestPackets.find(p => p.id === packetId);
-    toast({
-      title: packet?.followUpsPaused ? 'Follow-ups fortgesetzt' : 'Follow-ups pausiert',
-      description: `Automatische Follow-ups für ${packet?.holderName} ${packet?.followUpsPaused ? 'aktiviert' : 'deaktiviert'}.`,
+      description: `E-Mail für "${selectedDoc.name}" an ${selectedDoc.holderName} gesendet.`,
     });
   };
 
@@ -245,7 +230,6 @@ Ihr Rayfield Team`);
       })),
     };
 
-    // Add exceptions if needed
     if (selectedReplyType === 'vollmacht_needed') {
       setExceptions(prev => [...prev, {
         id: `exc${Date.now()}`,
@@ -284,14 +268,6 @@ Ihr Rayfield Team`);
       messages: [...prev.messages, newMessage],
       lastActivity: 'Gerade eben',
     } : null);
-
-    // Update packet status
-    const packet = requestPackets.find(p => `thread_${p.id}` === selectedThread.id);
-    if (packet && template.attachments.length > 0) {
-      setRequestPackets(prev => prev.map(p => 
-        p.id === packet.id ? { ...p, status: 'waiting' } : p
-      ));
-    }
 
     setSimulateDialogOpen(false);
     
@@ -353,34 +329,6 @@ Ihr Rayfield Team`);
     });
   };
 
-  const handleRunDocumentQA = () => {
-    // Simulate QA verification
-    setDocs(prev => prev.map((doc, i) => {
-      if (doc.status === 'received') {
-        if (i % 2 === 0) {
-          return { ...doc, status: 'verified' as const };
-        } else {
-          // Create exception
-          setExceptions(prev => [...prev, {
-            id: `exc${Date.now()}_${i}`,
-            type: 'missing_pages',
-            threadId: '',
-            holder: 'System',
-            description: `${doc.name}: Qualitätsproblem erkannt`,
-            timestamp: new Date().toLocaleString('de-DE'),
-            resolved: false,
-          }]);
-        }
-      }
-      return doc;
-    }));
-
-    toast({
-      title: 'Dokument-QA abgeschlossen',
-      description: 'Dokumente wurden überprüft.',
-    });
-  };
-
   const handleConnectMailbox = (provider: 'gmail' | 'microsoft365') => {
     setMailboxSettings(prev => ({
       ...prev,
@@ -394,6 +342,14 @@ Ihr Rayfield Team`);
       description: `${provider === 'gmail' ? 'Gmail' : 'Microsoft 365'} wurde erfolgreich verbunden.`,
     });
   };
+
+  // Group documents by holder
+  const docsByHolder = docs.reduce((acc, doc) => {
+    const holder = doc.holder;
+    if (!acc[holder]) acc[holder] = [];
+    acc[holder].push(doc);
+    return acc;
+  }, {} as Record<string, ExtendedDocument[]>);
 
   const missingDocsCount = docs.filter(d => d.status === 'missing').length;
   const verifiedDocsCount = docs.filter(d => d.status === 'verified').length;
@@ -409,7 +365,7 @@ Ihr Rayfield Team`);
             <div>
               <p className="font-medium">Mailbox verbinden für automatische Dokumentenanfragen</p>
               <p className="text-sm text-muted-foreground">
-                {missingDocsCount} Dokumente fehlen noch. Verbinden Sie Ihre Mailbox, um automatische Anfragen und Follow-ups zu aktivieren.
+                {missingDocsCount} Dokumente fehlen noch. Verbinden Sie Ihre Mailbox für automatische Anfragen.
               </p>
             </div>
           </div>
@@ -425,15 +381,9 @@ Ihr Rayfield Team`);
           <TabsTrigger value="checklist" className="gap-2">
             <FileText className="h-4 w-4" />
             Checkliste
-          </TabsTrigger>
-          <TabsTrigger value="requests" className="gap-2">
-            <Send className="h-4 w-4" />
-            Anfragen
-            {requestPackets.filter(p => p.status !== 'complete').length > 0 && (
-              <Badge variant="secondary" className="ml-1">
-                {requestPackets.filter(p => p.status !== 'complete').length}
-              </Badge>
-            )}
+            <Badge variant="secondary" className="ml-1">
+              {verifiedDocsCount}/{docs.length}
+            </Badge>
           </TabsTrigger>
           <TabsTrigger value="threads" className="gap-2">
             <Inbox className="h-4 w-4" />
@@ -454,55 +404,102 @@ Ihr Rayfield Team`);
         {/* Checklist Tab */}
         <TabsContent value="checklist" className="mt-6">
           <div className="grid grid-cols-3 gap-6">
-            {/* Document Checklist */}
-            <div className="col-span-2 workspace-card">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="font-semibold">Dokumenten-Checkliste</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {verifiedDocsCount}/{docs.length} Dokumente verifiziert
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" onClick={handleRunDocumentQA}>
-                    <Check className="h-4 w-4 mr-2" />
-                    QA starten
-                  </Button>
-                  <Button onClick={() => setAgentDialogOpen(true)} className="gap-2">
-                    <Play className="h-4 w-4" />
-                    Document Pack Agent
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                {docs.map((doc) => {
-                  const status = docStatusConfig[doc.status];
-                  const StatusIcon = status.icon;
-                  return (
-                    <div key={doc.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
+            {/* Document Checklist by Holder */}
+            <div className="col-span-2 space-y-6">
+              {Object.entries(docsByHolder).map(([holder, holderDocs]) => {
+                const holderInfo = holderLabels[holder];
+                const HolderIcon = holderInfo.icon;
+                const holderMissingCount = holderDocs.filter(d => d.status === 'missing').length;
+                const holderVerifiedCount = holderDocs.filter(d => d.status === 'verified').length;
+                const firstDoc = holderDocs[0];
+                
+                return (
+                  <div key={holder} className="workspace-card">
+                    <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <StatusIcon className={cn('h-5 w-5', status.class)} />
+                        <div className={cn('p-2 rounded-lg', holderInfo.bg)}>
+                          <HolderIcon className={cn('h-5 w-5', holderInfo.color)} />
+                        </div>
                         <div>
-                          <p className="font-medium">{doc.name}</p>
-                          <p className="text-xs text-muted-foreground">{doc.type}</p>
+                          <h3 className="font-semibold">{holderInfo.label}</h3>
+                          {firstDoc.holderName && (
+                            <p className="text-sm text-muted-foreground">{firstDoc.holderName}</p>
+                          )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className={cn('status-badge', `status-${doc.status === 'verified' ? 'ready' : doc.status === 'received' ? 'processing' : doc.status === 'requested' ? 'missing' : 'draft'}`)}>
-                          {status.label}
-                        </span>
-                        {doc.source && (
-                          <span className="evidence-badge">{doc.source}</span>
+                      <div className="flex items-center gap-3">
+                        <div className="text-right text-sm">
+                          <span className="text-green-600 font-medium">{holderVerifiedCount}</span>
+                          <span className="text-muted-foreground"> / {holderDocs.length}</span>
+                          {holderMissingCount > 0 && (
+                            <span className="text-destructive ml-2">({holderMissingCount} fehlen)</span>
+                          )}
+                        </div>
+                        {firstDoc.holderEmail && holderMissingCount > 0 && (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              const missingDocs = holderDocs.filter(d => d.status === 'missing');
+                              if (missingDocs.length > 0) {
+                                handleDocumentClick(missingDocs[0]);
+                              }
+                            }}
+                          >
+                            <Send className="h-4 w-4 mr-2" />
+                            Alle anfordern
+                          </Button>
                         )}
                       </div>
                     </div>
-                  );
-                })}
-              </div>
+                    
+                    <div className="space-y-2">
+                      {holderDocs.map((doc) => {
+                        const status = docStatusConfig[doc.status];
+                        const StatusIcon = status.icon;
+                        const isClickable = doc.status === 'missing' || doc.status === 'requested';
+                        
+                        return (
+                          <div 
+                            key={doc.id} 
+                            onClick={() => handleDocumentClick(doc)}
+                            className={cn(
+                              'flex items-center justify-between p-3 rounded-lg transition-all',
+                              status.bg,
+                              isClickable && 'cursor-pointer hover:ring-2 hover:ring-accent/50',
+                              !isClickable && 'opacity-80'
+                            )}
+                          >
+                            <div className="flex items-center gap-3">
+                              <StatusIcon className={cn('h-5 w-5', status.class)} />
+                              <div>
+                                <p className="font-medium">{doc.name}</p>
+                                <p className="text-xs text-muted-foreground">{doc.type}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className={cn('text-xs', status.class)}>
+                                {status.label}
+                              </Badge>
+                              {isClickable && mailboxSettings.connected && (
+                                <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                                  <Send className="h-4 w-4" />
+                                </Button>
+                              )}
+                              {doc.uploadedAt && (
+                                <span className="text-xs text-muted-foreground">{doc.uploadedAt}</span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
-            {/* Upload & External Portal */}
+            {/* Upload & Portal */}
             <div className="space-y-6">
               <div className="workspace-card">
                 <h3 className="font-semibold mb-4">Dokumente hochladen</h3>
@@ -535,116 +532,30 @@ Ihr Rayfield Team`);
                   </Button>
                 </div>
               </div>
-            </div>
-          </div>
-        </TabsContent>
 
-        {/* Request Packets Tab */}
-        <TabsContent value="requests" className="mt-6">
-          <div className="grid grid-cols-2 gap-6">
-            {requestPackets.map(packet => {
-              const HolderIcon = getHolderIcon(packet.holder);
-              const holderInfo = holderConfig[packet.holder];
-              const statusInfo = mailStatusConfig[packet.status];
-              
-              return (
-                <div key={packet.id} className="workspace-card">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className={cn('p-2 rounded-lg', holderInfo.bg)}>
-                        <HolderIcon className={cn('h-5 w-5', holderInfo.color)} />
-                      </div>
-                      <div>
-                        <p className="font-semibold">{packet.holderName}</p>
-                        <p className="text-sm text-muted-foreground">{holderInfo.label}</p>
-                      </div>
-                    </div>
-                    <Badge className={statusInfo.class}>{statusInfo.label}</Badge>
+              {/* Quick Stats */}
+              <div className="workspace-card">
+                <h3 className="font-semibold mb-4">Übersicht</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-2 rounded bg-green-50">
+                    <span className="text-sm text-green-700">Verifiziert</span>
+                    <span className="font-semibold text-green-700">{verifiedDocsCount}</span>
                   </div>
-
-                  <div className="mb-4">
-                    <p className="text-sm text-muted-foreground mb-2">E-Mail:</p>
-                    <p className="text-sm font-mono bg-secondary/50 p-2 rounded">{packet.email}</p>
+                  <div className="flex items-center justify-between p-2 rounded bg-blue-50">
+                    <span className="text-sm text-blue-700">Erhalten</span>
+                    <span className="font-semibold text-blue-700">{docs.filter(d => d.status === 'received').length}</span>
                   </div>
-
-                  <div className="mb-4">
-                    <p className="text-sm text-muted-foreground mb-2">
-                      Angeforderte Dokumente ({packet.requestedItems.length}):
-                    </p>
-                    <div className="space-y-1">
-                      {packet.requestedItems.map((item, i) => (
-                        <div key={i} className="flex items-center gap-2 text-sm">
-                          <FileText className="h-3 w-3 text-muted-foreground" />
-                          {item}
-                        </div>
-                      ))}
-                    </div>
+                  <div className="flex items-center justify-between p-2 rounded bg-amber-50">
+                    <span className="text-sm text-amber-700">Angefordert</span>
+                    <span className="font-semibold text-amber-700">{docs.filter(d => d.status === 'requested').length}</span>
                   </div>
-
-                  {packet.status === 'sent' && (
-                    <div className="mb-4 p-3 rounded-lg bg-secondary/50">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Gesendet:</span>
-                        <span>{packet.sentAt}</span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm mt-1">
-                        <span className="text-muted-foreground">Nächstes Follow-up:</span>
-                        <span>{packet.followUpsPaused ? 'Pausiert' : packet.nextFollowUp}</span>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex gap-2">
-                    {packet.status === 'not_started' ? (
-                      <>
-                        <Button 
-                          variant="outline" 
-                          className="flex-1"
-                          onClick={() => handlePreviewEmail(packet)}
-                        >
-                          <Eye className="h-4 w-4 mr-2" />
-                          E-Mail Vorschau
-                        </Button>
-                        <Button 
-                          className="flex-1"
-                          onClick={() => {
-                            handlePreviewEmail(packet);
-                            setTimeout(() => handleSendPacket(packet.id), 100);
-                          }}
-                          disabled={!mailboxSettings.connected}
-                        >
-                          <Send className="h-4 w-4 mr-2" />
-                          Senden
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        <Button 
-                          variant="outline" 
-                          className="flex-1"
-                          onClick={() => handlePauseFollowUps(packet.id)}
-                        >
-                          <Pause className="h-4 w-4 mr-2" />
-                          {packet.followUpsPaused ? 'Fortsetzen' : 'Follow-ups pausieren'}
-                        </Button>
-                        <Button 
-                          variant="outline"
-                          onClick={() => {
-                            const thread = threads.find(t => t.id === `thread_${packet.id}`);
-                            if (thread) {
-                              setSelectedThread(thread);
-                              setActiveTab('threads');
-                            }
-                          }}
-                        >
-                          <ChevronRight className="h-4 w-4" />
-                        </Button>
-                      </>
-                    )}
+                  <div className="flex items-center justify-between p-2 rounded bg-red-50">
+                    <span className="text-sm text-red-700">Fehlt</span>
+                    <span className="font-semibold text-red-700">{missingDocsCount}</span>
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            </div>
           </div>
         </TabsContent>
 
@@ -655,10 +566,10 @@ Ihr Rayfield Team`);
               <Inbox className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <h3 className="font-semibold mb-2">Keine E-Mail-Threads</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Senden Sie eine Dokumentenanfrage, um E-Mail-Threads zu starten.
+                Klicken Sie auf ein fehlendes Dokument, um eine Anfrage zu senden.
               </p>
-              <Button onClick={() => setActiveTab('requests')}>
-                Zu Anfragen
+              <Button onClick={() => setActiveTab('checklist')}>
+                Zur Checkliste
               </Button>
             </div>
           ) : (
@@ -714,16 +625,13 @@ Ihr Rayfield Team`);
                           <h3 className="font-semibold">{selectedThread.holder}</h3>
                           <p className="text-sm text-muted-foreground">{selectedThread.subject}</p>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Button size="sm" onClick={() => setSimulateDialogOpen(true)}>
-                            <Plus className="h-4 w-4 mr-2" />
-                            Antwort simulieren
-                          </Button>
-                        </div>
+                        <Button size="sm" onClick={() => setSimulateDialogOpen(true)}>
+                          <Plus className="h-4 w-4 mr-2" />
+                          Antwort simulieren
+                        </Button>
                       </div>
                     </div>
 
-                    {/* Messages */}
                     <div className="space-y-4 max-h-[400px] overflow-y-auto">
                       {selectedThread.messages.map(message => (
                         <div 
@@ -817,17 +725,15 @@ Ihr Rayfield Team`);
                         <p className="text-xs text-muted-foreground mt-1">{exc.holder} • {exc.timestamp}</p>
                       </div>
                     </div>
-                    <div className="flex gap-2">
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => setExceptions(prev => prev.map(e => 
-                          e.id === exc.id ? { ...e, resolved: true } : e
-                        ))}
-                      >
-                        Erledigt
-                      </Button>
-                    </div>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => setExceptions(prev => prev.map(e => 
+                        e.id === exc.id ? { ...e, resolved: true } : e
+                      ))}
+                    >
+                      Erledigt
+                    </Button>
                   </div>
                 );
               })}
@@ -874,18 +780,31 @@ Ihr Rayfield Team`);
         </DialogContent>
       </Dialog>
 
-      {/* Email Preview Dialog */}
-      <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
+      {/* Document Request Dialog */}
+      <Dialog open={requestDialogOpen} onOpenChange={setRequestDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>E-Mail Vorschau</DialogTitle>
+            <DialogTitle>Dokument anfordern: {selectedDoc?.name}</DialogTitle>
           </DialogHeader>
-          {selectedPacket && (
+          {selectedDoc && (
             <div className="space-y-4">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50">
+                <div className={cn('p-2 rounded-lg', holderLabels[selectedDoc.holder].bg)}>
+                  {(() => {
+                    const Icon = holderLabels[selectedDoc.holder].icon;
+                    return <Icon className={cn('h-4 w-4', holderLabels[selectedDoc.holder].color)} />;
+                  })()}
+                </div>
+                <div>
+                  <p className="font-medium">{selectedDoc.holderName || holderLabels[selectedDoc.holder].label}</p>
+                  <p className="text-sm text-muted-foreground">{selectedDoc.holderEmail}</p>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm text-muted-foreground">An:</label>
-                  <Input value={selectedPacket.email} readOnly className="mt-1" />
+                  <Input value={selectedDoc.holderEmail || ''} readOnly className="mt-1" />
                 </div>
                 <div>
                   <label className="text-sm text-muted-foreground">CC:</label>
@@ -908,7 +827,7 @@ Ihr Rayfield Team`);
               <div>
                 <label className="text-sm text-muted-foreground">Betreff:</label>
                 <Input 
-                  value={`Dokumentenanfrage - Maximilianstraße 42, München`} 
+                  value={`Dokumentenanfrage: ${selectedDoc.name}`} 
                   readOnly 
                   className="mt-1" 
                 />
@@ -924,14 +843,20 @@ Ihr Rayfield Team`);
               </div>
 
               <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setPreviewDialogOpen(false)}>
+                <Button variant="outline" onClick={() => setRequestDialogOpen(false)}>
                   Abbrechen
                 </Button>
-                <Button onClick={() => handleSendPacket(selectedPacket.id)}>
+                <Button onClick={handleSendRequest} disabled={!mailboxSettings.connected}>
                   <Send className="h-4 w-4 mr-2" />
                   Senden
                 </Button>
               </div>
+              
+              {!mailboxSettings.connected && (
+                <p className="text-sm text-amber-600 text-center">
+                  Bitte verbinden Sie zuerst Ihre Mailbox, um E-Mails zu senden.
+                </p>
+              )}
             </div>
           )}
         </DialogContent>
@@ -1003,49 +928,6 @@ Ihr Rayfield Team`);
           <Button onClick={handleConfirmUpload} className="w-full mt-4">
             Bestätigen
           </Button>
-        </DialogContent>
-      </Dialog>
-
-      {/* Agent Results Dialog */}
-      <Dialog open={agentDialogOpen} onOpenChange={setAgentDialogOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Document Pack Agent - Ergebnisse</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <h4 className="font-medium mb-2">Klassifizierte Dokumente</h4>
-              <div className="space-y-2">
-                {agentResult.classified.map((doc, i) => (
-                  <div key={i} className="flex items-center justify-between p-2 rounded bg-secondary/50">
-                    <span className="text-sm">{doc.name}</span>
-                    <span className="evidence-badge">{doc.type}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h4 className="font-medium mb-2">Fehlende Dokumente</h4>
-              <div className="space-y-2">
-                {agentResult.missing.map((doc, i) => (
-                  <div key={i} className="flex items-center gap-2 p-2 rounded bg-destructive/10">
-                    <AlertCircle className="h-4 w-4 text-destructive" />
-                    <span className="text-sm">{doc}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Button onClick={handleGenerateRequest} variant="outline" className="flex-1 gap-2">
-                <Send className="h-4 w-4" />
-                Anfrage generieren
-              </Button>
-              <Button onClick={handleGenerateBuyerPack} className="flex-1 gap-2">
-                <FileText className="h-4 w-4" />
-                Käufer-Paket
-              </Button>
-            </div>
-          </div>
         </DialogContent>
       </Dialog>
     </div>
