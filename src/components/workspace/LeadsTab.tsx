@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { User, Mail, Phone, Calendar, Globe, Instagram, MessageSquare, Star, StarOff, Clock, CheckCircle2, ExternalLink } from 'lucide-react';
+import { useParams } from 'react-router-dom';
+import { User, Mail, Phone, Calendar, Globe, Instagram, MessageSquare, Star, StarOff, Clock, CheckCircle2, Send } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { ReplyDialog } from './ReplyDialog';
+import { properties } from '@/data/dummyData';
 import ebayLogo from '@/assets/ebay-kleinanzeigen-logo.png';
 
 interface Lead {
@@ -91,9 +93,18 @@ const getStatusClass = (status: Lead['status']) => {
 
 export function LeadsTab() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [leads, setLeads] = useState(initialLeads);
   const [filter, setFilter] = useState<'all' | Lead['status']>('all');
+  const [replyDialogOpen, setReplyDialogOpen] = useState(false);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+
+  const property = properties.find(p => p.id === id) || properties[0];
+  const exposeUrl = `${window.location.origin}/property/${id}/expose`;
+
+  const handleReply = (lead: Lead) => {
+    setSelectedLead(lead);
+    setReplyDialogOpen(true);
+  };
 
   const toggleStar = (id: string) => {
     setLeads(prev => prev.map(lead => 
@@ -245,10 +256,10 @@ export function LeadsTab() {
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => navigate(`/property/${id}/expose`)}
+                    onClick={() => handleReply(lead)}
                   >
-                    <ExternalLink className="h-4 w-4 mr-1" />
-                    Exposé senden
+                    <Send className="h-4 w-4 mr-1" />
+                    Antworten & Exposé senden
                   </Button>
                   <Button size="sm">
                     <Phone className="h-4 w-4 mr-1" />
@@ -260,6 +271,20 @@ export function LeadsTab() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Reply Dialog */}
+      <ReplyDialog
+        open={replyDialogOpen}
+        onOpenChange={setReplyDialogOpen}
+        lead={selectedLead ? {
+          name: selectedLead.name,
+          email: selectedLead.email,
+          message: selectedLead.message,
+          source: selectedLead.source,
+        } : null}
+        propertyAddress={property.address}
+        exposeUrl={exposeUrl}
+      />
     </div>
   );
 }
