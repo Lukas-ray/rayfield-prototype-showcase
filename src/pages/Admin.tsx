@@ -26,6 +26,7 @@ import onOfficeLogo from '@/assets/onoffice-logo.png';
 import flowfactLogo from '@/assets/flowfact-logo.png';
 import propstackLogo from '@/assets/propstack-logo.png';
 import estateLogo from '@/assets/estate-logo.png';
+import ebayKleinanzeigenLogo from '@/assets/ebay-kleinanzeigen-logo.png';
 
 interface Integration {
   id: string;
@@ -145,6 +146,14 @@ export default function Admin() {
       connected: false,
       category: 'portal',
     },
+    {
+      id: 'ebay-kleinanzeigen',
+      name: 'eBay Kleinanzeigen',
+      description: 'Immobilienanzeigen auf eBay Kleinanzeigen schalten',
+      icon: <img src={ebayKleinanzeigenLogo} alt="eBay Kleinanzeigen" className="h-8 w-8 rounded" />,
+      connected: false,
+      category: 'portal',
+    },
   ]);
 
   // Mailbox settings dialog
@@ -222,7 +231,7 @@ export default function Admin() {
     <AppLayout>
       <div className="max-w-6xl mx-auto">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold">Admin</h1>
+          <h1 className="text-2xl font-bold">Einstellungen</h1>
           <p className="text-muted-foreground">Systemkonfiguration und Einstellungen</p>
         </div>
 

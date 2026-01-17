@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 const navigation = [
   { name: 'Objekte', href: '/', icon: Home },
   { name: 'Leads', href: '/leads', icon: Users },
-  { name: 'Admin', href: '/admin', icon: Settings },
+  { name: 'Einstellungen', href: '/admin', icon: Settings },
 ];
 
 export function AppSidebar() {
