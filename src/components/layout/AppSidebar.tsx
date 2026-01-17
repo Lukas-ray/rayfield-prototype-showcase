@@ -3,9 +3,9 @@ import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 const navigation = [
-  { name: 'Properties', href: '/', icon: Home },
-  { name: 'Documents', href: '/documents', icon: FolderOpen },
-  { name: 'Publishing', href: '/publishing', icon: Send },
+  { name: 'Objekte', href: '/', icon: Home },
+  { name: 'Dokumente', href: '/documents', icon: FolderOpen },
+  { name: 'Veröffentlichung', href: '/publishing', icon: Send },
   { name: 'Leads', href: '/leads', icon: Users },
   { name: 'Admin', href: '/admin', icon: Settings },
 ];
@@ -45,8 +45,8 @@ export function AppSidebar() {
               <LayoutDashboard className="h-4 w-4 text-sidebar-muted" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-sidebar-foreground truncate">Berlin Office</p>
-              <p className="text-xs text-sidebar-muted">6 active properties</p>
+              <p className="text-sm font-medium text-sidebar-foreground truncate">Büro Berlin</p>
+              <p className="text-xs text-sidebar-muted">6 aktive Objekte</p>
             </div>
           </div>
         </div>

@@ -14,10 +14,10 @@ const channelIcons = {
 };
 
 const statusConfig = {
-  new: { label: 'New', class: 'status-draft' },
-  qualified: { label: 'Qualified', class: 'status-ready' },
-  viewing_scheduled: { label: 'Viewing Scheduled', class: 'status-active' },
-  offer_made: { label: 'Offer Made', class: 'status-offer' },
+  new: { label: 'Neu', class: 'status-draft' },
+  qualified: { label: 'Qualifiziert', class: 'status-ready' },
+  viewing_scheduled: { label: 'Besichtigung geplant', class: 'status-active' },
+  offer_made: { label: 'Angebot abgegeben', class: 'status-offer' },
 };
 
 export default function Leads() {
@@ -33,8 +33,8 @@ export default function Leads() {
     setTimeout(() => {
       setQualificationScore(85);
       toast({
-        title: 'Lead Qualification Complete',
-        description: `${selectedLead.name} scored 85/100 - High priority lead.`,
+        title: 'Lead-Qualifizierung abgeschlossen',
+        description: `${selectedLead.name} hat 85/100 Punkte erreicht - Lead mit hoher Priorität.`,
       });
     }, 1000);
   };
@@ -45,7 +45,7 @@ export default function Leads() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold">Leads</h1>
-            <p className="text-muted-foreground">{leads.length} inquiries across all properties</p>
+            <p className="text-muted-foreground">{leads.length} Anfragen über alle Objekte</p>
           </div>
         </div>
 
@@ -53,7 +53,7 @@ export default function Leads() {
           {/* Lead List */}
           <div className="col-span-3 workspace-card p-0 overflow-hidden">
             <div className="p-4 border-b">
-              <h3 className="font-semibold">Inquiry Inbox</h3>
+              <h3 className="font-semibold">Anfragen-Posteingang</h3>
             </div>
             <div className="overflow-y-auto">
               {leads.map((lead) => (
@@ -100,27 +100,27 @@ export default function Leads() {
                 </div>
               </div>
               <p className="text-sm text-muted-foreground mt-2">
-                Interested in: <span className="font-medium text-foreground">{property?.address}</span>
+                Interessiert an: <span className="font-medium text-foreground">{property?.address}</span>
               </p>
             </div>
 
             {/* Qualification Panel */}
             <div className="workspace-card">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold">Qualification</h3>
+                <h3 className="font-semibold">Qualifizierung</h3>
                 <Button onClick={handleRunQualification} size="sm" className="gap-2">
                   <Play className="h-4 w-4" />
-                  Run Qualification Agent
+                  Qualification Agent starten
                 </Button>
               </div>
 
               {qualificationScore && (
                 <div className="mb-4 p-4 rounded-lg bg-success/10 border border-success/20">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Qualification Score</span>
+                    <span className="text-sm font-medium">Qualifizierungspunktzahl</span>
                     <span className="text-2xl font-bold text-success">{qualificationScore}/100</span>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">High priority - financing verified, timeline matches</p>
+                  <p className="text-sm text-muted-foreground mt-1">Hohe Priorität - Finanzierung verifiziert, Zeitplan passt</p>
                 </div>
               )}
 
@@ -135,7 +135,7 @@ export default function Leads() {
                 <div className="p-3 rounded-lg bg-secondary/50">
                   <div className="flex items-center gap-2 mb-1">
                     <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">Timeline</span>
+                    <span className="text-sm text-muted-foreground">Zeitrahmen</span>
                   </div>
                   <p className="font-medium">{selectedLead.timeline}</p>
                 </div>
@@ -147,13 +147,13 @@ export default function Leads() {
                       ) : (
                         <AlertCircle className="h-4 w-4 text-warning" />
                       )}
-                      <span className="text-sm">Financing Proof</span>
+                      <span className="text-sm">Finanzierungsnachweis</span>
                     </div>
                     <span className={cn(
                       'text-sm font-medium',
                       selectedLead.financingProof ? 'text-success' : 'text-warning'
                     )}>
-                      {selectedLead.financingProof ? 'Verified' : 'Pending'}
+                      {selectedLead.financingProof ? 'Verifiziert' : 'Ausstehend'}
                     </span>
                   </div>
                 </div>
@@ -162,9 +162,9 @@ export default function Leads() {
 
             {/* Scheduling Panel */}
             <div className="workspace-card">
-              <h3 className="font-semibold mb-4">Scheduling</h3>
+              <h3 className="font-semibold mb-4">Terminplanung</h3>
               <div className="grid grid-cols-3 gap-3">
-                {['Mon 15th, 10:00', 'Tue 16th, 14:00', 'Wed 17th, 11:00'].map((slot) => (
+                {['Mo 15., 10:00', 'Di 16., 14:00', 'Mi 17., 11:00'].map((slot) => (
                   <Button key={slot} variant="outline" className="flex-col h-auto py-3">
                     <Calendar className="h-4 w-4 mb-1" />
                     <span className="text-xs">{slot}</span>

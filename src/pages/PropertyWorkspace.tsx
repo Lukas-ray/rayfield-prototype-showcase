@@ -57,13 +57,13 @@ export default function PropertyWorkspace() {
                 <span>•</span>
                 <span>{property.propertyType}</span>
                 <span>•</span>
-                <span>€{property.price.toLocaleString()}</span>
+                <span>{property.price.toLocaleString('de-DE')} €</span>
               </div>
             </div>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <p className="text-sm text-muted-foreground">Completion</p>
+              <p className="text-sm text-muted-foreground">Fortschritt</p>
               <div className="flex items-center gap-2">
                 <Progress value={property.completionPercent} className="w-24 h-2" />
                 <span className="font-semibold">{property.completionPercent}%</span>
@@ -75,12 +75,12 @@ export default function PropertyWorkspace() {
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="bg-card border">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="overview">Übersicht</TabsTrigger>
             <TabsTrigger value="capture">Capture</TabsTrigger>
-            <TabsTrigger value="media">Media</TabsTrigger>
-            <TabsTrigger value="documents">Documents</TabsTrigger>
+            <TabsTrigger value="media">Medien</TabsTrigger>
+            <TabsTrigger value="documents">Dokumente</TabsTrigger>
             <TabsTrigger value="workflow">Workflow</TabsTrigger>
-            <TabsTrigger value="activity">Activity</TabsTrigger>
+            <TabsTrigger value="activity">Aktivität</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6 animate-fade-in">
@@ -90,19 +90,19 @@ export default function PropertyWorkspace() {
             <div className="grid grid-cols-2 gap-6">
               {/* Next Actions */}
               <div className="workspace-card">
-                <h3 className="font-semibold mb-4">Next Actions</h3>
+                <h3 className="font-semibold mb-4">Nächste Aktionen</h3>
                 <div className="space-y-2">
                   {pendingTasks.map((task) => (
                     <div key={task.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
                       <div>
                         <p className="font-medium text-sm">{task.title}</p>
-                        <p className="text-xs text-muted-foreground">{task.owner} · Due {task.dueDate}</p>
+                        <p className="text-xs text-muted-foreground">{task.owner} · Fällig: {task.dueDate}</p>
                       </div>
                       <span className={cn(
                         'status-badge',
                         task.status === 'in_progress' ? 'status-processing' : 'status-draft'
                       )}>
-                        {task.status === 'in_progress' ? 'In Progress' : 'Pending'}
+                        {task.status === 'in_progress' ? 'In Bearbeitung' : 'Ausstehend'}
                       </span>
                     </div>
                   ))}
@@ -111,7 +111,7 @@ export default function PropertyWorkspace() {
 
               {/* Latest Agent Output */}
               <div className="workspace-card">
-                <h3 className="font-semibold mb-4">Latest Agent Output</h3>
+                <h3 className="font-semibold mb-4">Letzte Agent-Ausgabe</h3>
                 <div className="p-4 rounded-lg bg-accent/5 border border-accent/20">
                   <div className="flex items-center justify-between mb-3">
                     <span className="font-medium">{latestAgentRun.agentName}</span>

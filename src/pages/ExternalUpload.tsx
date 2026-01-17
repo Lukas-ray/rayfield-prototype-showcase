@@ -17,8 +17,8 @@ export default function ExternalUpload() {
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 3000);
     toast({
-      title: 'Uploaded successfully',
-      description: 'Document has been received and will be processed.',
+      title: 'Erfolgreich hochgeladen',
+      description: 'Dokument wurde empfangen und wird verarbeitet.',
     });
   };
 
@@ -32,7 +32,7 @@ export default function ExternalUpload() {
               <FileText className="h-4 w-4 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="font-semibold">Document Upload Portal</h1>
+              <h1 className="font-semibold">Dokumenten-Upload-Portal</h1>
               <p className="text-sm text-muted-foreground">Müllerstraße 42, Berlin</p>
             </div>
           </div>
@@ -42,16 +42,16 @@ export default function ExternalUpload() {
       {/* Content */}
       <main className="max-w-2xl mx-auto px-6 py-8">
         <div className="workspace-card mb-6">
-          <h2 className="font-semibold mb-2">Requested Documents</h2>
+          <h2 className="font-semibold mb-2">Angeforderte Dokumente</h2>
           <p className="text-sm text-muted-foreground mb-4">
-            Please upload the following documents for the property at Müllerstraße 42.
-            Accepted formats: PDF, JPG, PNG (max 25MB each).
+            Bitte laden Sie die folgenden Dokumente für das Objekt Müllerstraße 42 hoch.
+            Akzeptierte Formate: PDF, JPG, PNG (max. 25 MB pro Datei).
           </p>
 
           {showSuccess && (
             <div className="mb-4 p-3 rounded-lg bg-success/10 border border-success/20 flex items-center gap-2">
               <Check className="h-5 w-5 text-success" />
-              <span className="text-sm text-success">Document uploaded successfully!</span>
+              <span className="text-sm text-success">Dokument erfolgreich hochgeladen!</span>
             </div>
           )}
 
@@ -82,11 +82,11 @@ export default function ExternalUpload() {
                     </div>
                   </div>
                   {isUploaded ? (
-                    <span className="status-badge status-ready">Uploaded</span>
+                    <span className="status-badge status-ready">Hochgeladen</span>
                   ) : (
                     <Button onClick={() => handleUpload(doc.id)} variant="outline" className="gap-2">
                       <Upload className="h-4 w-4" />
-                      Upload
+                      Hochladen
                     </Button>
                   )}
                 </div>
@@ -97,12 +97,12 @@ export default function ExternalUpload() {
 
         <div className="text-center">
           <p className="text-sm text-muted-foreground mb-4">
-            Questions? Contact your agent directly.
+            Fragen? Kontaktieren Sie direkt Ihren Makler.
           </p>
           <Button variant="ghost" asChild className="gap-2">
             <a href="/">
               <ChevronLeft className="h-4 w-4" />
-              Back to Rayfield
+              Zurück zu Rayfield
             </a>
           </Button>
         </div>

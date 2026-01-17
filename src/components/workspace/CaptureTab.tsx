@@ -21,11 +21,11 @@ export function CaptureTab() {
   const [version, setVersion] = useState('v2');
   const [isReprocessing, setIsReprocessing] = useState(false);
   const [steps, setSteps] = useState<ProcessingStep[]>([
-    { id: '1', name: 'File uploaded', status: 'completed', timestamp: '14:30' },
-    { id: '2', name: 'Extracting images', status: 'completed', timestamp: '14:32' },
-    { id: '3', name: 'Generating floor plan', status: 'completed', timestamp: '14:35' },
-    { id: '4', name: 'Processing 3D model', status: 'processing' },
-    { id: '5', name: 'Creating virtual tour', status: 'queued' },
+    { id: '1', name: 'Datei hochgeladen', status: 'completed', timestamp: '14:30' },
+    { id: '2', name: 'Bilder werden extrahiert', status: 'completed', timestamp: '14:32' },
+    { id: '3', name: 'Grundriss wird generiert', status: 'completed', timestamp: '14:35' },
+    { id: '4', name: '3D-Modell wird verarbeitet', status: 'processing' },
+    { id: '5', name: 'Virtuelle Tour wird erstellt', status: 'queued' },
   ]);
 
   const handleReprocess = () => {
@@ -39,7 +39,7 @@ export function CaptureTab() {
     
     setTimeout(() => {
       setSteps(prev => prev.map((s, i) => {
-        if (i === 0) return { ...s, status: 'completed' as const, timestamp: 'Now' };
+        if (i === 0) return { ...s, status: 'completed' as const, timestamp: 'Jetzt' };
         if (i === 1) return { ...s, status: 'processing' as const };
         return s;
       }));
@@ -51,26 +51,26 @@ export function CaptureTab() {
     <div className="grid grid-cols-2 gap-6">
       {/* Upload Area */}
       <div className="workspace-card">
-        <h3 className="font-semibold mb-4">Capture Upload</h3>
+        <h3 className="font-semibold mb-4">Capture-Upload</h3>
         <div className="border-2 border-dashed rounded-lg p-8 text-center">
           <Upload className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-          <p className="font-medium mb-1">Drop capture files here</p>
+          <p className="font-medium mb-1">Capture-Dateien hier ablegen</p>
           <p className="text-sm text-muted-foreground mb-4">
-            Supports: Matterport, iGuide, ZIP archives
+            Unterstützt: Matterport, iGuide, ZIP-Archive
           </p>
-          <Button variant="outline">Browse Files</Button>
+          <Button variant="outline">Dateien durchsuchen</Button>
         </div>
         
         <div className="mt-4 p-3 rounded-lg bg-secondary/50">
-          <p className="text-sm font-medium">Current capture:</p>
-          <p className="text-sm text-muted-foreground">scan_muellerstr42_v2.zip (2.4 GB)</p>
+          <p className="text-sm font-medium">Aktueller Capture:</p>
+          <p className="text-sm text-muted-foreground">scan_muellerstr42_v2.zip (2,4 GB)</p>
         </div>
       </div>
 
       {/* Processing Status */}
       <div className="workspace-card">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold">Processing Status</h3>
+          <h3 className="font-semibold">Verarbeitungsstatus</h3>
           <Select value={version} onValueChange={setVersion}>
             <SelectTrigger className="w-24">
               <SelectValue />
@@ -110,7 +110,7 @@ export function CaptureTab() {
 
         <Button onClick={handleReprocess} disabled={isReprocessing} className="w-full gap-2">
           <RefreshCw className={cn("h-4 w-4", isReprocessing && "animate-spin")} />
-          Reprocess Capture
+          Capture erneut verarbeiten
         </Button>
       </div>
     </div>

@@ -13,15 +13,15 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
 const workflowStates = [
-  { id: 'mandate', name: 'Mandate', gates: [] },
-  { id: 'capture', name: 'Capture', gates: ['Scan uploaded'] },
-  { id: 'assets', name: 'Assets', gates: ['Hero photos', 'Floor plan'] },
-  { id: 'docs', name: 'Docs', gates: ['Grundbuchauszug', 'Energieausweis'] },
-  { id: 'published', name: 'Published', gates: ['Hero photos', 'Floor plan', 'Minimum doc pack'] },
-  { id: 'inquiries', name: 'Inquiries', gates: ['At least one inquiry'] },
-  { id: 'viewings', name: 'Viewings', gates: ['Viewing scheduled'] },
-  { id: 'offer', name: 'Offer', gates: ['Offer received'] },
-  { id: 'closing', name: 'Closing', gates: ['Notary appointment'] },
+  { id: 'mandate', name: 'Mandat', gates: [] },
+  { id: 'capture', name: 'Capture', gates: ['Scan hochgeladen'] },
+  { id: 'assets', name: 'Assets', gates: ['Hero-Fotos', 'Grundriss'] },
+  { id: 'docs', name: 'Dokumente', gates: ['Grundbuchauszug', 'Energieausweis'] },
+  { id: 'published', name: 'Veröffentlicht', gates: ['Hero-Fotos', 'Grundriss', 'Mindest-Dokumentenpaket'] },
+  { id: 'inquiries', name: 'Anfragen', gates: ['Mind. eine Anfrage'] },
+  { id: 'viewings', name: 'Besichtigungen', gates: ['Besichtigung geplant'] },
+  { id: 'offer', name: 'Angebot', gates: ['Angebot erhalten'] },
+  { id: 'closing', name: 'Abschluss', gates: ['Notartermin'] },
 ];
 
 interface Gate {
@@ -36,9 +36,9 @@ export function WorkflowTab() {
   const [selectedGate, setSelectedGate] = useState<string | null>(null);
 
   const gates: Gate[] = [
-    { name: 'Hero photos', met: true },
-    { name: 'Floor plan', met: true },
-    { name: 'Minimum doc pack', met: false },
+    { name: 'Hero-Fotos', met: true },
+    { name: 'Grundriss', met: true },
+    { name: 'Mindest-Dokumentenpaket', met: false },
   ];
 
   const canAdvance = gates.every(g => g.met);
@@ -47,8 +47,8 @@ export function WorkflowTab() {
     if (currentState < workflowStates.length - 1) {
       setCurrentState(currentState + 1);
       toast({
-        title: 'Workflow advanced',
-        description: `Property moved to ${workflowStates[currentState + 1].name} state.`,
+        title: 'Workflow fortgeschritten',
+        description: `Objekt in Status "${workflowStates[currentState + 1].name}" verschoben.`,
       });
     }
   };
@@ -56,8 +56,8 @@ export function WorkflowTab() {
   const handleOverride = () => {
     setOverrideDialogOpen(false);
     toast({
-      title: 'Gate overridden',
-      description: `${selectedGate} requirement bypassed. Logged to audit.`,
+      title: 'Gate überschrieben',
+      description: `Anforderung "${selectedGate}" umgangen. Im Audit protokolliert.`,
     });
   };
 
@@ -65,7 +65,7 @@ export function WorkflowTab() {
     <div className="grid grid-cols-3 gap-6">
       {/* State Machine */}
       <div className="col-span-2 workspace-card">
-        <h3 className="font-semibold mb-4">Workflow Pipeline</h3>
+        <h3 className="font-semibold mb-4">Workflow-Pipeline</h3>
         <div className="flex items-center gap-2 overflow-x-auto pb-4">
           {workflowStates.map((state, index) => (
             <div key={state.id} className="flex items-center">
@@ -106,7 +106,7 @@ export function WorkflowTab() {
 
         {/* Gates */}
         <div className="mt-6">
-          <h4 className="font-medium mb-3">Gates for {workflowStates[currentState + 1]?.name || 'Next'} State</h4>
+          <h4 className="font-medium mb-3">Gates für Status „{workflowStates[currentState + 1]?.name || 'Nächster'}"</h4>
           <div className="space-y-2">
             {gates.map((gate) => (
               <div key={gate.name} className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
@@ -128,7 +128,7 @@ export function WorkflowTab() {
                     }}
                   >
                     <ShieldAlert className="h-4 w-4 mr-1" />
-                    Override
+                    Überschreiben
                   </Button>
                 )}
               </div>
@@ -139,14 +139,14 @@ export function WorkflowTab() {
         <div className="flex gap-2 mt-6">
           <Button onClick={handleMoveNext} disabled={!canAdvance} className="flex-1 gap-2">
             <ArrowRight className="h-4 w-4" />
-            Move to Next State
+            Zum nächsten Status
           </Button>
         </div>
       </div>
 
       {/* Tasks */}
       <div className="workspace-card">
-        <h3 className="font-semibold mb-4">Tasks</h3>
+        <h3 className="font-semibold mb-4">Aufgaben</h3>
         <div className="space-y-3">
           {tasks.map((task) => (
             <div key={task.id} className={cn(
@@ -188,17 +188,17 @@ export function WorkflowTab() {
       <Dialog open={overrideDialogOpen} onOpenChange={setOverrideDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Override Gate</DialogTitle>
+            <DialogTitle>Gate überschreiben</DialogTitle>
           </DialogHeader>
           <div className="py-4">
             <p className="text-sm text-muted-foreground">
-              Are you sure you want to override the <strong>{selectedGate}</strong> requirement?
-              This action will be logged to the audit trail.
+              Sind Sie sicher, dass Sie die Anforderung <strong>{selectedGate}</strong> überschreiben möchten?
+              Diese Aktion wird im Audit-Trail protokolliert.
             </p>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOverrideDialogOpen(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleOverride}>Override Gate</Button>
+            <Button variant="outline" onClick={() => setOverrideDialogOpen(false)}>Abbrechen</Button>
+            <Button variant="destructive" onClick={handleOverride}>Gate überschreiben</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

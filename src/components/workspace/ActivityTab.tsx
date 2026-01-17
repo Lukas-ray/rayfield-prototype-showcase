@@ -3,20 +3,20 @@ import { auditEntries, AuditEntry } from '@/data/dummyData';
 import { cn } from '@/lib/utils';
 
 const actionIcons: Record<string, typeof Upload> = {
-  'Capture uploaded': Upload,
-  'Agent run completed': Bot,
-  'Document renamed': FileText,
-  'Export generated': ArrowUpRight,
-  'Workflow state changed': RefreshCw,
-  'Document uploaded': Upload,
+  'Capture hochgeladen': Upload,
+  'Agent-Lauf abgeschlossen': Bot,
+  'Dokument umbenannt': FileText,
+  'Export generiert': ArrowUpRight,
+  'Workflow-Status geändert': RefreshCw,
+  'Dokument hochgeladen': Upload,
 };
 
 export function ActivityTab() {
   return (
     <div className="workspace-card max-w-3xl">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="font-semibold">Activity Timeline</h3>
-        <span className="text-xs text-muted-foreground">Immutable audit log</span>
+        <h3 className="font-semibold">Aktivitäts-Timeline</h3>
+        <span className="text-xs text-muted-foreground">Unveränderliches Audit-Log</span>
       </div>
 
       <div className="relative">
@@ -46,9 +46,9 @@ export function ActivityTab() {
                     <div>
                       <p className="font-medium">{entry.action}</p>
                       <p className="text-sm text-muted-foreground">
-                        by {entry.actor}
+                        von {entry.actor}
                         {entry.actorType === 'agent' && (
-                          <span className="ml-1 evidence-badge">AI</span>
+                          <span className="ml-1 evidence-badge">KI</span>
                         )}
                       </p>
                     </div>
