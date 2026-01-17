@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin } from 'lucide-react';
+import { ArrowLeft, MapPin, Home, Euro, Ruler, BedDouble, Bath, Calendar, User, Phone, Mail, Building2 } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,13 +9,13 @@ import { EvidenceSection } from '@/components/workspace/EvidenceSection';
 import { CaptureTab } from '@/components/workspace/CaptureTab';
 import { MediaTab } from '@/components/workspace/MediaTab';
 import { DocumentsTab } from '@/components/workspace/DocumentsTab';
-
 import { ActivityTab } from '@/components/workspace/ActivityTab';
-
 import { AskRayfieldWidget } from '@/components/workspace/AskRayfieldWidget';
-import { properties, getWorkflowStateLabel, getWorkflowStateClass, tasks, agentRuns } from '@/data/dummyData';
+import { properties, getWorkflowStateLabel, getWorkflowStateClass, tasks } from '@/data/dummyData';
 import { Progress } from '@/components/ui/progress';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import propertyLivingRoom from '@/assets/property-living-room.jpg';
 
 export default function PropertyWorkspace() {
   const { id } = useParams();
@@ -23,7 +23,6 @@ export default function PropertyWorkspace() {
   const [activeTab, setActiveTab] = useState('overview');
 
   const property = properties.find(p => p.id === id) || properties[0];
-  const latestAgentRun = agentRuns[0];
   const pendingTasks = tasks.filter(t => t.status !== 'completed');
 
   // Determine pipeline step based on workflow state
@@ -34,6 +33,15 @@ export default function PropertyWorkspace() {
       case 'docs_missing': return 3;
       default: return 4;
     }
+  };
+
+  // Mock owner data
+  const owner = {
+    name: 'Dr. Thomas Müller',
+    phone: '+49 89 123 456 78',
+    email: 'thomas.mueller@email.de',
+    company: 'Müller Immobilien GmbH',
+    since: '15.03.2024',
   };
 
   return (
@@ -80,25 +88,138 @@ export default function PropertyWorkspace() {
             <TabsTrigger value="capture">Capture</TabsTrigger>
             <TabsTrigger value="media">Medien</TabsTrigger>
             <TabsTrigger value="documents">Dokumente</TabsTrigger>
-            
-            
             <TabsTrigger value="activity">Aktivität</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6 animate-fade-in">
+            {/* Property Overview Card */}
+            <div className="grid grid-cols-3 gap-6">
+              {/* Property Image & Key Info */}
+              <Card className="col-span-2">
+                <CardContent className="p-0">
+                  <div className="flex">
+                    <div className="w-1/3">
+                      <img 
+                        src={propertyLivingRoom} 
+                        alt={property.address}
+                        className="w-full h-full object-cover rounded-l-lg"
+                      />
+                    </div>
+                    <div className="flex-1 p-6">
+                      <h3 className="text-lg font-semibold mb-4">Objektdetails</h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                            <Home className="h-5 w-5 text-accent" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Objektart</p>
+                            <p className="font-medium">{property.propertyType}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                            <Euro className="h-5 w-5 text-accent" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Kaufpreis</p>
+                            <p className="font-medium">{property.price.toLocaleString('de-DE')} €</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                            <Ruler className="h-5 w-5 text-accent" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Wohnfläche</p>
+                            <p className="font-medium">120 m²</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                            <BedDouble className="h-5 w-5 text-accent" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Zimmer</p>
+                            <p className="font-medium">4 Zimmer</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                            <Bath className="h-5 w-5 text-accent" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Bäder</p>
+                            <p className="font-medium">2 Bäder</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                            <Calendar className="h-5 w-5 text-accent" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Baujahr</p>
+                            <p className="font-medium">1985</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Owner Info */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <User className="h-5 w-5 text-accent" />
+                    Eigentümer
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <p className="font-semibold text-lg">{owner.name}</p>
+                    <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
+                      <Building2 className="h-4 w-4" />
+                      {owner.company}
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3 text-sm">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <span>{owner.phone}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm">
+                      <Mail className="h-4 w-4 text-muted-foreground" />
+                      <span>{owner.email}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span>Kunde seit {owner.since}</span>
+                    </div>
+                  </div>
+                  <Button variant="outline" size="sm" className="w-full mt-2">
+                    Kontaktieren
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+
             {/* Pipeline */}
             <PipelineVisualization currentStep={getPipelineStep()} />
 
-            <div className="grid grid-cols-2 gap-6">
-              {/* Next Actions */}
-              <div className="workspace-card">
-                <h3 className="font-semibold mb-4">Nächste Aktionen</h3>
-                <div className="space-y-2">
+            {/* Next Actions */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Nächste Aktionen</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-3">
                   {pendingTasks.map((task) => (
-                    <div key={task.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
+                    <div key={task.id} className="flex items-center justify-between p-4 rounded-lg bg-secondary/50 border border-border">
                       <div>
-                        <p className="font-medium text-sm">{task.title}</p>
-                        <p className="text-xs text-muted-foreground">{task.owner} · Fällig: {task.dueDate}</p>
+                        <p className="font-medium">{task.title}</p>
+                        <p className="text-sm text-muted-foreground">{task.owner} · Fällig: {task.dueDate}</p>
                       </div>
                       <span className={cn(
                         'status-badge',
@@ -109,27 +230,8 @@ export default function PropertyWorkspace() {
                     </div>
                   ))}
                 </div>
-              </div>
-
-              {/* Latest Agent Output */}
-              <div className="workspace-card">
-                <h3 className="font-semibold mb-4">Letzte Agent-Ausgabe</h3>
-                <div className="p-4 rounded-lg bg-accent/5 border border-accent/20">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-medium">{latestAgentRun.agentName}</span>
-                    <span className="text-xs text-muted-foreground">{latestAgentRun.timestamp}</span>
-                  </div>
-                  <ul className="space-y-1">
-                    {latestAgentRun.outputs.map((output, i) => (
-                      <li key={i} className="text-sm text-muted-foreground flex items-center gap-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-                        {output}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
             {/* Evidence Section */}
             <EvidenceSection />
