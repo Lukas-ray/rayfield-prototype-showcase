@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, Ruler, BedDouble, Bath, Calendar, Euro, Home, Car, Leaf, Phone, Mail, User, ChevronLeft, ChevronRight, X, Box, Play } from 'lucide-react';
+import { ArrowLeft, MapPin, Ruler, BedDouble, Bath, Calendar, Euro, Home, Car, Leaf, Phone, Mail, User, ChevronLeft, ChevronRight, X, Box, Play, Lock, Eye, FileText, TrendingUp, Star, Crown, Gift, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,8 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { properties } from '@/data/dummyData';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { GatedContentCard } from '@/components/expose/GatedContentCard';
+import { QuickUnlockForm } from '@/components/expose/QuickUnlockForm';
+import { UnlockRewardToast } from '@/components/expose/UnlockRewardToast';
 
 // Property images
 import propertyLivingRoom from '@/assets/property-living-room.jpg';
@@ -45,6 +48,55 @@ export default function PropertyExpose() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [contactForm, setContactForm] = useState({ name: '', email: '', phone: '', message: '' });
+  
+  // Gamification state
+  const [unlockLevel, setUnlockLevel] = useState(0);
+  const [userData, setUserData] = useState({ email: '', phone: '', name: '' });
+  const [showRewardToast, setShowRewardToast] = useState(false);
+  const [lastReward, setLastReward] = useState('');
+  const [nextReward, setNextReward] = useState('');
+  const [viewedSections, setViewedSections] = useState<string[]>([]);
+  const [showUnlockPrompt, setShowUnlockPrompt] = useState(false);
+  
+  // Track engagement
+  const [engagementScore, setEngagementScore] = useState(0);
+  
+  const rewards = [
+    { level: 1, reward: '3D-Tour & alle Bilder' },
+    { level: 2, reward: 'Grundrisse & Energieausweis' },
+    { level: 3, reward: 'Priority-Status & Preishistorie' }
+  ];
+  
+  // Auto-show unlock prompt after viewing 2 images
+  useEffect(() => {
+    if (viewedSections.length >= 2 && unlockLevel === 0 && !showUnlockPrompt) {
+      setShowUnlockPrompt(true);
+    }
+  }, [viewedSections, unlockLevel, showUnlockPrompt]);
+  
+  const trackSection = (section: string) => {
+    if (!viewedSections.includes(section)) {
+      setViewedSections(prev => [...prev, section]);
+      setEngagementScore(prev => prev + 10);
+    }
+  };
+  
+  const handleUnlock = (level: number, data: { email?: string; phone?: string; name?: string }) => {
+    setUserData(prev => ({ ...prev, ...data }));
+    setUnlockLevel(level);
+    
+    const currentReward = rewards.find(r => r.level === level);
+    const next = rewards.find(r => r.level === level + 1);
+    
+    setLastReward(currentReward?.reward || '');
+    setNextReward(next?.reward || '');
+    setShowRewardToast(true);
+    setEngagementScore(prev => prev + 50);
+  };
+  
+  const scrollToUnlock = () => {
+    document.getElementById('unlock-section')?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   const property = properties.find(p => p.id === id) || properties[0];
 
@@ -227,20 +279,131 @@ export default function PropertyExpose() {
               </CardContent>
             </Card>
 
-            {/* Virtual Tour */}
+            {/* Virtual Tour - Gated behind Level 1 */}
             <Card>
               <CardContent className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Virtuelle Besichtigung</h2>
-                <div className="aspect-video rounded-xl bg-gradient-to-br from-accent/20 to-primary/20 flex items-center justify-center relative overflow-hidden">
-                  <img src={propertyLivingRoom} alt="360° Tour" className="absolute inset-0 w-full h-full object-cover opacity-30" />
-                  <div className="relative text-center">
-                    <div className="w-20 h-20 rounded-full bg-accent/90 flex items-center justify-center mx-auto mb-4 cursor-pointer hover:scale-110 transition-transform">
-                      <Box className="h-10 w-10 text-accent-foreground" />
-                    </div>
-                    <p className="font-semibold text-lg">360° Tour starten</p>
-                    <p className="text-sm text-muted-foreground">Erkunden Sie die Wohnung virtuell</p>
-                  </div>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-semibold">Virtuelle Besichtigung</h2>
+                  {unlockLevel >= 1 ? (
+                    <Badge className="bg-accent/20 text-accent">
+                      <Gift className="h-3 w-3 mr-1" /> Freigeschaltet
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary" className="gap-1">
+                      <Lock className="h-3 w-3" /> Premium
+                    </Badge>
+                  )}
                 </div>
+                <GatedContentCard
+                  title="3D-Tour freischalten"
+                  description="Erkunden Sie jedes Zimmer in einer interaktiven 360°-Tour. Geben Sie Ihre E-Mail an, um sofort Zugang zu erhalten."
+                  icon={<Box className="h-5 w-5 text-accent" />}
+                  unlocked={unlockLevel >= 1}
+                  unlockAction="Mit E-Mail freischalten"
+                  onUnlock={scrollToUnlock}
+                  previewImage={propertyLivingRoom}
+                >
+                  <div className="aspect-video rounded-xl bg-gradient-to-br from-accent/20 to-primary/20 flex items-center justify-center relative overflow-hidden">
+                    <img src={propertyLivingRoom} alt="360° Tour" className="absolute inset-0 w-full h-full object-cover opacity-30" />
+                    <div className="relative text-center">
+                      <div className="w-20 h-20 rounded-full bg-accent/90 flex items-center justify-center mx-auto mb-4 cursor-pointer hover:scale-110 transition-transform">
+                        <Box className="h-10 w-10 text-accent-foreground" />
+                      </div>
+                      <p className="font-semibold text-lg">360° Tour starten</p>
+                      <p className="text-sm text-muted-foreground">Erkunden Sie die Wohnung virtuell</p>
+                    </div>
+                  </div>
+                </GatedContentCard>
+              </CardContent>
+            </Card>
+
+            {/* Floor Plans - Gated behind Level 2 */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-semibold">Grundrisse & Dokumente</h2>
+                  {unlockLevel >= 2 ? (
+                    <Badge className="bg-accent/20 text-accent">
+                      <Gift className="h-3 w-3 mr-1" /> Freigeschaltet
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary" className="gap-1">
+                      <Lock className="h-3 w-3" /> Level 2
+                    </Badge>
+                  )}
+                </div>
+                <GatedContentCard
+                  title="Grundrisse ansehen"
+                  description="Detaillierte Grundrisse und der Energieausweis. Telefonnummer angeben für sofortigen Zugang."
+                  icon={<FileText className="h-5 w-5 text-accent" />}
+                  unlocked={unlockLevel >= 2}
+                  unlockAction="Mit Telefon freischalten"
+                  onUnlock={scrollToUnlock}
+                >
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="aspect-square rounded-xl bg-secondary/50 flex items-center justify-center">
+                      <div className="text-center">
+                        <FileText className="h-12 w-12 mx-auto mb-2 text-accent" />
+                        <p className="font-medium">Grundriss EG</p>
+                        <Button variant="link" size="sm">PDF öffnen</Button>
+                      </div>
+                    </div>
+                    <div className="aspect-square rounded-xl bg-secondary/50 flex items-center justify-center">
+                      <div className="text-center">
+                        <FileText className="h-12 w-12 mx-auto mb-2 text-accent" />
+                        <p className="font-medium">Energieausweis</p>
+                        <Button variant="link" size="sm">PDF öffnen</Button>
+                      </div>
+                    </div>
+                  </div>
+                </GatedContentCard>
+              </CardContent>
+            </Card>
+
+            {/* Price History - Gated behind Level 3 */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-semibold">Preishistorie & Marktdaten</h2>
+                  {unlockLevel >= 3 ? (
+                    <Badge className="bg-gradient-to-r from-accent to-primary text-accent-foreground">
+                      <Crown className="h-3 w-3 mr-1" /> Priority
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary" className="gap-1">
+                      <Lock className="h-3 w-3" /> Level 3
+                    </Badge>
+                  )}
+                </div>
+                <GatedContentCard
+                  title="Exklusive Marktdaten"
+                  description="Preishistorie, Vergleichsobjekte und Marktanalyse. Nur für verifizierte Interessenten."
+                  icon={<TrendingUp className="h-5 w-5 text-accent" />}
+                  unlocked={unlockLevel >= 3}
+                  unlockAction="Jetzt freischalten"
+                  onUnlock={scrollToUnlock}
+                >
+                  <div className="space-y-4">
+                    <div className="p-4 rounded-xl bg-secondary/50">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-muted-foreground">Aktueller Preis</span>
+                        <span className="font-bold text-accent">{property.price.toLocaleString('de-DE')} €</span>
+                      </div>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-muted-foreground">Preis bei Einstellung</span>
+                        <span className="font-medium">{(property.price * 1.05).toLocaleString('de-DE')} €</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Preisänderung</span>
+                        <span className="text-green-500 font-medium">-5%</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 p-3 rounded-lg bg-accent/10 text-sm">
+                      <Crown className="h-4 w-4 text-accent" />
+                      <span>Sie haben Priority-Status für dieses Objekt</span>
+                    </div>
+                  </div>
+                </GatedContentCard>
               </CardContent>
             </Card>
 
@@ -273,8 +436,69 @@ export default function PropertyExpose() {
             </Card>
           </div>
 
-          {/* Right Column - Contact */}
+          {/* Right Column - Contact & Unlock */}
           <div className="space-y-6">
+            {/* Unlock Progress Section */}
+            <Card id="unlock-section" className="border-accent/30 bg-gradient-to-br from-accent/5 to-primary/5">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Sparkles className="h-5 w-5 text-accent" />
+                  <h2 className="text-lg font-semibold">Mehr entdecken</h2>
+                </div>
+                
+                {/* Engagement Score */}
+                <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 mb-4">
+                  <div className="flex items-center gap-2">
+                    <Eye className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">Ihr Engagement</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-20 bg-secondary rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-gradient-to-r from-accent to-primary transition-all duration-500"
+                        style={{ width: `${Math.min(engagementScore, 100)}%` }}
+                      />
+                    </div>
+                    <span className="text-xs font-medium">{engagementScore} Punkte</span>
+                  </div>
+                </div>
+                
+                <QuickUnlockForm 
+                  currentLevel={unlockLevel} 
+                  onUnlock={handleUnlock}
+                />
+                
+                {/* What you unlock */}
+                <div className="mt-4 space-y-2">
+                  <p className="text-xs text-muted-foreground font-medium">Freischaltbare Inhalte:</p>
+                  {[
+                    { level: 1, icon: Box, label: '3D-Tour & alle Bilder', reward: 'E-Mail' },
+                    { level: 2, icon: FileText, label: 'Grundrisse & Energieausweis', reward: 'Telefon' },
+                    { level: 3, icon: Crown, label: 'Priority-Status & Preishistorie', reward: 'Name' },
+                  ].map(item => (
+                    <div 
+                      key={item.level}
+                      className={`flex items-center gap-2 p-2 rounded-lg text-sm transition-colors ${
+                        unlockLevel >= item.level 
+                          ? 'bg-accent/20 text-accent' 
+                          : 'bg-secondary/30 text-muted-foreground'
+                      }`}
+                    >
+                      {unlockLevel >= item.level ? (
+                        <Gift className="h-4 w-4" />
+                      ) : (
+                        <Lock className="h-4 w-4" />
+                      )}
+                      <span className="flex-1">{item.label}</span>
+                      {unlockLevel < item.level && (
+                        <span className="text-xs opacity-70">+ {item.reward}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
             <Card className="sticky top-24">
               <CardContent className="p-6">
                 <h2 className="text-xl font-semibold mb-4">Interesse? Kontaktieren Sie uns!</h2>
@@ -391,6 +615,14 @@ export default function PropertyExpose() {
           </div>
         </div>
       )}
+      
+      {/* Reward Toast */}
+      <UnlockRewardToast
+        show={showRewardToast}
+        reward={lastReward}
+        nextReward={nextReward}
+        onClose={() => setShowRewardToast(false)}
+      />
     </div>
   );
 }
