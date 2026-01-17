@@ -22,6 +22,7 @@ import {
 import { checklistTemplates, exportPresets, roles } from '@/data/dummyData';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import onOfficeLogo from '@/assets/onoffice-logo.png';
 
 interface Integration {
   id: string;
@@ -61,7 +62,7 @@ export default function Admin() {
       id: 'onoffice',
       name: 'onOffice',
       description: 'Makler-CRM für Objektverwaltung und Kundenkontakte',
-      icon: <img src="https://www.onoffice.com/fileadmin/templates/res/favicon/apple-touch-icon.png" alt="onOffice" className="h-8 w-8 rounded" />,
+      icon: <img src={onOfficeLogo} alt="onOffice" className="h-8 w-8 rounded" />,
       connected: false,
       category: 'email',
     },
