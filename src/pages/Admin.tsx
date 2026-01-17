@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Check, X, Users, FileText, Settings, Shield, Mail, Instagram, Facebook, Linkedin, Youtube, Globe, Unplug, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Plus, Check, X, Users, FileText, Settings, Shield, Mail, Instagram, Facebook, Linkedin, Youtube, Globe, Unplug, CheckCircle2, AlertCircle, Database } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,6 +23,9 @@ import { checklistTemplates, exportPresets, roles } from '@/data/dummyData';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import onOfficeLogo from '@/assets/onoffice-logo.png';
+import flowfactLogo from '@/assets/flowfact-logo.png';
+import propstackLogo from '@/assets/propstack-logo.png';
+import estateLogo from '@/assets/estate-logo.png';
 
 interface Integration {
   id: string;
@@ -31,7 +34,7 @@ interface Integration {
   icon: React.ReactNode;
   connected: boolean;
   connectedAccount?: string;
-  category: 'email' | 'social' | 'portal';
+  category: 'email' | 'social' | 'portal' | 'crm';
 }
 
 export default function Admin() {
@@ -63,8 +66,33 @@ export default function Admin() {
       name: 'onOffice',
       description: 'Makler-CRM für Objektverwaltung und Kundenkontakte',
       icon: <img src={onOfficeLogo} alt="onOffice" className="h-8 w-8 rounded" />,
+      connected: true,
+      connectedAccount: 'Rayfield GmbH',
+      category: 'crm',
+    },
+    {
+      id: 'flowfact',
+      name: 'Flowfact',
+      description: 'Cloud-basierte Immobiliensoftware für Makler',
+      icon: <img src={flowfactLogo} alt="Flowfact" className="h-8 w-8 rounded" />,
       connected: false,
-      category: 'email',
+      category: 'crm',
+    },
+    {
+      id: 'propstack',
+      name: 'Propstack',
+      description: 'Modernes CRM für die Immobilienbranche',
+      icon: <img src={propstackLogo} alt="Propstack" className="h-8 w-8 rounded" />,
+      connected: false,
+      category: 'crm',
+    },
+    {
+      id: 'estate',
+      name: 'ESTATE',
+      description: 'Professionelle Maklersoftware mit OpenImmo-Schnittstelle',
+      icon: <img src={estateLogo} alt="ESTATE" className="h-8 w-8 rounded" />,
+      connected: false,
+      category: 'crm',
     },
     {
       id: 'instagram',
@@ -186,6 +214,7 @@ export default function Admin() {
   const emailIntegrations = integrations.filter(i => i.category === 'email');
   const socialIntegrations = integrations.filter(i => i.category === 'social');
   const portalIntegrations = integrations.filter(i => i.category === 'portal');
+  const crmIntegrations = integrations.filter(i => i.category === 'crm');
 
   const connectedCount = integrations.filter(i => i.connected).length;
 
@@ -221,6 +250,64 @@ export default function Admin() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   {emailIntegrations.map(integration => (
+                    <div key={integration.id} className="workspace-card">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-4">
+                          <div className="p-2 rounded-lg bg-secondary/50">
+                            {integration.icon}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-semibold">{integration.name}</h3>
+                              {integration.connected && (
+                                <Badge variant="outline" className="text-green-600 border-green-600">
+                                  <CheckCircle2 className="h-3 w-3 mr-1" />
+                                  Verbunden
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {integration.description}
+                            </p>
+                            {integration.connected && integration.connectedAccount && (
+                              <p className="text-sm text-accent mt-2">
+                                {integration.connectedAccount}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-4 flex justify-end">
+                        {integration.connected ? (
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleDisconnect(integration.id)}
+                          >
+                            Trennen
+                          </Button>
+                        ) : (
+                          <Button 
+                            size="sm"
+                            onClick={() => handleConnect(integration.id)}
+                          >
+                            Verbinden
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* CRM Integrations */}
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <Database className="h-5 w-5 text-muted-foreground" />
+                  <h2 className="text-lg font-semibold">Makler-CRM Systeme</h2>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  {crmIntegrations.map(integration => (
                     <div key={integration.id} className="workspace-card">
                       <div className="flex items-start justify-between">
                         <div className="flex items-start gap-4">
