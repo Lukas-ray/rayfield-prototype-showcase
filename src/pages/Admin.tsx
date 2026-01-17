@@ -58,6 +58,14 @@ export default function Admin() {
       category: 'email',
     },
     {
+      id: 'onedrive',
+      name: 'OneDrive',
+      description: 'Dokumente und Dateien in der Cloud speichern und teilen',
+      icon: <img src="https://img.icons8.com/color/48/one-drive.png" alt="OneDrive" className="h-8 w-8" />,
+      connected: false,
+      category: 'email',
+    },
+    {
       id: 'instagram',
       name: 'Instagram',
       description: 'Immobilienfotos und Stories automatisch posten',
@@ -194,10 +202,6 @@ export default function Admin() {
               <Unplug className="h-4 w-4" />
               Integrationen
               <Badge variant="secondary">{connectedCount}/{integrations.length}</Badge>
-            </TabsTrigger>
-            <TabsTrigger value="templates" className="gap-2">
-              <FileText className="h-4 w-4" />
-              Vorlagen
             </TabsTrigger>
             <TabsTrigger value="settings" className="gap-2">
               <Settings className="h-4 w-4" />
@@ -377,67 +381,6 @@ export default function Admin() {
                           </Button>
                         )}
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-
-          {/* Templates Tab */}
-          <TabsContent value="templates">
-            <div className="grid grid-cols-2 gap-6">
-              {/* Checklist Templates */}
-              <div className="workspace-card">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-muted-foreground" />
-                    <h3 className="font-semibold">Checklisten-Vorlagen</h3>
-                  </div>
-                  <Button size="sm" variant="outline">
-                    <Plus className="h-4 w-4 mr-1" />
-                    Hinzufügen
-                  </Button>
-                </div>
-                <div className="space-y-3">
-                  {templates.map((template) => (
-                    <div key={template.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
-                      <div>
-                        <p className="font-medium">{template.name}</p>
-                        <p className="text-xs text-muted-foreground">{template.items} Einträge</p>
-                      </div>
-                      <Switch
-                        checked={template.active}
-                        onCheckedChange={() => toggleTemplate(template.id)}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Export Presets */}
-              <div className="workspace-card">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-muted-foreground" />
-                    <h3 className="font-semibold">Export-Vorlagen</h3>
-                  </div>
-                  <Button size="sm" variant="outline">
-                    <Plus className="h-4 w-4 mr-1" />
-                    Hinzufügen
-                  </Button>
-                </div>
-                <div className="space-y-3">
-                  {presets.map((preset) => (
-                    <div key={preset.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
-                      <div>
-                        <p className="font-medium">{preset.name}</p>
-                        <p className="text-xs text-muted-foreground">{preset.fields} Felder zugeordnet</p>
-                      </div>
-                      <Switch
-                        checked={preset.active}
-                        onCheckedChange={() => togglePreset(preset.id)}
-                      />
                     </div>
                   ))}
                 </div>
