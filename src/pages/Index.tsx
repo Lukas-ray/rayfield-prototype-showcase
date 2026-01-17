@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Filter, Search } from 'lucide-react';
+import { Plus, Filter, Search, TrendingUp, Users, FileCheck, Clock } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import { CreatePropertyDialog } from '@/components/properties/CreatePropertyDialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
@@ -30,6 +31,14 @@ const Index = () => {
       property.city.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
+
+  // Dashboard statistics
+  const stats = useMemo(() => ({
+    totalProperties: properties.length,
+    activeInquiries: properties.filter(p => p.workflowState === 'inquiries_active').length,
+    readyToPublish: properties.filter(p => p.workflowState === 'ready_to_publish').length,
+    avgCompletion: Math.round(properties.reduce((acc, p) => acc + p.completionPercent, 0) / properties.length),
+  }), [properties]);
 
   const handleCreateProperty = (data: { address: string; propertyType: string; clientName: string }) => {
     const newProperty = {
@@ -65,14 +74,68 @@ const Index = () => {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Objekte</h1>
-            <p className="text-muted-foreground mt-1">
-              {properties.length} Objekte · {properties.filter(p => p.workflowState === 'inquiries_active').length} mit aktiven Anfragen
-            </p>
+            <p className="text-muted-foreground mt-1">Übersicht aller Immobilien in Ihrem Portfolio</p>
           </div>
           <Button onClick={() => setCreateDialogOpen(true)} className="gap-2">
             <Plus className="h-4 w-4" />
             Objekt erstellen
           </Button>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <Card className="border-l-4 border-l-accent">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-accent/10">
+                  <TrendingUp className="h-5 w-5 text-accent" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{stats.totalProperties}</p>
+                  <p className="text-xs text-muted-foreground">Objekte gesamt</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-l-4 border-l-info">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-info/10">
+                  <Users className="h-5 w-5 text-info" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{stats.activeInquiries}</p>
+                  <p className="text-xs text-muted-foreground">Aktive Anfragen</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-l-4 border-l-success">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-success/10">
+                  <FileCheck className="h-5 w-5 text-success" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{stats.readyToPublish}</p>
+                  <p className="text-xs text-muted-foreground">Bereit zur Veröffentlichung</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-l-4 border-l-warning">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-warning/10">
+                  <Clock className="h-5 w-5 text-warning" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{stats.avgCompletion}%</p>
+                  <p className="text-xs text-muted-foreground">Ø Fertigstellung</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Filters */}
