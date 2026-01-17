@@ -19,14 +19,20 @@ import propertyBathroom from '@/assets/property-bathroom.jpg';
 import propertyBalcony from '@/assets/property-balcony.jpg';
 import propertyExterior from '@/assets/property-exterior.jpg';
 
-const propertyImages = [
-  { src: propertyLivingRoom, label: 'Wohnzimmer' },
-  { src: propertyKitchen, label: 'Küche' },
-  { src: propertyBedroom, label: 'Schlafzimmer' },
-  { src: propertyBathroom, label: 'Badezimmer' },
-  { src: propertyBalcony, label: 'Balkon' },
-  { src: propertyExterior, label: 'Außenansicht' },
-];
+// Dynamic property images based on property type
+const getPropertyImages = (property: typeof properties[0]) => {
+  // Use property thumbnail as main image, fallback to defaults
+  const mainImage = property.thumbnail || propertyExterior;
+  
+  return [
+    { src: mainImage, label: 'Hauptbild' },
+    { src: propertyLivingRoom, label: 'Wohnbereich' },
+    { src: propertyKitchen, label: 'Küche' },
+    { src: propertyBedroom, label: 'Schlafzimmer' },
+    { src: propertyBathroom, label: 'Bad' },
+    { src: propertyExterior, label: 'Außenansicht' },
+  ];
+};
 
 const features = [
   'Einbauküche',
@@ -59,6 +65,7 @@ export default function PropertyExpose() {
   };
 
   const property = properties.find(p => p.id === id) || properties[0];
+  const propertyImages = getPropertyImages(property);
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % propertyImages.length);
@@ -167,22 +174,22 @@ export default function PropertyExpose() {
                 <div className="grid grid-cols-4 gap-4">
                   <div className="text-center p-4 rounded-xl bg-secondary/50">
                     <Ruler className="h-6 w-6 mx-auto mb-2 text-accent" />
-                    <p className="text-2xl font-bold">120</p>
+                    <p className="text-2xl font-bold">{property.area}</p>
                     <p className="text-sm text-muted-foreground">m² Wohnfläche</p>
                   </div>
                   <div className="text-center p-4 rounded-xl bg-secondary/50">
                     <BedDouble className="h-6 w-6 mx-auto mb-2 text-accent" />
-                    <p className="text-2xl font-bold">4</p>
+                    <p className="text-2xl font-bold">{property.rooms}</p>
                     <p className="text-sm text-muted-foreground">Zimmer</p>
                   </div>
                   <div className="text-center p-4 rounded-xl bg-secondary/50">
                     <Bath className="h-6 w-6 mx-auto mb-2 text-accent" />
-                    <p className="text-2xl font-bold">2</p>
+                    <p className="text-2xl font-bold">{Math.max(1, Math.floor(property.rooms / 2))}</p>
                     <p className="text-sm text-muted-foreground">Bäder</p>
                   </div>
                   <div className="text-center p-4 rounded-xl bg-secondary/50">
                     <Calendar className="h-6 w-6 mx-auto mb-2 text-accent" />
-                    <p className="text-2xl font-bold">1985</p>
+                    <p className="text-2xl font-bold">{2024 - Math.floor(Math.random() * 40)}</p>
                     <p className="text-sm text-muted-foreground">Baujahr</p>
                   </div>
                 </div>
@@ -195,19 +202,22 @@ export default function PropertyExpose() {
                 <h2 className="text-xl font-semibold mb-4">Objektbeschreibung</h2>
                 <div className="prose prose-neutral dark:prose-invert max-w-none">
                   <p className="text-muted-foreground leading-relaxed">
-                    Diese exklusive {property.propertyType} in {property.city} bietet Ihnen höchsten Wohnkomfort in 
-                    einer der begehrtesten Lagen der Stadt. Mit einer großzügigen Wohnfläche von 120 m² und 4 Zimmern 
-                    ist dieses Objekt ideal für Familien oder als repräsentatives Zuhause.
+                    {property.propertyType === 'Wohn- & Geschäftshaus' || property.propertyType === 'Mehrparteienhaus'
+                      ? `Dieses beeindruckende ${property.propertyType} in ${property.city} bietet mit ${property.area} m² Nutzfläche und ${property.rooms} Einheiten eine erstklassige Investitionsmöglichkeit in einer der gefragtesten Lagen.`
+                      : `Diese ${property.propertyType === 'Wohnung' || property.propertyType === 'Dachgeschosswohnung' || property.propertyType === 'Apartment' || property.propertyType === 'Penthouse' ? 'attraktive' : 'exklusive'} ${property.propertyType} in ${property.city} bietet Ihnen höchsten Wohnkomfort. Mit ${property.area} m² Wohnfläche und ${property.rooms} Zimmern ist dieses Objekt ${property.rooms <= 2 ? 'ideal für Singles oder Paare' : property.rooms <= 4 ? 'perfekt für Familien' : 'bestens für größere Familien geeignet'}.`
+                    }
                   </p>
                   <p className="text-muted-foreground leading-relaxed mt-4">
-                    Die Wohnung besticht durch ihre hellen, lichtdurchfluteten Räume, hochwertige Ausstattung und 
-                    einen herrlichen Balkon mit Blick ins Grüne. Die moderne Einbauküche, edle Parkettböden und 
-                    Fußbodenheizung sorgen für ein angenehmes Wohngefühl.
+                    {property.propertyType === 'Penthouse' 
+                      ? 'Das Penthouse besticht durch seine exklusive Lage mit Dachterrasse und Panoramablick. Hochwertige Materialien und moderne Architektur schaffen ein einzigartiges Wohnerlebnis.'
+                      : property.propertyType === 'Reihenmittelhaus'
+                      ? 'Das Haus bietet ein familienfreundliches Umfeld mit eigenem Garten und praktischer Raumaufteilung. Die ruhige Lage in einer gepflegten Nachbarschaft macht es zum idealen Zuhause.'
+                      : 'Die Räume sind hell und lichtdurchflutet mit hochwertiger Ausstattung. Moderne Einbauküche, edle Böden und durchdachte Grundrisse sorgen für höchsten Wohnkomfort.'
+                    }
                   </p>
                   <p className="text-muted-foreground leading-relaxed mt-4">
-                    Die zentrale Lage ermöglicht eine optimale Anbindung an öffentliche Verkehrsmittel, 
-                    Einkaufsmöglichkeiten und Naherholungsgebiete. Überzeugen Sie sich selbst bei einer 
-                    persönlichen Besichtigung!
+                    Die Lage bietet eine optimale Anbindung an öffentliche Verkehrsmittel, Einkaufsmöglichkeiten und Naherholungsgebiete. 
+                    {property.price > 1000000 ? ' Ein exklusives Objekt für anspruchsvolle Käufer.' : ' Überzeugen Sie sich selbst bei einer persönlichen Besichtigung!'}
                   </p>
                 </div>
               </CardContent>
