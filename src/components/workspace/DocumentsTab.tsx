@@ -62,7 +62,7 @@ export function DocumentsTab() {
   
   // Extended documents with holder info
   const [docs, setDocs] = useState<ExtendedDocument[]>([
-    { id: '1', name: 'Grundbuchauszug', type: 'Grundbuch', status: 'verified', uploadedAt: '2024-01-10', source: 'agent', holder: 'agent' },
+    { id: '1', name: 'Grundbuchauszug', type: 'Grundbuch', status: 'verified', uploadedAt: '2024-01-10', source: 'agent', holder: 'authority', holderName: 'Grundbuchamt München', holderEmail: 'grundbuchamt@muenchen.de' },
     { id: '2', name: 'Energieausweis', type: 'Energieausweis', status: 'missing', holder: 'seller', holderName: 'Hans Schmidt', holderEmail: 'hans.schmidt@email.de' },
     { id: '3', name: 'Teilungserklärung', type: 'Teilungserklärung', status: 'requested', source: 'hausverwaltung', holder: 'hausverwaltung', holderName: 'HV Müller GmbH', holderEmail: 'info@hv-mueller.de' },
     { id: '4', name: 'Wirtschaftsplan 2024', type: 'Wirtschaftsplan', status: 'received', uploadedAt: '2024-01-12', source: 'hausverwaltung', holder: 'hausverwaltung', holderName: 'HV Müller GmbH', holderEmail: 'info@hv-mueller.de' },
@@ -70,6 +70,9 @@ export function DocumentsTab() {
     { id: '6', name: 'Hausgeldabrechnung', type: 'Hausgeldabrechnung', status: 'verified', uploadedAt: '2024-01-08', source: 'seller', holder: 'seller', holderName: 'Hans Schmidt', holderEmail: 'hans.schmidt@email.de' },
     { id: '7', name: 'Wohnflächenberechnung', type: 'Flächenberechnung', status: 'received', uploadedAt: '2024-01-11', source: 'seller', holder: 'seller', holderName: 'Hans Schmidt', holderEmail: 'hans.schmidt@email.de' },
     { id: '8', name: 'Mietvertrag', type: 'Mietvertrag', status: 'missing', holder: 'seller', holderName: 'Hans Schmidt', holderEmail: 'hans.schmidt@email.de' },
+    { id: '9', name: 'Baulastenverzeichnis', type: 'Baulastenverzeichnis', status: 'missing', holder: 'authority', holderName: 'Bauamt München', holderEmail: 'bauamt@muenchen.de' },
+    { id: '10', name: 'Altlastenauskunft', type: 'Altlastenauskunft', status: 'requested', holder: 'authority', holderName: 'Umweltamt München', holderEmail: 'umweltamt@muenchen.de' },
+    { id: '11', name: 'Flurkarte', type: 'Flurkarte', status: 'verified', uploadedAt: '2024-01-09', holder: 'authority', holderName: 'Katasteramt München', holderEmail: 'katasteramt@muenchen.de' },
   ]);
   
   const [showUploadPreview, setShowUploadPreview] = useState(false);
