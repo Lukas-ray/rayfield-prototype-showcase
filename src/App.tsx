@@ -9,7 +9,7 @@ import Documents from "./pages/Documents";
 import Publishing from "./pages/Publishing";
 import Leads from "./pages/Leads";
 import Admin from "./pages/Admin";
-import Mailbox from "./pages/Mailbox";
+
 import ExternalUpload from "./pages/ExternalUpload";
 import NotFound from "./pages/NotFound";
 
@@ -28,7 +28,7 @@ const App = () => (
           <Route path="/publishing" element={<Publishing />} />
           <Route path="/leads" element={<Leads />} />
           <Route path="/admin" element={<Admin />} />
-          <Route path="/mailbox" element={<Mailbox />} />
+          
           <Route path="/external-upload" element={<ExternalUpload />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
