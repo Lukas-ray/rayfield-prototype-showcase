@@ -65,7 +65,7 @@ export default function Publishing() {
                   <Label htmlFor="title">Titel</Label>
                   <Input
                     id="title"
-                    defaultValue="Lichtdurchflutete 3-Zimmer Altbauwohnung in Mitte"
+                    defaultValue="Lichtdurchflutete 3-Zimmer Altbauwohnung in Schwabing"
                     className="mt-1"
                   />
                 </div>
@@ -82,14 +82,14 @@ export default function Publishing() {
                   <Textarea
                     id="long"
                     rows={6}
-                    defaultValue="Diese wunderschöne 3-Zimmer Wohnung besticht durch ihren klassischen Altbaucharme mit hohen Decken, originalen Stuckelementen und gepflegten Dielenböden. Die großzügige Wohnfläche von 85 m² verteilt sich optimal auf Wohnzimmer, Schlafzimmer, Arbeitszimmer sowie eine moderne Einbauküche."
+                    defaultValue="Diese wunderschöne 3-Zimmer Wohnung besticht durch ihren klassischen Altbaucharme mit hohen Decken, originalen Stuckelementen und gepflegten Dielenböden. Die großzügige Wohnfläche von 85 m² verteilt sich optimal auf Wohnzimmer, Schlafzimmer, Arbeitszimmer sowie eine moderne Einbauküche. Nur wenige Gehminuten vom Englischen Garten entfernt."
                     className="mt-1"
                   />
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="price">Preis</Label>
-                    <Input id="price" defaultValue="485.000 €" className="mt-1" />
+                    <Input id="price" defaultValue="685.000 €" className="mt-1" />
                   </div>
                   <div>
                     <Label htmlFor="area">Wohnfläche</Label>

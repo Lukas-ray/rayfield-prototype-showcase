@@ -42,7 +42,7 @@ export function TourConciergeChatbot() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Hallo! Ich bin der Tour-Concierge für die Kantstraße 23. Ich kann Fragen zur Immobilie beantworten und nutze dabei verifizierte Daten aus unseren Scans und Dokumenten. Wie kann ich Ihnen helfen?",
+      content: "Hallo! Ich bin der Tour-Concierge für die Prinzregentenstraße 23 in München-Bogenhausen. Ich kann Fragen zur Immobilie beantworten und nutze dabei verifizierte Daten aus unseren Scans und Dokumenten. Wie kann ich Ihnen helfen?",
     },
   ]);
   const [input, setInput] = useState('');
