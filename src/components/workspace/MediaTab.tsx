@@ -57,9 +57,9 @@ const platformAccounts: PlatformAccount[] = [
 ];
 
 const defaultPostTexts: Record<string, string> = {
-  Instagram: '🏠 Neue Immobilie in Berlin-Mitte!\n\nLichtdurchflutete 3-Zimmer Altbauwohnung mit Balkon und Stuck.\n\n✨ 85 m² Wohnfläche\n🛏️ 3 Zimmer\n🌳 Ruhige Lage\n\nJetzt Besichtigung vereinbaren! Link in Bio.\n\n#immobilien #berlin #wohnung #altbau #berlinmitte',
-  YouTube: '🏠 Exklusive Wohnungsbesichtigung: 3-Zimmer Altbau in Berlin-Mitte\n\nIn diesem Video zeigen wir Ihnen eine wunderschöne Altbauwohnung im Herzen von Berlin. Mit 85 m², hohen Decken und originalem Stuck ist diese Wohnung ein echtes Schmuckstück.\n\n⏱️ Kapitel:\n0:00 Einführung\n0:30 Wohnzimmer\n1:45 Küche\n2:30 Schlafzimmer\n3:15 Bad\n4:00 Balkon\n\nKontaktieren Sie uns für eine Besichtigung!',
-  LinkedIn: '🏠 Neues Objekt im Portfolio: Exklusive Altbauwohnung in Berlin-Mitte\n\nWir freuen uns, eine außergewöhnliche 3-Zimmer Wohnung in einer der begehrtesten Lagen Berlins präsentieren zu dürfen.\n\nHighlights:\n• 85 m² Wohnfläche\n• Originalstuck und Dielenboden\n• Balkon mit Südausrichtung\n• Hervorragende Verkehrsanbindung\n\nFür weitere Informationen kontaktieren Sie unser Team.\n\n#Immobilien #Berlin #RealEstate #Investment',
+  Instagram: '🏠 Neue Immobilie in München-Schwabing!\n\nLichtdurchflutete 3-Zimmer Altbauwohnung mit Balkon und Stuck.\n\n✨ 85 m² Wohnfläche\n🛏️ 3 Zimmer\n🌳 Ruhige Lage nahe Englischer Garten\n\nJetzt Besichtigung vereinbaren! Link in Bio.\n\n#immobilien #münchen #wohnung #altbau #schwabing',
+  YouTube: '🏠 Exklusive Wohnungsbesichtigung: 3-Zimmer Altbau in München-Schwabing\n\nIn diesem Video zeigen wir Ihnen eine wunderschöne Altbauwohnung im Herzen von München. Mit 85 m², hohen Decken und originalem Stuck ist diese Wohnung ein echtes Schmuckstück.\n\n⏱️ Kapitel:\n0:00 Einführung\n0:30 Wohnzimmer\n1:45 Küche\n2:30 Schlafzimmer\n3:15 Bad\n4:00 Balkon\n\nKontaktieren Sie uns für eine Besichtigung!',
+  LinkedIn: '🏠 Neues Objekt im Portfolio: Exklusive Altbauwohnung in München-Schwabing\n\nWir freuen uns, eine außergewöhnliche 3-Zimmer Wohnung in einer der begehrtesten Lagen Münchens präsentieren zu dürfen.\n\nHighlights:\n• 85 m² Wohnfläche\n• Originalstuck und Dielenboden\n• Balkon mit Südausrichtung\n• Nähe zum Englischen Garten\n\nFür weitere Informationen kontaktieren Sie unser Team.\n\n#Immobilien #München #RealEstate #Investment',
 };
 
 export function MediaTab() {
@@ -732,16 +732,20 @@ export function MediaTab() {
             {/* Listing Preview */}
             <div className="p-4 rounded-lg border border-border">
               <div className="flex gap-4">
-                <div className="w-32 h-24 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-                  <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                <div className="w-32 h-24 rounded-lg overflow-hidden flex-shrink-0">
+                  <img 
+                    src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=200&h=150&fit=crop"
+                    alt="Immobilie"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div className="flex-1">
                   <h4 className="font-semibold">3-Zimmer Altbauwohnung mit Balkon</h4>
-                  <p className="text-sm text-muted-foreground">Musterstraße 123, 10115 Berlin-Mitte</p>
+                  <p className="text-sm text-muted-foreground">Leopoldstraße 156, 80802 München-Schwabing</p>
                   <div className="flex gap-4 mt-2 text-sm">
                     <span>85 m²</span>
                     <span>3 Zimmer</span>
-                    <span>€ 450.000</span>
+                    <span>€ 685.000</span>
                   </div>
                 </div>
               </div>
