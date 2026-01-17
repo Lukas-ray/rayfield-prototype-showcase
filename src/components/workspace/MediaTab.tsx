@@ -17,6 +17,23 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 
+// Property images
+import propertyLivingRoom from '@/assets/property-living-room.jpg';
+import propertyKitchen from '@/assets/property-kitchen.jpg';
+import propertyBedroom from '@/assets/property-bedroom.jpg';
+import propertyBathroom from '@/assets/property-bathroom.jpg';
+import propertyBalcony from '@/assets/property-balcony.jpg';
+import propertyExterior from '@/assets/property-exterior.jpg';
+
+const propertyImages = [
+  propertyLivingRoom,
+  propertyKitchen,
+  propertyBedroom,
+  propertyBathroom,
+  propertyBalcony,
+  propertyExterior,
+];
+
 const typeIcons = {
   photo: Image,
   video: Video,
@@ -196,7 +213,7 @@ export function MediaTab() {
                     <div key={item.id} className="workspace-card p-2 group">
                       <div className="aspect-video rounded-md overflow-hidden bg-muted relative">
                         <img 
-                          src="/placeholder.svg"
+                          src={propertyImages[idx % propertyImages.length]}
                           alt={item.name} 
                           className="w-full h-full object-cover" 
                         />
@@ -225,7 +242,7 @@ export function MediaTab() {
                     <div key={item.id} className="workspace-card p-2 group">
                       <div className="aspect-video rounded-md overflow-hidden bg-muted relative">
                         <img 
-                          src="/placeholder.svg"
+                          src={propertyImages[(idx + 2) % propertyImages.length]}
                           alt={item.name}
                           className="w-full h-full object-cover"
                         />
@@ -461,7 +478,7 @@ export function MediaTab() {
                       >
                         <div className="w-full h-full relative">
                           <img 
-                            src="/placeholder.svg"
+                            src={propertyImages[idx % propertyImages.length]}
                             alt={photo.name}
                             className="w-full h-full object-cover"
                           />
@@ -520,7 +537,7 @@ export function MediaTab() {
                     {/* Image */}
                     <div className="aspect-square bg-muted relative">
                       <img 
-                        src="/placeholder.svg"
+                        src={propertyLivingRoom}
                         alt="Preview"
                         className="w-full h-full object-cover"
                       />
@@ -561,7 +578,7 @@ export function MediaTab() {
                     {/* Image */}
                     <div className="aspect-video bg-muted">
                       <img 
-                        src="/placeholder.svg"
+                        src={propertyLivingRoom}
                         alt="Preview"
                         className="w-full h-full object-cover"
                       />
@@ -579,7 +596,7 @@ export function MediaTab() {
                     {/* Video Thumbnail */}
                     <div className="aspect-video bg-muted relative">
                       <img 
-                        src="/placeholder.svg"
+                        src={propertyLivingRoom}
                         alt="Preview"
                         className="w-full h-full object-cover"
                       />
