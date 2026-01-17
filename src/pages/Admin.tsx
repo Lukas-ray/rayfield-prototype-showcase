@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Check, X, Users, FileText, Settings, Shield, Mail, Instagram, Facebook, Linkedin, Youtube, Globe, Unplug, CheckCircle2, AlertCircle, Database } from 'lucide-react';
+import { Plus, Check, X, Users, FileText, Settings, Shield, Mail, Instagram, Facebook, Linkedin, Youtube, Globe, Unplug, CheckCircle2, AlertCircle, Database, UserCog } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +22,7 @@ import {
 import { checklistTemplates, exportPresets, roles } from '@/data/dummyData';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { TeamTab } from '@/components/admin/TeamTab';
 import onOfficeLogo from '@/assets/onoffice-logo.png';
 import flowfactLogo from '@/assets/flowfact-logo.png';
 import propstackLogo from '@/assets/propstack-logo.png';
@@ -242,7 +243,16 @@ export default function Admin() {
               Integrationen
               <Badge variant="secondary">{connectedCount}/{integrations.length}</Badge>
             </TabsTrigger>
+            <TabsTrigger value="team" className="gap-2">
+              <UserCog className="h-4 w-4" />
+              Team & Rollen
+            </TabsTrigger>
           </TabsList>
+
+          {/* Team Tab */}
+          <TabsContent value="team">
+            <TeamTab />
+          </TabsContent>
 
           {/* Integrations Tab */}
           <TabsContent value="integrations">
