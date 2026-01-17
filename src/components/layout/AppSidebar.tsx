@@ -1,11 +1,9 @@
-import { Building2, Settings, Home, LayoutDashboard, FileText, Upload } from 'lucide-react';
+import { Building2, Settings, Home, LayoutDashboard } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 const navigation = [
   { name: 'Objekte', href: '/', icon: Home },
-  { name: 'Dokumente', href: '/documents', icon: FileText },
-  { name: 'Veröffentlichung', href: '/publishing', icon: Upload },
   { name: 'Einstellungen', href: '/admin', icon: Settings },
 ];
 
