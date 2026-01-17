@@ -11,6 +11,7 @@ import { MediaTab } from '@/components/workspace/MediaTab';
 import { DocumentsTab } from '@/components/workspace/DocumentsTab';
 import { WorkflowTab } from '@/components/workspace/WorkflowTab';
 import { ActivityTab } from '@/components/workspace/ActivityTab';
+import { CommsTab } from '@/components/workspace/CommsTab';
 import { AskRayfieldWidget } from '@/components/workspace/AskRayfieldWidget';
 import { properties, getWorkflowStateLabel, getWorkflowStateClass, tasks, agentRuns } from '@/data/dummyData';
 import { Progress } from '@/components/ui/progress';
@@ -79,6 +80,7 @@ export default function PropertyWorkspace() {
             <TabsTrigger value="capture">Capture</TabsTrigger>
             <TabsTrigger value="media">Medien</TabsTrigger>
             <TabsTrigger value="documents">Dokumente</TabsTrigger>
+            <TabsTrigger value="comms">Komms</TabsTrigger>
             <TabsTrigger value="workflow">Workflow</TabsTrigger>
             <TabsTrigger value="activity">Aktivität</TabsTrigger>
           </TabsList>
@@ -143,6 +145,10 @@ export default function PropertyWorkspace() {
 
           <TabsContent value="documents" className="animate-fade-in">
             <DocumentsTab />
+          </TabsContent>
+
+          <TabsContent value="comms" className="animate-fade-in">
+            <CommsTab />
           </TabsContent>
 
           <TabsContent value="workflow" className="animate-fade-in">

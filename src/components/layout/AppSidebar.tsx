@@ -1,4 +1,4 @@
-import { Building2, FolderOpen, Send, Users, Settings, Home, LayoutDashboard } from 'lucide-react';
+import { Building2, FolderOpen, Send, Users, Settings, Home, LayoutDashboard, Mail } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
@@ -7,6 +7,7 @@ const navigation = [
   { name: 'Dokumente', href: '/documents', icon: FolderOpen },
   { name: 'Veröffentlichung', href: '/publishing', icon: Send },
   { name: 'Leads', href: '/leads', icon: Users },
+  { name: 'Mailbox', href: '/mailbox', icon: Mail },
   { name: 'Admin', href: '/admin', icon: Settings },
 ];
 
