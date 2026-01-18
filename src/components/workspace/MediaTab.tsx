@@ -73,11 +73,60 @@ const platformAccounts: PlatformAccount[] = [
   { id: '4', name: 'Immonet', logo: '🏢', connected: false, url: 'https://www.immonet.de' },
 ];
 
+// Platform logo components
+const PlatformLogo = ({ platform }: { platform: string }) => {
+  switch (platform) {
+    case 'ImmoScout24':
+      return (
+        <div className="w-8 h-8 rounded-md bg-[#ff7500] flex items-center justify-center text-white font-bold text-xs">
+          IS24
+        </div>
+      );
+    case 'Immowelt':
+      return (
+        <div className="w-8 h-8 rounded-md bg-[#003366] flex items-center justify-center text-white font-bold text-xs">
+          IW
+        </div>
+      );
+    case 'Kleinanzeigen':
+      return (
+        <div className="w-8 h-8 rounded-md bg-[#86b817] flex items-center justify-center text-white font-bold text-xs">
+          KA
+        </div>
+      );
+    case 'Instagram':
+      return (
+        <div className="w-8 h-8 rounded-md bg-gradient-to-br from-[#f09433] via-[#e6683c] to-[#bc1888] flex items-center justify-center">
+          <Instagram className="w-4 h-4 text-white" />
+        </div>
+      );
+    case 'Facebook':
+      return (
+        <div className="w-8 h-8 rounded-md bg-[#1877f2] flex items-center justify-center">
+          <Facebook className="w-4 h-4 text-white" />
+        </div>
+      );
+    case 'LinkedIn':
+      return (
+        <div className="w-8 h-8 rounded-md bg-[#0a66c2] flex items-center justify-center">
+          <Linkedin className="w-4 h-4 text-white" />
+        </div>
+      );
+    case 'YouTube':
+      return (
+        <div className="w-8 h-8 rounded-md bg-[#ff0000] flex items-center justify-center">
+          <Youtube className="w-4 h-4 text-white" />
+        </div>
+      );
+    default:
+      return <span className="text-xl">📷</span>;
+  }
+};
+
 // Platform image format requirements
 const platformImageFormats = [
   {
     platform: 'ImmoScout24',
-    logo: '🏠',
     formats: [
       { name: 'Hauptbild', ratio: '4:3', pixels: '1024 × 768 px', minPixels: '400 × 300 px' },
       { name: 'Galerie', ratio: '4:3', pixels: '1024 × 768 px', minPixels: '400 × 300 px' },
@@ -86,7 +135,6 @@ const platformImageFormats = [
   },
   {
     platform: 'Immowelt',
-    logo: '🌍',
     formats: [
       { name: 'Hauptbild', ratio: '16:9', pixels: '1920 × 1080 px', minPixels: '800 × 450 px' },
       { name: 'Galerie', ratio: '16:9', pixels: '1920 × 1080 px', minPixels: '600 × 338 px' },
@@ -95,7 +143,6 @@ const platformImageFormats = [
   },
   {
     platform: 'Kleinanzeigen',
-    logo: '📢',
     formats: [
       { name: 'Alle Bilder', ratio: '4:3', pixels: '1200 × 900 px', minPixels: '400 × 300 px' },
       { name: 'Titelbild', ratio: '4:3', pixels: '1200 × 900 px', minPixels: '640 × 480 px' },
@@ -103,7 +150,6 @@ const platformImageFormats = [
   },
   {
     platform: 'Instagram',
-    logo: 'IG',
     formats: [
       { name: 'Feed Post (Quadrat)', ratio: '1:1', pixels: '1080 × 1080 px', minPixels: '600 × 600 px' },
       { name: 'Feed Post (Portrait)', ratio: '4:5', pixels: '1080 × 1350 px', minPixels: '600 × 750 px' },
@@ -113,7 +159,6 @@ const platformImageFormats = [
   },
   {
     platform: 'Facebook',
-    logo: 'FB',
     formats: [
       { name: 'Feed Post', ratio: '1.91:1', pixels: '1200 × 630 px', minPixels: '600 × 315 px' },
       { name: 'Story', ratio: '9:16', pixels: '1080 × 1920 px', minPixels: '500 × 889 px' },
@@ -122,7 +167,6 @@ const platformImageFormats = [
   },
   {
     platform: 'LinkedIn',
-    logo: 'LI',
     formats: [
       { name: 'Feed Post', ratio: '1.91:1', pixels: '1200 × 627 px', minPixels: '552 × 289 px' },
       { name: 'Artikel-Titelbild', ratio: '1.91:1', pixels: '1200 × 644 px', minPixels: '744 × 400 px' },
@@ -130,7 +174,6 @@ const platformImageFormats = [
   },
   {
     platform: 'YouTube',
-    logo: 'YT',
     formats: [
       { name: 'Thumbnail', ratio: '16:9', pixels: '1280 × 720 px', minPixels: '640 × 360 px' },
       { name: 'Video', ratio: '16:9', pixels: '1920 × 1080 px (Full HD)', minPixels: '1280 × 720 px' },
@@ -402,8 +445,8 @@ export function MediaTab() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {platformImageFormats.map((platform) => (
                   <div key={platform.platform} className="border rounded-lg p-4 bg-secondary/20">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-xl">{platform.logo}</span>
+                    <div className="flex items-center gap-3 mb-3">
+                      <PlatformLogo platform={platform.platform} />
                       <h4 className="font-semibold">{platform.platform}</h4>
                     </div>
                     <div className="space-y-2">
