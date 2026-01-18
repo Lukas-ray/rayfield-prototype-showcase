@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, MapPin, Home, Euro, Ruler, BedDouble, Bath, Calendar, User, Phone, Mail, Building2, ExternalLink, TrendingUp, Users, Lock, ClipboardList, ArrowRight } from 'lucide-react';
+import { ArrowLeft, MapPin, Home, Euro, Ruler, BedDouble, Bath, Calendar, User, Phone, Mail, Building2, ExternalLink, TrendingUp, Users, Lock, ClipboardList, ArrowRight, Handshake } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -12,8 +12,9 @@ import { DocumentsTab } from '@/components/workspace/DocumentsTab';
 import { ActivityTab } from '@/components/workspace/ActivityTab';
 import { PerformanceTab } from '@/components/workspace/PerformanceTab';
 import { LeadsTab } from '@/components/workspace/LeadsTab';
+import { TransactionTab } from '@/components/workspace/TransactionTab';
 import { AskImmosmart } from '@/components/workspace/AskRayfieldWidget';
-import { properties, getWorkflowStateLabel, getWorkflowStateClass, tasks } from '@/data/dummyData';
+import { properties, getWorkflowStateLabel, getWorkflowStateClass, tasks, transactions } from '@/data/dummyData';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -28,13 +29,14 @@ export default function PropertyWorkspace() {
   // Read tab from URL query parameter on mount
   useEffect(() => {
     const tabFromUrl = searchParams.get('tab');
-    if (tabFromUrl && ['overview', 'capture', 'media', 'documents', 'performance', 'leads', 'audit'].includes(tabFromUrl)) {
+    if (tabFromUrl && ['overview', 'capture', 'media', 'documents', 'performance', 'leads', 'audit', 'transaction'].includes(tabFromUrl)) {
       setActiveTab(tabFromUrl);
     }
   }, [searchParams]);
 
   const property = properties.find(p => p.id === id) || properties[0];
   const pendingTasks = tasks.filter(t => t.status !== 'completed');
+  const transaction = transactions.find(tx => tx.propertyId === id);
 
   // Check if property is published (has active inquiries or is under offer)
   const isPublished = property.workflowState === 'inquiries_active' || property.workflowState === 'under_offer';
@@ -132,6 +134,10 @@ export default function PropertyWorkspace() {
             <TabsTrigger value="audit" className="gap-1.5">
               <ClipboardList className="h-4 w-4" />
               Audit-Log
+            </TabsTrigger>
+            <TabsTrigger value="transaction" className="gap-1.5">
+              <Handshake className="h-4 w-4" />
+              Transaktion
             </TabsTrigger>
           </TabsList>
 
@@ -356,6 +362,20 @@ export default function PropertyWorkspace() {
 
           <TabsContent value="audit" className="animate-fade-in">
             <ActivityTab />
+          </TabsContent>
+
+          <TabsContent value="transaction" className="animate-fade-in">
+            {transaction ? (
+              <TransactionTab transaction={transaction} />
+            ) : (
+              <div className="workspace-card text-center py-12">
+                <Handshake className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Keine aktive Transaktion</h3>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  Die Transaktionskoordination wird verfügbar, sobald ein Angebot vorliegt.
+                </p>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>

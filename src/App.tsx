@@ -10,6 +10,7 @@ import Documents from "./pages/Documents";
 import Publishing from "./pages/Publishing";
 import Admin from "./pages/Admin";
 import ExternalUpload from "./pages/ExternalUpload";
+import Transactions from "./pages/Transactions";
 import NotFound from "./pages/NotFound";
 import { GlobalAssistant } from "./components/chat/GlobalAssistant";
 
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/property/:id/expose" element={<PropertyExpose />} />
           <Route path="/documents" element={<Documents />} />
           <Route path="/publishing" element={<Publishing />} />
+          <Route path="/transactions" element={<Transactions />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/external-upload" element={<ExternalUpload />} />
           <Route path="*" element={<NotFound />} />
