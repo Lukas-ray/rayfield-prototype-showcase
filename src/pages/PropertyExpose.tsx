@@ -10,6 +10,7 @@ import { GatedContentCard } from '@/components/expose/GatedContentCard';
 import { UnlockRewardToast } from '@/components/expose/UnlockRewardToast';
 import { LocationMapSection } from '@/components/expose/LocationMapSection';
 import { SignupGamificationCard } from '@/components/expose/SignupGamificationCard';
+import immosmartLogo from '@/assets/immosmart-logo.svg';
 
 // Property images
 import propertyLivingRoom from '@/assets/property-living-room.jpg';
@@ -80,14 +81,18 @@ export default function PropertyExpose() {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Button variant="ghost" onClick={() => navigate(`/property/${id}`)} className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Zurück zur Verwaltung
-          </Button>
+          <div className="flex items-center gap-4">
+            <img src={immosmartLogo} alt="Immosmart" className="h-10 w-auto" />
+            <span className="text-lg font-semibold text-foreground hidden sm:block">Immosmart</span>
+          </div>
           <div className="flex items-center gap-4">
             <Badge variant="secondary" className="text-sm">
-              Exposé-Vorschau
+              Exposé
             </Badge>
+            <Button variant="ghost" onClick={() => navigate(`/property/${id}`)} className="gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Zur Verwaltung</span>
+            </Button>
           </div>
         </div>
       </header>

@@ -1,6 +1,7 @@
-import { Building2, Settings, Home, LayoutDashboard, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Settings, Home, LayoutDashboard, ChevronLeft, ChevronRight } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import immosmartLogo from '@/assets/immosmart-logo.svg';
 
 const navigation = [
   { name: 'Objekte', href: '/', icon: Home },
@@ -28,11 +29,11 @@ export function AppSidebar({ collapsed = false, onCollapsedChange }: AppSidebarP
           "flex h-16 items-center border-b border-sidebar-border relative",
           collapsed ? "justify-center px-2" : "gap-3 px-6"
         )}>
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-accent/80 shadow-lg flex-shrink-0">
-            <Building2 className="h-5 w-5 text-sidebar-primary-foreground" />
+          <div className="flex h-9 w-9 items-center justify-center flex-shrink-0">
+            <img src={immosmartLogo} alt="Immosmart" className="h-9 w-9" />
           </div>
           {!collapsed && (
-            <span className="text-xl font-semibold text-sidebar-foreground">Immosmart</span>
+            <span className="text-xl font-semibold text-sidebar-foreground">Rayfield</span>
           )}
           
           {/* Collapse Toggle - positioned at edge */}

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { documents } from '@/data/dummyData';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import immosmartLogo from '@/assets/immosmart-logo.svg';
 import {
   Accordion,
   AccordionContent,
@@ -57,10 +58,7 @@ export default function ExternalUpload() {
             <div className="flex items-center gap-4">
               {/* Immosmart Logo */}
               <div className="relative">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                  <span className="text-white font-bold text-lg">IS</span>
-                </div>
-                <div className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-emerald-400 border-2 border-white" />
+                <img src={immosmartLogo} alt="Immosmart" className="h-12 w-auto" />
               </div>
               <div>
                 <h1 className="font-bold text-xl text-slate-800">Immosmart</h1>
