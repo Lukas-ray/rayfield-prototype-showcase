@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, Ruler, BedDouble, Bath, Calendar, Home, ChevronLeft, ChevronRight, X, Box, Lock, FileText, TrendingUp, Crown, Gift } from 'lucide-react';
+import { ArrowLeft, MapPin, Ruler, BedDouble, Bath, Calendar, Home, ChevronLeft, ChevronRight, X, Box, Lock, FileText, TrendingUp, Crown, Gift, UtensilsCrossed, Fence, Flame, Sun, Building, Car, Package, Droplets, Wifi, Snowflake, ShieldCheck, TreePine, LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -35,15 +35,24 @@ const getPropertyImages = (property: typeof properties[0]) => {
   ];
 };
 
-const features = [
-  'Einbauküche',
-  'Parkett',
-  'Fußbodenheizung',
-  'Balkon/Terrasse',
-  'Aufzug',
-  'Tiefgarage',
-  'Keller',
-  'Gäste-WC',
+interface Feature {
+  name: string;
+  icon: LucideIcon;
+}
+
+const features: Feature[] = [
+  { name: 'Einbauküche', icon: UtensilsCrossed },
+  { name: 'Parkett', icon: Fence },
+  { name: 'Fußbodenheizung', icon: Flame },
+  { name: 'Balkon/Terrasse', icon: Sun },
+  { name: 'Aufzug', icon: Building },
+  { name: 'Tiefgarage', icon: Car },
+  { name: 'Keller', icon: Package },
+  { name: 'Gäste-WC', icon: Droplets },
+  { name: 'Smart Home', icon: Wifi },
+  { name: 'Klimaanlage', icon: Snowflake },
+  { name: 'Alarmanlage', icon: ShieldCheck },
+  { name: 'Garten', icon: TreePine },
 ];
 
 export default function PropertyExpose() {
@@ -232,15 +241,18 @@ export default function PropertyExpose() {
             <Card>
               <CardContent className="p-6">
                 <h2 className="text-xl font-semibold mb-4">Ausstattung</h2>
-                <div className="grid grid-cols-2 gap-3">
-                  {features.map((feature, idx) => (
-                    <div key={idx} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30">
-                      <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
-                        <Home className="h-4 w-4 text-accent" />
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {features.map((feature, idx) => {
+                    const FeatureIcon = feature.icon;
+                    return (
+                      <div key={idx} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors">
+                        <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
+                          <FeatureIcon className="h-5 w-5 text-accent" />
+                        </div>
+                        <span className="font-medium text-sm">{feature.name}</span>
                       </div>
-                      <span className="font-medium">{feature}</span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
