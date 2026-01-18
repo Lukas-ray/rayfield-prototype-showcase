@@ -112,19 +112,67 @@ export function DocumentsTab({ propertyId = '3' }: DocumentsTabProps) {
   const handleDocumentClick = (doc: Document) => {
     if (doc.status === 'missing' || doc.status === 'requested') {
       setSelectedDoc(doc);
-      setEmailBody(`Sehr geehrte${doc.holder === 'seller' ? 'r Herr Schmidt' : ' Damen und Herren'},
+      
+      // Generate personalized, professional email based on holder type
+      const generateEmailBody = () => {
+        const greeting = doc.holder === 'seller' 
+          ? 'Sehr geehrter Herr Schmidt'
+          : doc.holder === 'hausverwaltung'
+          ? 'Sehr geehrte Damen und Herren'
+          : doc.holder === 'notary'
+          ? 'Sehr geehrter Herr Notar'
+          : 'Sehr geehrte Damen und Herren';
+        
+        const introduction = doc.holder === 'seller'
+          ? `ich hoffe, diese Nachricht erreicht Sie wohlauf. Wie besprochen begleite ich Sie beim Verkauf Ihrer Immobilie in der Maximilianstraße 42, München.`
+          : doc.holder === 'hausverwaltung'
+          ? `im Auftrag meines Mandanten, Herrn Hans Schmidt, wende ich mich an Sie bezüglich der Immobilie Maximilianstraße 42 in München. Herr Schmidt hat mich mit dem Verkauf der Eigentumswohnung beauftragt.`
+          : doc.holder === 'notary'
+          ? `im Auftrag meines Mandanten, Herrn Hans Schmidt, bereiten wir derzeit den Verkauf der Immobilie Maximilianstraße 42 in München vor.`
+          : `im Rahmen eines Immobilienverkaufs benötige ich im Auftrag meines Mandanten folgende Unterlagen für die Liegenschaft Maximilianstraße 42, München.`;
+        
+        const requestText = doc.holder === 'seller'
+          ? `Für die Erstellung eines professionellen Exposés und die Vorbereitung des Verkaufsprozesses benötige ich noch folgende Unterlagen von Ihnen:`
+          : doc.holder === 'hausverwaltung'
+          ? `Für den reibungslosen Ablauf des Verkaufsprozesses würde ich Sie freundlich bitten, mir folgende Unterlagen zur Verfügung zu stellen:`
+          : `Für die weitere Bearbeitung benötigen wir folgendes Dokument:`;
+        
+        const uploadHint = doc.holder === 'seller'
+          ? `Über den nachfolgenden sicheren Link können Sie das Dokument bequem hochladen – ganz ohne Registrierung:`
+          : `Über den folgenden sicheren Upload-Link können Sie uns die Unterlagen unkompliziert zukommen lassen:`;
+        
+        const closing = doc.holder === 'seller'
+          ? `Sollten Sie Fragen haben oder Unterstützung benötigen, stehe ich Ihnen selbstverständlich gerne zur Verfügung.
 
-im Rahmen des Verkaufsprozesses für die Immobilie Maximilianstraße 42, München benötigen wir folgendes Dokument:
+Herzliche Grüße`
+          : doc.holder === 'hausverwaltung'
+          ? `Für Rückfragen stehe ich Ihnen gerne zur Verfügung. Vielen Dank im Voraus für Ihre Unterstützung.
+
+Mit freundlichen Grüßen`
+          : `Vielen Dank für Ihre Unterstützung.
+
+Mit freundlichen Grüßen`;
+        
+        return `${greeting},
+
+${introduction}
+
+${requestText}
 
 • ${doc.name}
 
-Bitte laden Sie das Dokument über den folgenden Link hoch:
+${uploadHint}
 https://upload.immosmart.io/p/${doc.id}
 
 Frist: 25. Januar 2024
 
-Mit freundlichen Grüßen
-Ihr Immosmart Team`);
+${closing}
+Max Mustermann
+Immosmart Immobilien
+Tel: +49 89 123 456 78`;
+      };
+      
+      setEmailBody(generateEmailBody());
       setRequestDialogOpen(true);
     } else {
       toast({
