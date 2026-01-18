@@ -183,7 +183,7 @@ const Index = () => {
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
                 <CheckCircle2 className="h-5 w-5 text-success" />
-                Bereit zur Genehmigung
+                Bereit zur Veröffentlichung
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -201,7 +201,7 @@ const Index = () => {
                     />
                     <div className="flex-1 min-w-0">
                       <p className="font-medium truncate">{property.address}</p>
-                      <p className="text-xs text-success">Exposé bereit zur Prüfung</p>
+                      <p className="text-xs text-success">Exposé bereit zum Veröffentlichen</p>
                     </div>
                   </div>
                 ))}
