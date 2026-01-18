@@ -915,6 +915,38 @@ export function MediaTab() {
                   </div>
                 )}
 
+                {selectedSocial?.name === 'Facebook' && (
+                  <div className="border border-border rounded-xl overflow-hidden bg-background">
+                    {/* Facebook Header */}
+                    <div className="flex items-center gap-3 p-3">
+                      <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center">
+                        <span className="text-sm font-bold text-white">I</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold">Immosmart Immobilien</p>
+                        <p className="text-xs text-muted-foreground">Jetzt • 🌐</p>
+                      </div>
+                    </div>
+                    {/* Content */}
+                    <div className="px-3 pb-3">
+                      <p className="text-sm line-clamp-4">{postText.slice(0, 150)}...</p>
+                    </div>
+                    {/* Image */}
+                    <div className="aspect-[1.91/1] bg-muted">
+                      <img 
+                        src={getPreviewImage()}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    {/* Reactions */}
+                    <div className="p-3 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
+                      <span>👍 ❤️ 😮 0</span>
+                      <span>0 Kommentare • 0 Mal geteilt</span>
+                    </div>
+                  </div>
+                )}
+
                 {/* Platform Tips */}
                 <div className="p-3 rounded-lg bg-accent/5 border border-accent/20">
                   <p className="text-xs font-medium text-accent flex items-center gap-2">
@@ -938,6 +970,12 @@ export function MediaTab() {
                       <>
                         <li>• Professioneller Tonfall</li>
                         <li>• Business-Hashtags integriert</li>
+                      </>
+                    )}
+                    {selectedSocial?.name === 'Facebook' && (
+                      <>
+                        <li>• Optimiertes 1.91:1 Bildformat</li>
+                        <li>• Engagement-optimierter Text</li>
                       </>
                     )}
                   </ul>
@@ -981,7 +1019,7 @@ export function MediaTab() {
               {/* Preview Thumbnail */}
               <div className="flex items-center gap-4 p-4 rounded-lg border border-border">
                 <img 
-                  src="https://images.unsplash.com/photo-1560448204-e02fe7ec5bb9?w=100&h=100&fit=crop"
+                  src={getPreviewImage()}
                   alt="Preview"
                   className="w-16 h-16 rounded-lg object-cover"
                 />
@@ -1045,7 +1083,7 @@ export function MediaTab() {
               <div className="flex gap-4">
                 <div className="w-32 h-24 rounded-lg overflow-hidden flex-shrink-0">
                   <img 
-                    src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=200&h=150&fit=crop"
+                    src={getPreviewImage()}
                     alt="Immobilie"
                     className="w-full h-full object-cover"
                   />
