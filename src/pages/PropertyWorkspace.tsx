@@ -135,10 +135,12 @@ export default function PropertyWorkspace() {
               <ClipboardList className="h-4 w-4" />
               Audit-Log
             </TabsTrigger>
-            <TabsTrigger value="transaction" className="gap-1.5">
-              <Handshake className="h-4 w-4" />
-              Transaktion
-            </TabsTrigger>
+            {transaction && (
+              <TabsTrigger value="transaction" className="gap-1.5">
+                <Handshake className="h-4 w-4" />
+                Transaktion
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6 animate-fade-in">
@@ -364,19 +366,11 @@ export default function PropertyWorkspace() {
             <ActivityTab />
           </TabsContent>
 
-          <TabsContent value="transaction" className="animate-fade-in">
-            {transaction ? (
+          {transaction && (
+            <TabsContent value="transaction" className="animate-fade-in">
               <TransactionTab transaction={transaction} />
-            ) : (
-              <div className="workspace-card text-center py-12">
-                <Handshake className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Keine aktive Transaktion</h3>
-                <p className="text-muted-foreground max-w-md mx-auto">
-                  Die Transaktionskoordination wird verfügbar, sobald ein Angebot vorliegt.
-                </p>
-              </div>
-            )}
-          </TabsContent>
+            </TabsContent>
+          )}
         </Tabs>
       </div>
 
