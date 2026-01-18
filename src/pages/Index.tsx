@@ -41,6 +41,18 @@ const Index = () => {
     avgCompletion: Math.round(properties.reduce((acc, p) => acc + p.completionPercent, 0) / properties.length),
   }), [properties]);
 
+  // Map workflow state to target tab
+  const getTargetTab = (workflowState: WorkflowState): string => {
+    switch (workflowState) {
+      case 'docs_missing': return 'documents';
+      case 'inquiries_active': return 'leads';
+      case 'ready_to_publish': return 'overview';
+      case 'capture_processing': return 'capture';
+      case 'draft': return 'capture';
+      default: return 'overview';
+    }
+  };
+
   // Next Actions Queue (max 3 items) - prioritized by urgency
   const nextActions = useMemo(() => {
     const actionItems = properties
@@ -53,6 +65,7 @@ const Index = () => {
         icon: p.workflowState === 'docs_missing' ? AlertTriangle :
               p.workflowState === 'inquiries_active' ? Users :
               p.workflowState === 'ready_to_publish' ? CheckCircle2 : Sparkles,
+        targetTab: getTargetTab(p.workflowState),
       }))
       .sort((a, b) => b.urgency - a.urgency)
       .slice(0, 3);
@@ -121,11 +134,11 @@ const Index = () => {
           </CardHeader>
           <CardContent>
             <div className="grid gap-3">
-              {nextActions.map(({ property, icon: Icon }) => (
+              {nextActions.map(({ property, icon: Icon, targetTab }) => (
                 <div 
                   key={property.id}
                   className="flex items-center justify-between p-4 rounded-lg bg-card border hover:border-accent/50 cursor-pointer transition-all group"
-                  onClick={() => navigate(`/property/${property.id}`)}
+                  onClick={() => navigate(`/property/${property.id}?tab=${targetTab}`)}
                 >
                   <div className="flex items-center gap-4">
                     <div className={cn(

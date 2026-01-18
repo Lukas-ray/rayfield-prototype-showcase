@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, MapPin, Home, Euro, Ruler, BedDouble, Bath, Calendar, User, Phone, Mail, Building2, ExternalLink, TrendingUp, Users, Lock, ClipboardList, ArrowRight } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
@@ -22,7 +22,16 @@ import propertyLivingRoom from '@/assets/property-living-room.jpg';
 export default function PropertyWorkspace() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('overview');
+
+  // Read tab from URL query parameter on mount
+  useEffect(() => {
+    const tabFromUrl = searchParams.get('tab');
+    if (tabFromUrl && ['overview', 'capture', 'media', 'documents', 'performance', 'leads', 'audit'].includes(tabFromUrl)) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [searchParams]);
 
   const property = properties.find(p => p.id === id) || properties[0];
   const pendingTasks = tasks.filter(t => t.status !== 'completed');
