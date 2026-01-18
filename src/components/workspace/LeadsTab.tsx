@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { 
   User, Mail, Phone, Calendar, MessageSquare, Star, StarOff, 
   Clock, CheckCircle2, Send, ExternalLink, Eye, MousePointer, FileText, 
-  Box, TrendingUp, MailOpen, Reply, ChevronRight, Activity, MapPin, Zap, CalendarDays
+  Box, TrendingUp, MailOpen, Reply, ChevronRight, Activity, MapPin, Zap, CalendarDays, Sparkles
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -686,12 +686,13 @@ export function LeadsTab() {
                         </Button>
                       )}
                       <Button 
-                        variant="outline" 
+                        variant="default" 
                         size="sm"
                         onClick={() => handleReply(lead)}
+                        className="gap-1"
                       >
-                        <Send className="h-4 w-4 mr-1" />
-                        Antworten & Exposé senden
+                        <Sparkles className="h-4 w-4" />
+                        Antwort mit KI-Support
                       </Button>
                       <Button size="sm">
                         <Phone className="h-4 w-4 mr-1" />
