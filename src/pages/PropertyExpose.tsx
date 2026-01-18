@@ -19,6 +19,8 @@ import propertyBedroom from '@/assets/property-bedroom.jpg';
 import propertyBathroom from '@/assets/property-bathroom.jpg';
 import propertyBalcony from '@/assets/property-balcony.jpg';
 import propertyExterior from '@/assets/property-exterior.jpg';
+import floorPlanImage from '@/assets/floor-plan.jpg';
+import energyCertificateImage from '@/assets/energy-certificate.jpg';
 
 // Dynamic property images based on property type
 const getPropertyImages = (property: typeof properties[0]) => {
@@ -318,20 +320,30 @@ export default function PropertyExpose() {
                   unlockAction="Mit Telefon freischalten"
                   onUnlock={scrollToUnlock}
                 >
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="aspect-square rounded-xl bg-secondary/50 flex items-center justify-center">
-                      <div className="text-center">
-                        <FileText className="h-12 w-12 mx-auto mb-2 text-accent" />
-                        <p className="font-medium">Grundriss EG</p>
-                        <Button variant="link" size="sm">PDF öffnen</Button>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <p className="font-medium text-center">Grundriss</p>
+                      <div className="rounded-xl overflow-hidden border bg-white">
+                        <img 
+                          src={floorPlanImage} 
+                          alt="Grundriss" 
+                          className="w-full h-auto object-contain cursor-zoom-in hover:scale-105 transition-transform"
+                          onClick={() => window.open(floorPlanImage, '_blank')}
+                        />
                       </div>
+                      <p className="text-xs text-muted-foreground text-center">Klicken zum Vergrößern</p>
                     </div>
-                    <div className="aspect-square rounded-xl bg-secondary/50 flex items-center justify-center">
-                      <div className="text-center">
-                        <FileText className="h-12 w-12 mx-auto mb-2 text-accent" />
-                        <p className="font-medium">Energieausweis</p>
-                        <Button variant="link" size="sm">PDF öffnen</Button>
+                    <div className="space-y-3">
+                      <p className="font-medium text-center">Energieausweis</p>
+                      <div className="rounded-xl overflow-hidden border bg-white">
+                        <img 
+                          src={energyCertificateImage} 
+                          alt="Energieausweis" 
+                          className="w-full h-auto object-contain cursor-zoom-in hover:scale-105 transition-transform"
+                          onClick={() => window.open(energyCertificateImage, '_blank')}
+                        />
                       </div>
+                      <p className="text-xs text-muted-foreground text-center">Energieeffizienzklasse B</p>
                     </div>
                   </div>
                 </GatedContentCard>
