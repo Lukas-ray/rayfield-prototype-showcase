@@ -162,6 +162,10 @@ export function MediaTab() {
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [creatorCaption, setCreatorCaption] = useState('');
   const [creatorPlatform, setCreatorPlatform] = useState('Instagram');
+  
+  // Track published accounts
+  const [publishedSocialAccounts, setPublishedSocialAccounts] = useState<string[]>([]);
+  const [publishedPlatforms, setPublishedPlatforms] = useState<string[]>([]);
 
   const photos = mediaItems.filter(m => m.type === 'photo');
   const videos = mediaItems.filter(m => m.type === 'video');
@@ -208,6 +212,9 @@ export function MediaTab() {
       return;
     }
     
+    if (selectedSocial) {
+      setPublishedSocialAccounts(prev => [...prev, selectedSocial.id]);
+    }
     setPreviewDialogOpen(false);
     toast({
       title: 'Beitrag veröffentlicht',
@@ -230,6 +237,9 @@ export function MediaTab() {
   };
 
   const confirmPlatformPublish = () => {
+    if (selectedPlatform) {
+      setPublishedPlatforms(prev => [...prev, selectedPlatform.id]);
+    }
     setPlatformPreviewOpen(false);
     toast({
       title: 'Veröffentlichung gestartet',
@@ -599,16 +609,39 @@ export function MediaTab() {
                     </div>
                     <div className="flex items-center gap-2">
                       {account.connected ? (
-                        <>
-                          <Badge variant="outline" className="text-green-600 border-green-600">
-                            <Check className="h-3 w-3 mr-1" />
-                            Verbunden
-                          </Badge>
-                          <Button size="sm" onClick={() => handleSocialPost(account)} className="gap-2">
-                            <Eye className="h-4 w-4" />
-                            Vorschau & Posten
-                          </Button>
-                        </>
+                        publishedSocialAccounts.includes(account.id) ? (
+                          <>
+                            <Badge variant="default" className="bg-green-600 text-white">
+                              <Check className="h-3 w-3 mr-1" />
+                              Veröffentlicht
+                            </Badge>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => {
+                                toast({
+                                  title: 'Link kopiert',
+                                  description: `Der Link zu Ihrem ${account.name}-Beitrag wurde kopiert.`,
+                                });
+                              }}
+                              className="gap-2"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                              Zum Post
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Badge variant="outline" className="text-green-600 border-green-600">
+                              <Check className="h-3 w-3 mr-1" />
+                              Verbunden
+                            </Badge>
+                            <Button size="sm" onClick={() => handleSocialPost(account)} className="gap-2">
+                              <Eye className="h-4 w-4" />
+                              Vorschau & Posten
+                            </Button>
+                          </>
+                        )
                       ) : (
                         <Button variant="outline" size="sm">
                           Verbinden
@@ -656,16 +689,36 @@ export function MediaTab() {
                   </div>
                   <div className="flex items-center gap-2">
                     {platform.connected ? (
-                      <>
-                        <Badge variant="outline" className="text-green-600 border-green-600">
-                          <Check className="h-3 w-3 mr-1" />
-                          Verbunden
-                        </Badge>
-                        <Button size="sm" onClick={() => handlePlatformPublish(platform)} className="gap-2">
-                          <Eye className="h-4 w-4" />
-                          Vorschau & Veröffentlichen
-                        </Button>
-                      </>
+                      publishedPlatforms.includes(platform.id) ? (
+                        <>
+                          <Badge variant="default" className="bg-green-600 text-white">
+                            <Check className="h-3 w-3 mr-1" />
+                            Live
+                          </Badge>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              window.open(platform.url, '_blank');
+                            }}
+                            className="gap-2"
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                            Zum Inserat
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Badge variant="outline" className="text-green-600 border-green-600">
+                            <Check className="h-3 w-3 mr-1" />
+                            Verbunden
+                          </Badge>
+                          <Button size="sm" onClick={() => handlePlatformPublish(platform)} className="gap-2">
+                            <Eye className="h-4 w-4" />
+                            Vorschau & Veröffentlichen
+                          </Button>
+                        </>
+                      )
                     ) : (
                       <Button variant="outline" size="sm">
                         Verbinden
