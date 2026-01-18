@@ -1,10 +1,14 @@
 import { useState } from 'react';
-import { AlertCircle, Check, Link2, Play, ExternalLink } from 'lucide-react';
+import { AlertCircle, Check, Link2, Play, ExternalLink, CheckCircle2, Image, FileText, Zap, Eye, AlertTriangle } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Dialog,
   DialogContent,
@@ -13,201 +17,373 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { PlatformLogo } from '@/components/ui/PlatformLogo';
 
-const exportPackages = [
-  { id: '1', name: 'ImmoScout24 Paket', created: '14. Jan, 14:32', status: 'ready' },
-  { id: '2', name: 'Generischer XML-Export', created: '13. Jan, 10:15', status: 'ready' },
+interface ChannelConfig {
+  id: string;
+  name: string;
+  platform: string;
+  status: 'ready' | 'incomplete' | 'connected' | 'disconnected';
+  fieldsTotal: number;
+  fieldsMapped: number;
+  missingFields: string[];
+  format: { width: number; height: number; label: string };
+  lastPublished?: string;
+}
+
+const channels: ChannelConfig[] = [
+  { 
+    id: 'immoscout', 
+    name: 'ImmoScout24', 
+    platform: 'immoscout24',
+    status: 'ready',
+    fieldsTotal: 42,
+    fieldsMapped: 42,
+    missingFields: [],
+    format: { width: 1200, height: 800, label: '3:2' },
+    lastPublished: '12.01.2024',
+  },
+  { 
+    id: 'immowelt', 
+    name: 'Immowelt', 
+    platform: 'immowelt',
+    status: 'ready',
+    fieldsTotal: 38,
+    fieldsMapped: 38,
+    missingFields: [],
+    format: { width: 1024, height: 768, label: '4:3' },
+  },
+  { 
+    id: 'kleinanzeigen', 
+    name: 'Kleinanzeigen', 
+    platform: 'kleinanzeigen',
+    status: 'incomplete',
+    fieldsTotal: 28,
+    fieldsMapped: 25,
+    missingFields: ['Energieausweis-Nr.', 'Garage-Stellplätze', 'Baujahr Heizung'],
+    format: { width: 1200, height: 900, label: '4:3' },
+  },
+  { 
+    id: 'website', 
+    name: 'Eigene Website', 
+    platform: 'website',
+    status: 'ready',
+    fieldsTotal: 50,
+    fieldsMapped: 50,
+    missingFields: [],
+    format: { width: 1920, height: 1080, label: '16:9' },
+  },
 ];
 
-const connectors = [
-  { id: 'onoffice', name: 'onOffice', status: 'disconnected', logo: '🏢' },
-  { id: 'flowfact', name: 'Flowfact', status: 'disconnected', logo: '📊' },
-  { id: 'propstack', name: 'Propstack', status: 'connected', logo: '🏠' },
-];
-
-const validationWarnings = [
-  { type: 'missing', field: 'Energieausweis-Nummer', message: 'Erforderlich für Portal-Inserat' },
-  { type: 'inconsistency', field: 'Wohnfläche', message: 'Dokument zeigt 87m², Scan zeigt 85m²' },
+const validationErrors = [
+  { type: 'error', field: 'Energieausweis-Nummer', message: 'Pflichtfeld für alle Portale', channels: ['kleinanzeigen'] },
+  { type: 'warning', field: 'Wohnfläche', message: 'Abweichung: Dokument 87m² vs. Scan 85m²', channels: ['all'] },
+  { type: 'warning', field: 'Baujahr Heizung', message: 'Empfohlen für Kleinanzeigen', channels: ['kleinanzeigen'] },
 ];
 
 export default function Publishing() {
   const { toast } = useToast();
   const [integrationDialogOpen, setIntegrationDialogOpen] = useState(false);
-  const [selectedConnector, setSelectedConnector] = useState<string | null>(null);
+  const [selectedChannel, setSelectedChannel] = useState<ChannelConfig | null>(null);
+  const [previewChannel, setPreviewChannel] = useState<string>('immoscout');
 
-  const handleConnect = (connectorId: string) => {
-    setSelectedConnector(connectorId);
+  const totalFields = channels.reduce((sum, c) => sum + c.fieldsTotal, 0);
+  const mappedFields = channels.reduce((sum, c) => sum + c.fieldsMapped, 0);
+  const mappingPercent = Math.round((mappedFields / totalFields) * 100);
+
+  const readyChannels = channels.filter(c => c.status === 'ready').length;
+  const errorCount = validationErrors.filter(e => e.type === 'error').length;
+
+  const handleConnect = (channel: ChannelConfig) => {
+    setSelectedChannel(channel);
     setIntegrationDialogOpen(true);
   };
 
-  const handlePublish = (connectorId: string) => {
+  const handlePublish = (channelId: string) => {
+    const channel = channels.find(c => c.id === channelId);
+    if (channel?.missingFields.length) {
+      toast({
+        title: 'Fehlende Pflichtfelder',
+        description: `Bitte ${channel.missingFields.join(', ')} ergänzen.`,
+        variant: 'destructive',
+      });
+      return;
+    }
     toast({
       title: 'Veröffentlichung gestartet',
-      description: `Inserat an ${connectors.find(c => c.id === connectorId)?.name} gesendet. Status im Aktivitätslog prüfen.`,
+      description: `Inserat an ${channel?.name} gesendet.`,
+    });
+  };
+
+  const handlePublishAll = () => {
+    const readyToPublish = channels.filter(c => c.status === 'ready');
+    if (errorCount > 0) {
+      toast({
+        title: 'Validierungsfehler',
+        description: 'Bitte beheben Sie zuerst die Pflichtfehler.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    toast({
+      title: 'Multi-Channel Veröffentlichung',
+      description: `Inserat an ${readyToPublish.length} Kanäle gesendet.`,
     });
   };
 
   return (
     <AppLayout>
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold">Veröffentlichung</h1>
-          <p className="text-muted-foreground">Inserate vorbereiten und an Portale verteilen</p>
-        </div>
-
-        <div className="grid grid-cols-3 gap-6">
-          {/* Listing Draft Form */}
-          <div className="col-span-2 space-y-6">
-            <div className="workspace-card">
-              <h3 className="font-semibold mb-4">Inserats-Entwurf</h3>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="title">Titel</Label>
-                  <Input
-                    id="title"
-                    defaultValue="Lichtdurchflutete 3-Zimmer Altbauwohnung in Schwabing"
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="short">Kurzbeschreibung</Label>
-                  <Input
-                    id="short"
-                    defaultValue="Traumhafte Altbauwohnung mit Stuck, Dielen und Balkon in bester Lage."
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="long">Vollständige Beschreibung</Label>
-                  <Textarea
-                    id="long"
-                    rows={6}
-                    defaultValue="Diese wunderschöne 3-Zimmer Wohnung besticht durch ihren klassischen Altbaucharme mit hohen Decken, originalen Stuckelementen und gepflegten Dielenböden. Die großzügige Wohnfläche von 85 m² verteilt sich optimal auf Wohnzimmer, Schlafzimmer, Arbeitszimmer sowie eine moderne Einbauküche. Nur wenige Gehminuten vom Englischen Garten entfernt."
-                    className="mt-1"
-                  />
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="price">Preis</Label>
-                    <Input id="price" defaultValue="685.000 €" className="mt-1" />
-                  </div>
-                  <div>
-                    <Label htmlFor="area">Wohnfläche</Label>
-                    <Input id="area" defaultValue="85 m²" className="mt-1" />
-                  </div>
-                  <div>
-                    <Label htmlFor="rooms">Zimmer</Label>
-                    <Input id="rooms" defaultValue="3" className="mt-1" />
-                  </div>
-                </div>
+        {/* Header with Auto-Mapping Indicator */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold">Publishing</h1>
+            <p className="text-muted-foreground">Einmal erstellen, überall veröffentlichen</p>
+          </div>
+          <div className="flex items-center gap-4">
+            {/* Auto-mapping success indicator */}
+            <div className="flex items-center gap-3 px-4 py-2 rounded-lg bg-success/10 border border-success/20">
+              <Zap className="h-5 w-5 text-success" />
+              <div>
+                <p className="text-sm font-medium text-success">{mappingPercent}% automatisch gemappt</p>
+                <p className="text-xs text-muted-foreground">{channels.reduce((s, c) => s + c.missingFields.length, 0)} Felder fehlen</p>
               </div>
             </div>
+            <Button 
+              onClick={handlePublishAll} 
+              disabled={errorCount > 0}
+              size="lg"
+              className="gap-2"
+            >
+              <Play className="h-5 w-5" />
+              An {readyChannels} Kanäle veröffentlichen
+            </Button>
+          </div>
+        </div>
 
-            {/* Export Packages */}
-            <div className="workspace-card">
-              <h3 className="font-semibold mb-4">Export-Pakete</h3>
-              <div className="space-y-3">
-                {exportPackages.map((pkg) => (
-                  <div key={pkg.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
-                    <div>
-                      <p className="font-medium">{pkg.name}</p>
-                      <p className="text-xs text-muted-foreground">Erstellt am {pkg.created}</p>
+        {/* Validation Errors - Before Publish */}
+        {validationErrors.length > 0 && (
+          <Card className="mb-6 border-warning/30">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-warning" />
+                Validierung vor Veröffentlichung
+                <Badge variant="secondary">{validationErrors.length} Hinweise</Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {validationErrors.map((error, i) => (
+                  <div 
+                    key={i} 
+                    className={cn(
+                      "flex items-center justify-between p-3 rounded-lg",
+                      error.type === 'error' ? "bg-destructive/10 border border-destructive/20" : "bg-warning/10 border border-warning/20"
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      {error.type === 'error' ? (
+                        <AlertCircle className="h-4 w-4 text-destructive" />
+                      ) : (
+                        <AlertTriangle className="h-4 w-4 text-warning" />
+                      )}
+                      <div>
+                        <p className="text-sm font-medium">{error.field}</p>
+                        <p className="text-xs text-muted-foreground">{error.message}</p>
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="status-badge status-ready">Bereit</span>
-                      <Button variant="ghost" size="sm">
-                        <ExternalLink className="h-4 w-4" />
+                      {error.channels[0] !== 'all' && (
+                        <Badge variant="secondary" className="text-xs">
+                          {error.channels.join(', ')}
+                        </Badge>
+                      )}
+                      <Button size="sm" variant="outline">Beheben</Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        <div className="grid grid-cols-3 gap-6">
+          {/* Channel Checklist */}
+          <div className="col-span-2 space-y-4">
+            <h2 className="font-semibold">Kanal-Checkliste</h2>
+            {channels.map((channel) => (
+              <Card 
+                key={channel.id}
+                className={cn(
+                  "transition-all cursor-pointer",
+                  channel.status === 'ready' && "border-success/30 hover:border-success/50",
+                  channel.status === 'incomplete' && "border-warning/30 hover:border-warning/50"
+                )}
+                onClick={() => setPreviewChannel(channel.id)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <PlatformLogo platform={channel.platform} size="md" />
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium">{channel.name}</p>
+                          {channel.status === 'ready' && (
+                            <Badge className="bg-success/10 text-success border-success/20">
+                              <CheckCircle2 className="h-3 w-3 mr-1" />
+                              Bereit
+                            </Badge>
+                          )}
+                          {channel.status === 'incomplete' && (
+                            <Badge className="bg-warning/10 text-warning border-warning/20">
+                              <AlertCircle className="h-3 w-3 mr-1" />
+                              {channel.missingFields.length} fehlen
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3 mt-1">
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <FileText className="h-3 w-3" />
+                            {channel.fieldsMapped}/{channel.fieldsTotal} Felder
+                          </div>
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Image className="h-3 w-3" />
+                            {channel.format.label} Format
+                          </div>
+                          {channel.lastPublished && (
+                            <span className="text-xs text-muted-foreground">
+                              Zuletzt: {channel.lastPublished}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={(e) => { e.stopPropagation(); setPreviewChannel(channel.id); }}
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        Vorschau
+                      </Button>
+                      <Button 
+                        size="sm"
+                        disabled={channel.status === 'incomplete'}
+                        onClick={(e) => { e.stopPropagation(); handlePublish(channel.id); }}
+                      >
+                        <Play className="h-4 w-4 mr-1" />
+                        Veröffentlichen
                       </Button>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
+
+                  {/* Missing fields for incomplete channels */}
+                  {channel.missingFields.length > 0 && (
+                    <div className="mt-3 pt-3 border-t">
+                      <p className="text-xs text-warning mb-2">Fehlende Pflichtfelder:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {channel.missingFields.map((field, i) => (
+                          <Badge key={i} variant="secondary" className="text-xs">
+                            {field}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Validation Report */}
-            <div className="workspace-card">
-              <h3 className="font-semibold mb-4">Validierungsbericht</h3>
-              <div className="space-y-3">
-                {validationWarnings.map((warning, i) => (
-                  <div key={i} className="p-3 rounded-lg bg-warning/10 border border-warning/20">
-                    <div className="flex items-start gap-2">
-                      <AlertCircle className="h-4 w-4 text-warning mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium">{warning.field}</p>
-                        <p className="text-xs text-muted-foreground">{warning.message}</p>
-                      </div>
-                    </div>
+          {/* Preview per Channel */}
+          <div className="space-y-4">
+            <h2 className="font-semibold">Kanal-Vorschau</h2>
+            <Card>
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <PlatformLogo platform={channels.find(c => c.id === previewChannel)?.platform || 'immoscout24'} size="sm" />
+                    {channels.find(c => c.id === previewChannel)?.name}
+                  </CardTitle>
+                  <Badge variant="secondary" className="text-xs">
+                    {channels.find(c => c.id === previewChannel)?.format.label}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {/* Preview mockup */}
+                <div className="aspect-[4/3] rounded-lg bg-muted mb-4 flex items-center justify-center border">
+                  <div className="text-center p-4">
+                    <Image className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-sm text-muted-foreground">Inserat-Vorschau</p>
+                    <p className="text-xs text-muted-foreground">
+                      {channels.find(c => c.id === previewChannel)?.format.width} x {channels.find(c => c.id === previewChannel)?.format.height}
+                    </p>
                   </div>
-                ))}
-              </div>
-            </div>
+                </div>
+                
+                {/* Quick field preview */}
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Titel</span>
+                    <span className="font-medium truncate ml-2">3-Zi Altbau Schwabing</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Preis</span>
+                    <span className="font-medium">685.000 €</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Fläche</span>
+                    <span className="font-medium">85 m²</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-            {/* Connectors */}
-            <div className="workspace-card">
-              <h3 className="font-semibold mb-4">Portal-Konnektoren</h3>
-              <div className="space-y-3">
-                {connectors.map((connector) => (
-                  <div key={connector.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">{connector.logo}</span>
-                      <div>
-                        <p className="font-medium">{connector.name}</p>
-                        <p className={cn(
-                          'text-xs',
-                          connector.status === 'connected' ? 'text-success' : 'text-muted-foreground'
-                        )}>
-                          {connector.status === 'connected' ? '● Verbunden' : '○ Nicht verbunden'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      {connector.status === 'connected' ? (
-                        <Button size="sm" onClick={() => handlePublish(connector.id)}>
-                          <Play className="h-4 w-4 mr-1" />
-                          Veröffentlichen
-                        </Button>
-                      ) : (
-                        <Button size="sm" variant="outline" onClick={() => handleConnect(connector.id)}>
-                          <Link2 className="h-4 w-4 mr-1" />
-                          Verbinden
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            {/* Quick Listing Form */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Inserats-Daten</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div>
+                  <Label htmlFor="title" className="text-xs">Titel</Label>
+                  <Input
+                    id="title"
+                    defaultValue="Lichtdurchflutete 3-Zimmer Altbauwohnung"
+                    className="mt-1 h-8 text-sm"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="price" className="text-xs">Preis</Label>
+                  <Input id="price" defaultValue="685.000 €" className="mt-1 h-8 text-sm" />
+                </div>
+                <Button size="sm" variant="outline" className="w-full">
+                  Alle Felder bearbeiten
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
 
-      {/* Integration Stub Dialog */}
+      {/* Integration Dialog */}
       <Dialog open={integrationDialogOpen} onOpenChange={setIntegrationDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Mit {connectors.find(c => c.id === selectedConnector)?.name} verbinden</DialogTitle>
+            <DialogTitle>Mit {selectedChannel?.name} verbinden</DialogTitle>
           </DialogHeader>
           <div className="py-4 space-y-4">
             <p className="text-sm text-muted-foreground">
-              Dies ist eine Stub-Integration. In der Produktionsumgebung würden Sie sich hier mit der Portal-API authentifizieren.
+              Stub-Integration für Demo-Zwecke.
             </p>
-            <div className="p-4 rounded-lg bg-secondary/50">
-              <p className="text-sm font-medium mb-2">Verbindung erfordert:</p>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• API-Zugangsdaten oder OAuth-Autorisierung</li>
-                <li>• Feldzuordnungs-Konfiguration</li>
-                <li>• Medienformat-Präferenzen</li>
-              </ul>
-            </div>
           </div>
           <Button onClick={() => {
             setIntegrationDialogOpen(false);
             toast({
-              title: 'Integration-Stub',
-              description: 'Diese Verbindung ist simuliert. Audit-Eintrag protokolliert.',
+              title: 'Verbindung simuliert',
+              description: 'Audit-Eintrag protokolliert.',
             });
           }} className="w-full">
             Verbindung simulieren
