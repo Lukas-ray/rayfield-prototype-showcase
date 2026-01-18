@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { 
-  User, Mail, Phone, Calendar, Globe, Instagram, MessageSquare, Star, StarOff, 
+  User, Mail, Phone, Calendar, MessageSquare, Star, StarOff, 
   Clock, CheckCircle2, Send, ExternalLink, Eye, MousePointer, FileText, 
   Box, TrendingUp, MailOpen, Reply, ChevronRight, Activity, MapPin
 } from 'lucide-react';
@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { ReplyDialog } from './ReplyDialog';
 import { properties } from '@/data/dummyData';
-import ebayLogo from '@/assets/ebay-kleinanzeigen-logo.png';
+import { PlatformLogo } from '@/components/ui/PlatformLogo';
 
 interface ExposeActivity {
   type: 'view' | 'section' | 'document' | 'contact';
@@ -62,7 +62,7 @@ const initialLeads: Lead[] = [
     phone: '+49 171 234 5678',
     message: 'Sehr geehrte Damen und Herren, ich interessiere mich für die Immobilie und würde gerne einen Besichtigungstermin vereinbaren.',
     source: 'ImmoScout24',
-    sourceIcon: <Globe className="h-4 w-4 text-orange-500" />,
+    sourceIcon: <PlatformLogo platform="immoscout24" size="sm" />,
     date: '2024-01-15',
     status: 'qualified',
     starred: true,
@@ -99,7 +99,7 @@ const initialLeads: Lead[] = [
     phone: '+49 160 987 6543',
     message: 'Guten Tag, ist die Immobilie noch verfügbar? Ich suche dringend für meine Familie.',
     source: 'eBay Kleinanzeigen',
-    sourceIcon: <img src={ebayLogo} alt="eBay" className="h-4 w-4 rounded" />,
+    sourceIcon: <PlatformLogo platform="kleinanzeigen" size="sm" />,
     date: '2024-01-14',
     status: 'contacted',
     starred: false,
@@ -130,7 +130,7 @@ const initialLeads: Lead[] = [
     phone: '+49 152 333 4444',
     message: 'Wunderschöne Wohnung! Wann wäre eine Besichtigung möglich?',
     source: 'Instagram',
-    sourceIcon: <Instagram className="h-4 w-4 text-pink-500" />,
+    sourceIcon: <PlatformLogo platform="instagram" size="sm" />,
     date: '2024-01-13',
     status: 'qualified',
     starred: true,
@@ -164,7 +164,7 @@ const initialLeads: Lead[] = [
     phone: '+49 176 555 6666',
     message: 'Können Sie mir mehr Informationen zum Energieausweis zusenden?',
     source: 'Immowelt',
-    sourceIcon: <Globe className="h-4 w-4 text-blue-500" />,
+    sourceIcon: <PlatformLogo platform="immowelt" size="sm" />,
     date: '2024-01-12',
     status: 'new',
     starred: false,

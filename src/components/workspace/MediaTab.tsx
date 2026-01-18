@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Download, Image, Video, Box, LayoutGrid, Share2, Send, Check, ExternalLink, Instagram, Youtube, Facebook, Linkedin, Eye, Edit3, ArrowRight, Clock, ImageIcon, Info } from 'lucide-react';
+import { Download, Image, Video, Box, LayoutGrid, Share2, Send, Check, ExternalLink, Instagram, Youtube, Facebook, Linkedin, Eye, Edit3, ArrowRight, Clock, ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -16,6 +16,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { PlatformLogo } from '@/components/ui/PlatformLogo';
+import { Info } from 'lucide-react';
 
 // Property images
 import propertyLivingRoom from '@/assets/property-living-room.jpg';
@@ -72,56 +74,6 @@ const platformAccounts: PlatformAccount[] = [
   { id: '3', name: 'Kleinanzeigen', logo: '📢', connected: false, url: 'https://www.kleinanzeigen.de' },
   { id: '4', name: 'Immonet', logo: '🏢', connected: false, url: 'https://www.immonet.de' },
 ];
-
-// Platform logo components
-const PlatformLogo = ({ platform }: { platform: string }) => {
-  switch (platform) {
-    case 'ImmoScout24':
-      return (
-        <div className="w-8 h-8 rounded-md bg-[#ff7500] flex items-center justify-center text-white font-bold text-xs">
-          IS24
-        </div>
-      );
-    case 'Immowelt':
-      return (
-        <div className="w-8 h-8 rounded-md bg-[#003366] flex items-center justify-center text-white font-bold text-xs">
-          IW
-        </div>
-      );
-    case 'Kleinanzeigen':
-      return (
-        <div className="w-8 h-8 rounded-md bg-[#86b817] flex items-center justify-center text-white font-bold text-xs">
-          KA
-        </div>
-      );
-    case 'Instagram':
-      return (
-        <div className="w-8 h-8 rounded-md bg-gradient-to-br from-[#f09433] via-[#e6683c] to-[#bc1888] flex items-center justify-center">
-          <Instagram className="w-4 h-4 text-white" />
-        </div>
-      );
-    case 'Facebook':
-      return (
-        <div className="w-8 h-8 rounded-md bg-[#1877f2] flex items-center justify-center">
-          <Facebook className="w-4 h-4 text-white" />
-        </div>
-      );
-    case 'LinkedIn':
-      return (
-        <div className="w-8 h-8 rounded-md bg-[#0a66c2] flex items-center justify-center">
-          <Linkedin className="w-4 h-4 text-white" />
-        </div>
-      );
-    case 'YouTube':
-      return (
-        <div className="w-8 h-8 rounded-md bg-[#ff0000] flex items-center justify-center">
-          <Youtube className="w-4 h-4 text-white" />
-        </div>
-      );
-    default:
-      return <span className="text-xl">📷</span>;
-  }
-};
 
 // Platform image format requirements
 const platformImageFormats = [

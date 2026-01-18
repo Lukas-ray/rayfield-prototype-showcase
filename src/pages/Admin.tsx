@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Plus, Check, X, Users, FileText, Settings, Shield, Mail, Instagram, Facebook, Linkedin, Youtube, Globe, Unplug, CheckCircle2, AlertCircle, Database, UserCog } from 'lucide-react';
+import { Plus, Check, X, Users, FileText, Settings, Shield, Mail, Unplug, CheckCircle2, AlertCircle, Database, UserCog, Instagram, Globe } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PlatformLogo } from '@/components/ui/PlatformLogo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -100,7 +101,7 @@ export default function Admin() {
       id: 'instagram',
       name: 'Instagram',
       description: 'Immobilienfotos und Stories automatisch posten',
-      icon: <Instagram className="h-8 w-8 text-pink-500" />,
+      icon: <PlatformLogo platform="instagram" size="lg" />,
       connected: true,
       connectedAccount: '@rayfield_immobilien',
       category: 'social',
@@ -109,7 +110,7 @@ export default function Admin() {
       id: 'facebook',
       name: 'Facebook',
       description: 'Immobilienanzeigen auf Facebook Marketplace',
-      icon: <Facebook className="h-8 w-8 text-blue-600" />,
+      icon: <PlatformLogo platform="facebook" size="lg" />,
       connected: false,
       category: 'social',
     },
@@ -117,7 +118,7 @@ export default function Admin() {
       id: 'linkedin',
       name: 'LinkedIn',
       description: 'Professionelle Immobilienpostings',
-      icon: <Linkedin className="h-8 w-8 text-blue-700" />,
+      icon: <PlatformLogo platform="linkedin" size="lg" />,
       connected: true,
       connectedAccount: 'Rayfield Immobilien GmbH',
       category: 'social',
@@ -126,7 +127,7 @@ export default function Admin() {
       id: 'youtube',
       name: 'YouTube',
       description: 'Immobilienvideos und virtuelle Touren',
-      icon: <Youtube className="h-8 w-8 text-red-600" />,
+      icon: <PlatformLogo platform="youtube" size="lg" />,
       connected: false,
       category: 'social',
     },
@@ -134,7 +135,7 @@ export default function Admin() {
       id: 'immoscout',
       name: 'ImmoScout24',
       description: 'Automatische Synchronisation mit ImmoScout24',
-      icon: <Globe className="h-8 w-8 text-orange-500" />,
+      icon: <PlatformLogo platform="immoscout24" size="lg" />,
       connected: true,
       connectedAccount: 'rayfield_munich',
       category: 'portal',
@@ -143,7 +144,7 @@ export default function Admin() {
       id: 'immowelt',
       name: 'Immowelt',
       description: 'Listings automatisch auf Immowelt veröffentlichen',
-      icon: <Globe className="h-8 w-8 text-blue-500" />,
+      icon: <PlatformLogo platform="immowelt" size="lg" />,
       connected: false,
       category: 'portal',
     },
@@ -151,7 +152,7 @@ export default function Admin() {
       id: 'ebay-kleinanzeigen',
       name: 'eBay Kleinanzeigen',
       description: 'Immobilienanzeigen auf eBay Kleinanzeigen schalten',
-      icon: <img src={ebayKleinanzeigenLogo} alt="eBay Kleinanzeigen" className="h-8 w-8 rounded" />,
+      icon: <PlatformLogo platform="kleinanzeigen" size="lg" />,
       connected: false,
       category: 'portal',
     },
