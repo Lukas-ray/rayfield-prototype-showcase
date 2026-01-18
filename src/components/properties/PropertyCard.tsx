@@ -105,19 +105,32 @@ export function PropertyCard({ property, onClick }: PropertyCardProps) {
         </div>
       </div>
 
-      {/* Next Action */}
+      {/* Next Action with Blocked Reason inline */}
       <div className={cn(
-        "mt-3 pt-3 border-t flex items-center gap-2",
+        "mt-3 pt-3 border-t flex items-center justify-between",
         isUrgent && "border-warning/30"
       )}>
-        <span className={cn(
-          "inline-flex h-2 w-2 rounded-full",
-          isUrgent ? "bg-warning animate-pulse" : "bg-accent"
-        )} />
-        <p className="text-sm">
-          <span className="text-muted-foreground">Nächster Schritt: </span>
-          <span className="font-medium text-foreground">{property.nextAction}</span>
-        </p>
+        <div className="flex items-center gap-2">
+          <span className={cn(
+            "inline-flex h-2 w-2 rounded-full",
+            isUrgent ? "bg-warning animate-pulse" : "bg-accent"
+          )} />
+          <p className="text-sm">
+            <span className="text-muted-foreground">Nächster Schritt: </span>
+            <span className="font-medium text-foreground">{property.nextAction}</span>
+          </p>
+        </div>
+        {/* Blocked reason inline for docs_missing */}
+        {property.workflowState === 'docs_missing' && (
+          <span className="text-xs text-warning bg-warning/10 px-2 py-1 rounded-md">
+            Wartet auf: Energieausweis
+          </span>
+        )}
+        {property.workflowState === 'inquiries_active' && (
+          <span className="text-xs text-info bg-info/10 px-2 py-1 rounded-md">
+            {property.nextAction.includes('3') ? '3 neue Anfragen' : 'Anfragen offen'}
+          </span>
+        )}
       </div>
     </div>
   );

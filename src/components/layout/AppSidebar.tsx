@@ -1,11 +1,14 @@
-import { Settings, Home, LayoutDashboard, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Settings, Home, LayoutDashboard, ChevronLeft, ChevronRight, Scan, FileCheck, Send, Users } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import immosmartLogo from '@/assets/immosmart-logo.svg';
 
+// Pipeline-first navigation matching workflow: Scan → Record → Agents → Publish → Leads
 const navigation = [
-  { name: 'Objekte', href: '/', icon: Home },
-  { name: 'Einstellungen', href: '/admin', icon: Settings },
+  { name: 'Objekte', href: '/', icon: Home, description: 'Alle Immobilien' },
+  { name: 'Dokumente', href: '/documents', icon: FileCheck, description: 'Dokumentenstatus' },
+  { name: 'Publishing', href: '/publishing', icon: Send, description: 'Veröffentlichung' },
+  { name: 'Einstellungen', href: '/admin', icon: Settings, description: 'Einstellungen' },
 ];
 
 interface AppSidebarProps {

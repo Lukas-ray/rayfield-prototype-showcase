@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, Home, Euro, Ruler, BedDouble, Bath, Calendar, User, Phone, Mail, Building2, ExternalLink, TrendingUp, Users, Lock, ClipboardList } from 'lucide-react';
+import { ArrowLeft, MapPin, Home, Euro, Ruler, BedDouble, Bath, Calendar, User, Phone, Mail, Building2, ExternalLink, TrendingUp, Users, Lock, ClipboardList, ArrowRight } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -254,28 +254,50 @@ export default function PropertyWorkspace() {
             {/* Pipeline */}
             <PipelineVisualization currentStep={getPipelineStep()} />
 
-            {/* Next Actions */}
+            {/* Single Primary Next Action + Tasks List */}
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Nächste Aktionen</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-3">
-                  {pendingTasks.map((task) => (
-                    <div key={task.id} className="flex items-center justify-between p-4 rounded-lg bg-secondary/50 border border-border">
-                      <div>
-                        <p className="font-medium">{task.title}</p>
-                        <p className="text-sm text-muted-foreground">{task.owner} · Fällig: {task.dueDate}</p>
-                      </div>
-                      <span className={cn(
-                        'status-badge',
-                        task.status === 'in_progress' ? 'status-processing' : 'status-draft'
-                      )}>
-                        {task.status === 'in_progress' ? 'In Bearbeitung' : 'Ausstehend'}
-                      </span>
-                    </div>
-                  ))}
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg">Nächste Aktion</CardTitle>
+                  <span className="text-xs text-muted-foreground">{pendingTasks.length} ausstehende Aufgaben</span>
                 </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Primary Action - Only 1 */}
+                {pendingTasks.length > 0 && (
+                  <div className="p-4 rounded-lg bg-accent/5 border-2 border-accent/30">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-lg">{pendingTasks[0].title}</p>
+                        <p className="text-sm text-muted-foreground mt-1">{pendingTasks[0].owner} · Fällig: {pendingTasks[0].dueDate}</p>
+                      </div>
+                      <Button className="gap-2">
+                        Jetzt erledigen
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Secondary Tasks */}
+                {pendingTasks.length > 1 && (
+                  <div className="grid grid-cols-2 gap-3">
+                    {pendingTasks.slice(1).map((task) => (
+                      <div key={task.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 border border-border">
+                        <div>
+                          <p className="font-medium text-sm">{task.title}</p>
+                          <p className="text-xs text-muted-foreground">{task.owner}</p>
+                        </div>
+                        <span className={cn(
+                          'status-badge text-xs',
+                          task.status === 'in_progress' ? 'status-processing' : 'status-draft'
+                        )}>
+                          {task.status === 'in_progress' ? 'In Bearbeitung' : 'Ausstehend'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
