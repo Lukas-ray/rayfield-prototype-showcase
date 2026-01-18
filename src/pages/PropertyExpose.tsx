@@ -10,6 +10,7 @@ import { GatedContentCard } from '@/components/expose/GatedContentCard';
 import { UnlockRewardToast } from '@/components/expose/UnlockRewardToast';
 import { LocationMapSection } from '@/components/expose/LocationMapSection';
 import { SignupGamificationCard } from '@/components/expose/SignupGamificationCard';
+import { GaussianSplatViewer } from '@/components/expose/GaussianSplatViewer';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -374,23 +375,14 @@ export default function PropertyExpose() {
                 </div>
                 <GatedContentCard
                   title="3D-Tour freischalten"
-                  description="Erkunden Sie jedes Zimmer in einer interaktiven 360°-Tour. Geben Sie Ihre E-Mail an, um sofort Zugang zu erhalten."
+                  description="Erkunden Sie jedes Zimmer in einer interaktiven 3D-Umgebung. Geben Sie Ihre E-Mail an, um sofort Zugang zu erhalten."
                   icon={<Box className="h-5 w-5 text-accent" />}
                   unlocked={unlockLevel >= 1}
                   unlockAction="Mit E-Mail freischalten"
                   onUnlock={scrollToUnlock}
                   previewImage={propertyLivingRoom}
                 >
-                  <div className="aspect-video rounded-xl bg-gradient-to-br from-accent/20 to-primary/20 flex items-center justify-center relative overflow-hidden">
-                    <img src={propertyLivingRoom} alt="360° Tour" className="absolute inset-0 w-full h-full object-cover opacity-30" />
-                    <div className="relative text-center">
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-accent/90 flex items-center justify-center mx-auto mb-4 cursor-pointer hover:scale-110 transition-transform shadow-lg">
-                        <Box className="h-8 w-8 sm:h-10 sm:w-10 text-accent-foreground" />
-                      </div>
-                      <p className="font-semibold text-base sm:text-lg">360° Tour starten</p>
-                      <p className="text-xs sm:text-sm text-muted-foreground">Erkunden Sie die Wohnung virtuell</p>
-                    </div>
-                  </div>
+                  <GaussianSplatViewer />
                 </GatedContentCard>
               </CardContent>
             </Card>
