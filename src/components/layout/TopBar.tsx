@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { properties } from '@/data/dummyData';
+import immosmartLogo from '@/assets/immosmart-logo.svg';
 
 interface TopBarProps {
   currentProperty?: string;
@@ -19,13 +20,19 @@ export function TopBar({ currentProperty, onPropertyChange }: TopBarProps) {
 
   return (
     <header className="h-16 border-b bg-card flex items-center justify-between px-6">
-      {/* Search */}
-      <div className="relative w-80">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Objekte, Dokumente, Leads suchen..."
-          className="pl-10 bg-secondary border-0"
-        />
+      {/* Logo & Search */}
+      <div className="flex items-center gap-6">
+        <div className="flex items-center gap-2">
+          <img src={immosmartLogo} alt="Immosmart" className="h-8 w-8" />
+          <span className="font-semibold text-lg">Immosmart</span>
+        </div>
+        <div className="relative w-80">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Objekte, Dokumente, Leads suchen..."
+            className="pl-10 bg-secondary border-0"
+          />
+        </div>
       </div>
 
       <div className="flex items-center gap-4">
