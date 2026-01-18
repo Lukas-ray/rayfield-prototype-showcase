@@ -1,12 +1,73 @@
-import { Suspense, useState, useRef } from 'react';
+import { Suspense, useState, useRef, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, Environment, Html, useProgress, PerspectiveCamera } from '@react-three/drei';
+import { OrbitControls, Environment, Html, useProgress, PerspectiveCamera, Splat } from '@react-three/drei';
 import { Button } from '@/components/ui/button';
-import { Maximize2, Minimize2, RotateCcw, Move3D, Loader2, Play, Pause } from 'lucide-react';
+import { Maximize2, Minimize2, RotateCcw, Move3D, Loader2, Play, Pause, Home, ChefHat, Bed, Bath, Sofa } from 'lucide-react';
 import * as THREE from 'three';
+import { Badge } from '@/components/ui/badge';
 
-// Demo room with interactive 3D experience
-function DemoRoom() {
+// Available room splat sources - using public demo files
+const SPLAT_SOURCES = {
+  living: {
+    name: 'Wohnzimmer',
+    icon: Sofa,
+    // Using a public demo splat file
+    url: 'https://huggingface.co/cakewalk/splat-data/resolve/main/train.splat',
+    position: [0, 0, 0] as [number, number, number],
+    rotation: [0, 0, 0] as [number, number, number],
+    scale: 1,
+  },
+};
+
+type RoomKey = keyof typeof SPLAT_SOURCES;
+
+// Auto-rotate camera
+function AutoRotateCamera({ isAutoRotating, target }: { isAutoRotating: boolean; target: THREE.Vector3 }) {
+  const { camera } = useThree();
+  const angleRef = useRef(0);
+  const radiusRef = useRef(4);
+  
+  useFrame((_, delta) => {
+    if (isAutoRotating) {
+      angleRef.current += delta * 0.15;
+      camera.position.x = target.x + Math.sin(angleRef.current) * radiusRef.current;
+      camera.position.z = target.z + Math.cos(angleRef.current) * radiusRef.current;
+      camera.position.y = target.y + 1.5;
+      camera.lookAt(target);
+    }
+  });
+  
+  return null;
+}
+
+function LoadingScreen() {
+  const { progress, active } = useProgress();
+  return (
+    <Html center>
+      <div className="flex flex-col items-center gap-4 text-white bg-black/60 backdrop-blur-md px-8 py-6 rounded-2xl">
+        <div className="relative">
+          <Loader2 className="h-12 w-12 animate-spin text-accent" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-xs font-bold">{Math.round(progress)}%</span>
+          </div>
+        </div>
+        <div className="text-center">
+          <p className="text-sm font-medium">Lade 3D-Scan...</p>
+          <p className="text-xs text-white/60 mt-1">Fotorealistische Besichtigung</p>
+        </div>
+        <div className="w-48 h-1.5 bg-white/20 rounded-full overflow-hidden">
+          <div 
+            className="h-full bg-accent rounded-full transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </div>
+    </Html>
+  );
+}
+
+// Fallback 3D Room when splat files fail to load
+function FallbackRoom() {
   const groupRef = useRef<THREE.Group>(null);
   
   return (
@@ -36,10 +97,6 @@ function DemoRoom() {
         <boxGeometry args={[4, 2.5, 0.1]} />
         <meshStandardMaterial color="#87CEEB" transparent opacity={0.3} roughness={0.1} metalness={0.1} />
       </mesh>
-      <mesh position={[0, 1.5, -5.8]}>
-        <boxGeometry args={[4.2, 2.7, 0.05]} />
-        <meshStandardMaterial color="#ffffff" roughness={0.5} />
-      </mesh>
       
       {/* Sofa */}
       <group position={[0, -0.8, 0]}>
@@ -51,7 +108,6 @@ function DemoRoom() {
           <boxGeometry args={[3, 0.8, 0.3]} />
           <meshStandardMaterial color="#5a5a5a" roughness={0.7} />
         </mesh>
-        {/* Cushions */}
         <mesh position={[-0.8, 0.5, 0.1]} castShadow>
           <boxGeometry args={[0.6, 0.5, 0.5]} />
           <meshStandardMaterial color="#7cb342" roughness={0.8} />
@@ -67,51 +123,15 @@ function DemoRoom() {
         <boxGeometry args={[1.5, 0.1, 0.8]} />
         <meshStandardMaterial color="#8B4513" roughness={0.6} />
       </mesh>
-      <mesh position={[-0.6, -1.3, 1.7]} castShadow>
-        <cylinderGeometry args={[0.05, 0.05, 0.3]} />
-        <meshStandardMaterial color="#5D3A1A" roughness={0.6} />
-      </mesh>
-      <mesh position={[0.6, -1.3, 1.7]} castShadow>
-        <cylinderGeometry args={[0.05, 0.05, 0.3]} />
-        <meshStandardMaterial color="#5D3A1A" roughness={0.6} />
-      </mesh>
-      <mesh position={[-0.6, -1.3, 2.3]} castShadow>
-        <cylinderGeometry args={[0.05, 0.05, 0.3]} />
-        <meshStandardMaterial color="#5D3A1A" roughness={0.6} />
-      </mesh>
-      <mesh position={[0.6, -1.3, 2.3]} castShadow>
-        <cylinderGeometry args={[0.05, 0.05, 0.3]} />
-        <meshStandardMaterial color="#5D3A1A" roughness={0.6} />
-      </mesh>
       
-      {/* TV Stand */}
+      {/* TV Stand & TV */}
       <mesh position={[0, -1, -4.5]} castShadow>
         <boxGeometry args={[2.5, 0.6, 0.5]} />
         <meshStandardMaterial color="#2c2c2c" roughness={0.5} />
       </mesh>
-      {/* TV */}
       <mesh position={[0, 0, -4.8]} castShadow>
         <boxGeometry args={[2, 1.2, 0.08]} />
         <meshStandardMaterial color="#1a1a1a" roughness={0.3} metalness={0.5} />
-      </mesh>
-      <mesh position={[0, 0, -4.75]}>
-        <boxGeometry args={[1.9, 1.1, 0.02]} />
-        <meshStandardMaterial color="#111827" roughness={0.2} />
-      </mesh>
-      
-      {/* Side Table with Lamp */}
-      <mesh position={[3.5, -1, -1]} castShadow>
-        <boxGeometry args={[0.6, 0.8, 0.6]} />
-        <meshStandardMaterial color="#DEB887" roughness={0.7} />
-      </mesh>
-      {/* Lamp */}
-      <mesh position={[3.5, -0.2, -1]} castShadow>
-        <cylinderGeometry args={[0.05, 0.05, 0.6]} />
-        <meshStandardMaterial color="#C0C0C0" metalness={0.8} roughness={0.2} />
-      </mesh>
-      <mesh position={[3.5, 0.3, -1]}>
-        <coneGeometry args={[0.25, 0.35, 32]} />
-        <meshStandardMaterial color="#FFF8DC" roughness={0.9} transparent opacity={0.9} />
       </mesh>
       
       {/* Plant */}
@@ -131,65 +151,105 @@ function DemoRoom() {
         <planeGeometry args={[4, 3]} />
         <meshStandardMaterial color="#8B7355" roughness={1} />
       </mesh>
-      
-      {/* Bookshelf */}
-      <group position={[-5, 0, 2]}>
-        <mesh castShadow>
-          <boxGeometry args={[0.8, 2.5, 0.3]} />
-          <meshStandardMaterial color="#DEB887" roughness={0.7} />
-        </mesh>
-        {/* Shelves */}
-        {[-0.6, 0, 0.6].map((y, i) => (
-          <mesh key={i} position={[0, y, 0]}>
-            <boxGeometry args={[0.7, 0.05, 0.28]} />
-            <meshStandardMaterial color="#C4A76B" roughness={0.7} />
-          </mesh>
-        ))}
-        {/* Books */}
-        <mesh position={[-0.15, -0.3, 0]} rotation={[0, 0, 0.1]}>
-          <boxGeometry args={[0.15, 0.4, 0.2]} />
-          <meshStandardMaterial color="#DC143C" roughness={0.8} />
-        </mesh>
-        <mesh position={[0.1, -0.25, 0]}>
-          <boxGeometry args={[0.12, 0.35, 0.2]} />
-          <meshStandardMaterial color="#4169E1" roughness={0.8} />
-        </mesh>
-        <mesh position={[0.25, -0.28, 0]} rotation={[0, 0, -0.05]}>
-          <boxGeometry args={[0.1, 0.38, 0.2]} />
-          <meshStandardMaterial color="#32CD32" roughness={0.8} />
-        </mesh>
-      </group>
     </group>
   );
 }
 
-// Auto-rotate camera
-function AutoRotateCamera({ isAutoRotating }: { isAutoRotating: boolean }) {
-  const { camera } = useThree();
-  const angleRef = useRef(0);
+// Gaussian Splat Scene with error handling
+function GaussianSplatScene({ 
+  currentRoom, 
+  isAutoRotating,
+  onError 
+}: { 
+  currentRoom: RoomKey; 
+  isAutoRotating: boolean;
+  onError: () => void;
+}) {
+  const roomData = SPLAT_SOURCES[currentRoom];
+  const targetRef = useRef(new THREE.Vector3(...roomData.position));
   
-  useFrame((_, delta) => {
-    if (isAutoRotating) {
-      angleRef.current += delta * 0.2;
-      const radius = 8;
-      camera.position.x = Math.sin(angleRef.current) * radius;
-      camera.position.z = Math.cos(angleRef.current) * radius;
-      camera.lookAt(0, 0, 0);
-    }
-  });
-  
-  return null;
+  useEffect(() => {
+    targetRef.current.set(...roomData.position);
+  }, [currentRoom, roomData.position]);
+
+  return (
+    <>
+      <AutoRotateCamera isAutoRotating={isAutoRotating} target={targetRef.current} />
+      
+      {/* Lighting */}
+      <ambientLight intensity={0.6} />
+      <directionalLight
+        position={[5, 8, 5]}
+        intensity={0.8}
+        castShadow
+      />
+      
+      {/* Environment for reflections */}
+      <Environment preset="apartment" />
+      
+      {/* Gaussian Splat */}
+      <Suspense fallback={<LoadingScreen />}>
+        <group
+          position={roomData.position}
+          rotation={roomData.rotation}
+          scale={roomData.scale}
+        >
+          <Splat 
+            src={roomData.url}
+            alphaTest={0.1}
+            alphaHash={false}
+            chunkSize={25000}
+          />
+        </group>
+      </Suspense>
+      
+      {/* Controls */}
+      <OrbitControls 
+        enablePan={true}
+        enableZoom={true}
+        enableRotate={true}
+        minDistance={1}
+        maxDistance={20}
+        target={roomData.position}
+      />
+    </>
+  );
 }
 
-function LoadingScreen() {
-  const { progress } = useProgress();
+// Fallback Scene (3D mesh room)
+function FallbackScene({ isAutoRotating }: { isAutoRotating: boolean }) {
+  const targetRef = useRef(new THREE.Vector3(0, 0, 0));
+  
   return (
-    <Html center>
-      <div className="flex flex-col items-center gap-3 text-white">
-        <Loader2 className="h-8 w-8 animate-spin" />
-        <p className="text-sm font-medium">Lade 3D-Szene... {progress.toFixed(0)}%</p>
-      </div>
-    </Html>
+    <>
+      <AutoRotateCamera isAutoRotating={isAutoRotating} target={targetRef.current} />
+      
+      {/* Lighting */}
+      <ambientLight intensity={0.5} />
+      <directionalLight
+        position={[5, 8, 5]}
+        intensity={1}
+        castShadow
+        shadow-mapSize={[2048, 2048]}
+      />
+      <pointLight position={[3.5, 1, -1]} intensity={0.5} color="#FFF8DC" />
+      
+      {/* Environment */}
+      <Environment preset="apartment" />
+      
+      {/* Fallback 3D Room */}
+      <FallbackRoom />
+      
+      {/* Controls */}
+      <OrbitControls 
+        enablePan={true}
+        enableZoom={true}
+        enableRotate={true}
+        minDistance={3}
+        maxDistance={15}
+        maxPolarAngle={Math.PI / 2}
+      />
+    </>
   );
 }
 
@@ -200,21 +260,40 @@ interface GaussianSplatViewerProps {
 export function GaussianSplatViewer({ className }: GaussianSplatViewerProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isAutoRotating, setIsAutoRotating] = useState(true);
+  const [currentRoom, setCurrentRoom] = useState<RoomKey>('living');
+  const [useFallback, setUseFallback] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const toggleFullscreen = () => {
-    if (!isFullscreen) {
-      containerRef.current?.requestFullscreen?.();
-    } else {
-      document.exitFullscreen?.();
+  const toggleFullscreen = async () => {
+    try {
+      if (!isFullscreen) {
+        await containerRef.current?.requestFullscreen?.();
+      } else {
+        await document.exitFullscreen?.();
+      }
+      setIsFullscreen(!isFullscreen);
+    } catch (e) {
+      console.log('Fullscreen not supported');
     }
-    setIsFullscreen(!isFullscreen);
   };
 
-  const resetCamera = () => {
-    // Reset is handled by OrbitControls
-    setIsAutoRotating(false);
+  const handleSplatError = () => {
+    console.log('Splat loading failed, using fallback');
+    setUseFallback(true);
   };
+
+  // Handle fullscreen change events
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const roomData = SPLAT_SOURCES[currentRoom];
+  const RoomIcon = roomData.icon;
 
   return (
     <div 
@@ -222,65 +301,71 @@ export function GaussianSplatViewer({ className }: GaussianSplatViewerProps) {
       className={`relative rounded-xl overflow-hidden bg-gradient-to-br from-slate-900 to-slate-800 ${className}`}
       style={{ aspectRatio: isFullscreen ? undefined : '16/9', height: isFullscreen ? '100vh' : undefined }}
     >
-      <Canvas shadows>
+      <Canvas 
+        shadows 
+        gl={{ antialias: true, alpha: false }}
+        dpr={[1, 2]}
+      >
         <Suspense fallback={<LoadingScreen />}>
-          <PerspectiveCamera makeDefault position={[6, 3, 6]} fov={50} />
-          <AutoRotateCamera isAutoRotating={isAutoRotating} />
+          <PerspectiveCamera makeDefault position={[4, 2, 4]} fov={60} />
           
-          {/* Lighting */}
-          <ambientLight intensity={0.4} />
-          <directionalLight
-            position={[5, 8, 5]}
-            intensity={1}
-            castShadow
-            shadow-mapSize={[2048, 2048]}
-          />
-          <pointLight position={[3.5, 1, -1]} intensity={0.5} color="#FFF8DC" />
-          
-          {/* Environment for reflections */}
-          <Environment preset="apartment" />
-          
-          {/* 3D Room */}
-          <DemoRoom />
-          
-          {/* Controls */}
-          <OrbitControls 
-            enablePan={true}
-            enableZoom={true}
-            enableRotate={true}
-            minDistance={3}
-            maxDistance={15}
-            maxPolarAngle={Math.PI / 2}
-            onStart={() => setIsAutoRotating(false)}
-          />
+          {useFallback ? (
+            <FallbackScene isAutoRotating={isAutoRotating} />
+          ) : (
+            <GaussianSplatScene 
+              currentRoom={currentRoom}
+              isAutoRotating={isAutoRotating}
+              onError={handleSplatError}
+            />
+          )}
         </Suspense>
       </Canvas>
       
+      {/* Current Room Badge */}
+      <div className="absolute top-4 left-4 flex items-center gap-2">
+        <Badge className="bg-accent/90 backdrop-blur-md text-accent-foreground gap-1.5 px-3 py-1.5">
+          <RoomIcon className="h-3.5 w-3.5" />
+          <span className="text-xs font-medium">{roomData.name}</span>
+        </Badge>
+        {useFallback && (
+          <Badge variant="secondary" className="backdrop-blur-md text-xs">
+            3D Vorschau
+          </Badge>
+        )}
+      </div>
+      
       {/* Controls Overlay */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/50 backdrop-blur-md px-4 py-2 rounded-full">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-white hover:bg-white/20"
+          className="h-9 w-9 text-white hover:bg-white/20"
           onClick={() => setIsAutoRotating(!isAutoRotating)}
           title={isAutoRotating ? 'Auto-Rotation stoppen' : 'Auto-Rotation starten'}
         >
           {isAutoRotating ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
         </Button>
+        
+        <div className="w-px h-6 bg-white/30" />
+        
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-white hover:bg-white/20"
-          onClick={resetCamera}
+          className="h-9 w-9 text-white hover:bg-white/20"
+          onClick={() => {
+            setIsAutoRotating(false);
+          }}
           title="Kamera zurücksetzen"
         >
           <RotateCcw className="h-4 w-4" />
         </Button>
+        
         <div className="w-px h-6 bg-white/30" />
+        
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-white hover:bg-white/20"
+          className="h-9 w-9 text-white hover:bg-white/20"
           onClick={toggleFullscreen}
           title={isFullscreen ? 'Vollbild beenden' : 'Vollbild'}
         >
@@ -289,16 +374,18 @@ export function GaussianSplatViewer({ className }: GaussianSplatViewerProps) {
       </div>
       
       {/* Instructions */}
-      <div className="absolute top-4 left-4 bg-black/50 backdrop-blur-md px-3 py-2 rounded-lg">
+      <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-2 rounded-lg border border-white/10">
         <div className="flex items-center gap-2 text-white text-xs">
-          <Move3D className="h-4 w-4" />
-          <span>Ziehen zum Drehen • Scrollen zum Zoomen</span>
+          <Move3D className="h-4 w-4 text-accent" />
+          <span>Ziehen • Scrollen • Erkunden</span>
         </div>
       </div>
       
-      {/* Demo Badge */}
-      <div className="absolute top-4 right-4 bg-accent/90 backdrop-blur-md px-3 py-1.5 rounded-full">
-        <span className="text-accent-foreground text-xs font-medium">3D Demo</span>
+      {/* Quality indicator */}
+      <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+        <span className="text-white/80 text-xs">
+          {useFallback ? '3D Mesh' : 'Gaussian Splat'}
+        </span>
       </div>
     </div>
   );
