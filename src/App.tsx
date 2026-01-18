@@ -8,10 +8,10 @@ import PropertyWorkspace from "./pages/PropertyWorkspace";
 import PropertyExpose from "./pages/PropertyExpose";
 import Documents from "./pages/Documents";
 import Publishing from "./pages/Publishing";
-
 import Admin from "./pages/Admin";
 import ExternalUpload from "./pages/ExternalUpload";
 import NotFound from "./pages/NotFound";
+import { GlobalAssistant } from "./components/chat/GlobalAssistant";
 
 const queryClient = new QueryClient();
 
@@ -27,11 +27,11 @@ const App = () => (
           <Route path="/property/:id/expose" element={<PropertyExpose />} />
           <Route path="/documents" element={<Documents />} />
           <Route path="/publishing" element={<Publishing />} />
-          
           <Route path="/admin" element={<Admin />} />
           <Route path="/external-upload" element={<ExternalUpload />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <GlobalAssistant />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
