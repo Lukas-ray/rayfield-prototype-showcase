@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Download, Image, Video, Box, LayoutGrid, Share2, Send, Check, ExternalLink, Instagram, Youtube, Facebook, Linkedin, Eye, Edit3, ArrowRight, Clock, ImageIcon } from 'lucide-react';
+import { Download, Image, Video, Box, LayoutGrid, Share2, Send, Check, ExternalLink, Instagram, Youtube, Facebook, Linkedin, Eye, Edit3, ArrowRight, Clock, ImageIcon, Sparkles, Wand2, Crop, Film } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -18,6 +18,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { PlatformLogo } from '@/components/ui/PlatformLogo';
 import { Info } from 'lucide-react';
+import { TemplateSelector, templates, Template } from '@/components/workspace/creator/TemplateSelector';
+import { CaptionGenerator } from '@/components/workspace/creator/CaptionGenerator';
+import { ImageEditor } from '@/components/workspace/creator/ImageEditor';
+import { SlideshowCreator } from '@/components/workspace/creator/SlideshowCreator';
 
 // Property images
 import propertyLivingRoom from '@/assets/property-living-room.jpg';
@@ -151,6 +155,13 @@ export function MediaTab() {
   const [postText, setPostText] = useState('');
   const [selectedMedia, setSelectedMedia] = useState<string[]>(['hero_1', 'hero_2']);
   const [postStep, setPostStep] = useState<'preview' | 'ready'>('preview');
+  
+  // Creator Area State
+  const [creatorDialogOpen, setCreatorDialogOpen] = useState(false);
+  const [creatorTab, setCreatorTab] = useState<'templates' | 'caption' | 'editor' | 'slideshow'>('templates');
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  const [creatorCaption, setCreatorCaption] = useState('');
+  const [creatorPlatform, setCreatorPlatform] = useState('Instagram');
 
   const photos = mediaItems.filter(m => m.type === 'photo');
   const videos = mediaItems.filter(m => m.type === 'video');
@@ -242,6 +253,10 @@ export function MediaTab() {
             <TabsTrigger value="overview" className="gap-2">
               <Image className="h-4 w-4" />
               Medienübersicht
+            </TabsTrigger>
+            <TabsTrigger value="creator" className="gap-2">
+              <Sparkles className="h-4 w-4" />
+              Creator Area
             </TabsTrigger>
             <TabsTrigger value="social" className="gap-2">
               <Share2 className="h-4 w-4" />
@@ -428,6 +443,121 @@ export function MediaTab() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Creator Area Tab */}
+        <TabsContent value="creator" className="mt-6 space-y-6">
+          {/* Quick Actions */}
+          <div className="grid grid-cols-4 gap-4">
+            <Card 
+              className="cursor-pointer hover:ring-2 hover:ring-accent/50 transition-all"
+              onClick={() => { setCreatorDialogOpen(true); setCreatorTab('templates'); }}
+            >
+              <CardContent className="pt-6 text-center">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mx-auto mb-3">
+                  <Wand2 className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="font-semibold">Templates</h3>
+                <p className="text-xs text-muted-foreground mt-1">Vorgefertigte Designs</p>
+              </CardContent>
+            </Card>
+            
+            <Card 
+              className="cursor-pointer hover:ring-2 hover:ring-accent/50 transition-all"
+              onClick={() => { setCreatorDialogOpen(true); setCreatorTab('caption'); }}
+            >
+              <CardContent className="pt-6 text-center">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mx-auto mb-3">
+                  <Sparkles className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="font-semibold">KI-Texte</h3>
+                <p className="text-xs text-muted-foreground mt-1">Captions generieren</p>
+              </CardContent>
+            </Card>
+            
+            <Card 
+              className="cursor-pointer hover:ring-2 hover:ring-accent/50 transition-all"
+              onClick={() => { setCreatorDialogOpen(true); setCreatorTab('editor'); }}
+            >
+              <CardContent className="pt-6 text-center">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center mx-auto mb-3">
+                  <Crop className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="font-semibold">Bildbearbeitung</h3>
+                <p className="text-xs text-muted-foreground mt-1">Zuschneiden & Filter</p>
+              </CardContent>
+            </Card>
+            
+            <Card 
+              className="cursor-pointer hover:ring-2 hover:ring-accent/50 transition-all"
+              onClick={() => { setCreatorDialogOpen(true); setCreatorTab('slideshow'); }}
+            >
+              <CardContent className="pt-6 text-center">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-rose-500 flex items-center justify-center mx-auto mb-3">
+                  <Film className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="font-semibold">Slideshow</h3>
+                <p className="text-xs text-muted-foreground mt-1">Videos erstellen</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Recent Creations Preview */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-accent" />
+                  Schnell erstellen
+                </CardTitle>
+                <Badge variant="secondary">Für diese Immobilie</Badge>
+              </div>
+              <p className="text-sm text-muted-foreground">Wählen Sie ein Bild und erstellen Sie in Sekunden Social Media Content</p>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-6 gap-3">
+                {photos.slice(0, 6).map((photo, idx) => (
+                  <div 
+                    key={photo.id}
+                    className="group relative aspect-square rounded-xl overflow-hidden cursor-pointer ring-2 ring-transparent hover:ring-accent transition-all"
+                    onClick={() => { setCreatorDialogOpen(true); setCreatorTab('editor'); }}
+                  >
+                    <img 
+                      src={propertyImages[idx % propertyImages.length]}
+                      alt={photo.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-2">
+                      <span className="text-white text-xs font-medium">Bearbeiten</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              {/* Platform Quick Select */}
+              <div className="mt-4 pt-4 border-t">
+                <p className="text-sm font-medium mb-3">Zielplattform wählen:</p>
+                <div className="flex gap-2">
+                  {['Instagram', 'Facebook', 'LinkedIn', 'YouTube'].map((platform) => (
+                    <Button
+                      key={platform}
+                      variant={creatorPlatform === platform ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        setCreatorPlatform(platform);
+                        setCreatorDialogOpen(true);
+                        setCreatorTab('templates');
+                      }}
+                      className="gap-2"
+                    >
+                      <PlatformLogo platform={platform} size="sm" />
+                      {platform}
+                    </Button>
+                  ))}
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -959,6 +1089,77 @@ export function MediaTab() {
           <Button onClick={handleExport} disabled={!selectedPreset} className="w-full mt-4">
             Export generieren
           </Button>
+        </DialogContent>
+      </Dialog>
+
+      {/* Creator Area Dialog */}
+      <Dialog open={creatorDialogOpen} onOpenChange={setCreatorDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-accent" />
+              Creator Area
+            </DialogTitle>
+            <DialogDescription>
+              Erstellen Sie professionelle Social Media Inhalte in wenigen Klicks
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Tabs value={creatorTab} onValueChange={(v) => setCreatorTab(v as typeof creatorTab)}>
+            <TabsList className="grid grid-cols-4 w-full">
+              <TabsTrigger value="templates" className="gap-2">
+                <Wand2 className="h-4 w-4" />
+                Templates
+              </TabsTrigger>
+              <TabsTrigger value="caption" className="gap-2">
+                <Sparkles className="h-4 w-4" />
+                KI-Texte
+              </TabsTrigger>
+              <TabsTrigger value="editor" className="gap-2">
+                <Crop className="h-4 w-4" />
+                Bildbearbeitung
+              </TabsTrigger>
+              <TabsTrigger value="slideshow" className="gap-2">
+                <Film className="h-4 w-4" />
+                Slideshow
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="templates" className="mt-4">
+              <TemplateSelector
+                selectedTemplate={selectedTemplate}
+                onSelect={setSelectedTemplate}
+                platformFilter={creatorPlatform}
+              />
+            </TabsContent>
+
+            <TabsContent value="caption" className="mt-4">
+              <CaptionGenerator
+                platform={creatorPlatform}
+                onCaptionChange={setCreatorCaption}
+                initialCaption={creatorCaption}
+              />
+            </TabsContent>
+
+            <TabsContent value="editor" className="mt-4">
+              <ImageEditor
+                imageSrc={propertyImages[0]}
+                onSave={() => {
+                  toast({ title: 'Bild gespeichert' });
+                  setCreatorDialogOpen(false);
+                }}
+              />
+            </TabsContent>
+
+            <TabsContent value="slideshow" className="mt-4">
+              <SlideshowCreator
+                images={propertyImages}
+                onExport={() => {
+                  toast({ title: 'Video wird erstellt...' });
+                }}
+              />
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
     </div>
