@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { 
   User, Mail, Phone, Calendar, MessageSquare, Star, StarOff, 
   Clock, CheckCircle2, Send, ExternalLink, Eye, MousePointer, FileText, 
-  Box, TrendingUp, MailOpen, Reply, ChevronRight, Activity, MapPin
+  Box, TrendingUp, MailOpen, Reply, ChevronRight, Activity, MapPin, Zap, CalendarDays
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -182,6 +182,28 @@ const initialLeads: Lead[] = [
   },
 ];
 
+// Quick reply templates for faster response
+const quickReplyTemplates = [
+  { id: 'viewing', label: 'Besichtigung vorschlagen', icon: Calendar },
+  { id: 'info', label: 'Mehr Infos senden', icon: FileText },
+  { id: 'financing', label: 'Finanzierung anfragen', icon: TrendingUp },
+  { id: 'decline', label: 'Höflich ablehnen', icon: MessageSquare },
+];
+
+// Lead scoring based on engagement
+const getLeadScore = (lead: Lead): { score: number; label: string; color: string } => {
+  const profileWeight = (lead.profileCompleted || 0) * 0.3;
+  const engagementWeight = Math.min((lead.exposeViews || 0) * 5, 30);
+  const financingWeight = lead.financing ? 20 : 0;
+  const timelineWeight = lead.timeline === 'Sofort' ? 20 : lead.timeline === '1-2 Monate' ? 15 : 5;
+  
+  const score = Math.round(profileWeight + engagementWeight + financingWeight + timelineWeight);
+  
+  if (score >= 70) return { score, label: 'Heiß', color: 'text-red-500 bg-red-500/10' };
+  if (score >= 40) return { score, label: 'Warm', color: 'text-orange-500 bg-orange-500/10' };
+  return { score, label: 'Kalt', color: 'text-blue-500 bg-blue-500/10' };
+};
+
 const getStatusLabel = (status: Lead['status']) => {
   switch (status) {
     case 'new': return 'Neu';
@@ -225,6 +247,7 @@ export function LeadsTab() {
   const [replyDialogOpen, setReplyDialogOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [expandedLead, setExpandedLead] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<'date' | 'score'>('score');
 
   const property = properties.find(p => p.id === id) || properties[0];
   const exposeUrl = `${window.location.origin}/property/${id}/expose`;
@@ -244,18 +267,41 @@ export function LeadsTab() {
     setExpandedLead(prev => prev === id ? null : id);
   };
 
+  // Sort leads by score or date
+  const sortedLeads = [...leads].sort((a, b) => {
+    if (sortBy === 'score') {
+      return getLeadScore(b).score - getLeadScore(a).score;
+    }
+    return new Date(b.date).getTime() - new Date(a.date).getTime();
+  });
+
   const filteredLeads = filter === 'all' 
-    ? leads 
-    : leads.filter(lead => lead.status === filter);
+    ? sortedLeads 
+    : sortedLeads.filter(lead => lead.status === filter);
 
   const newCount = leads.filter(l => l.status === 'new').length;
   const contactedCount = leads.filter(l => l.status === 'contacted').length;
   const qualifiedCount = leads.filter(l => l.status === 'qualified').length;
+  const hotLeadsCount = leads.filter(l => getLeadScore(l).score >= 70).length;
 
   return (
     <div className="space-y-6">
-      {/* Summary */}
-      <div className="grid grid-cols-4 gap-4">
+      {/* Summary with Lead Ranking */}
+      <div className="grid grid-cols-5 gap-4">
+        <Card className="cursor-pointer hover:border-red-500/50 transition-colors" onClick={() => setSortBy('score')}>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-lg bg-red-500/10 flex items-center justify-center">
+                <TrendingUp className="h-6 w-6 text-red-500" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{hotLeadsCount}</p>
+                <p className="text-sm text-muted-foreground">Heiße Leads</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => setFilter('all')}>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
@@ -278,7 +324,7 @@ export function LeadsTab() {
               </div>
               <div>
                 <p className="text-2xl font-bold">{newCount}</p>
-                <p className="text-sm text-muted-foreground">Neue Anfragen</p>
+                <p className="text-sm text-muted-foreground">Neue</p>
               </div>
             </div>
           </CardContent>
@@ -313,16 +359,54 @@ export function LeadsTab() {
         </Card>
       </div>
 
-      {/* Filter indicator */}
-      {filter !== 'all' && (
+      {/* Quick Reply Templates */}
+      <Card className="bg-accent/5 border-accent/20">
+        <CardContent className="py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Zap className="h-4 w-4 text-accent" />
+              <span className="text-sm font-medium">Schnellantworten</span>
+            </div>
+            <div className="flex gap-2">
+              {quickReplyTemplates.map((template) => (
+                <Button key={template.id} variant="outline" size="sm" className="gap-1">
+                  <template.icon className="h-3 w-3" />
+                  {template.label}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Filter & Sort */}
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Filter aktiv:</span>
-          <Badge variant="secondary" className="gap-1">
-            {getStatusLabel(filter)}
-            <button onClick={() => setFilter('all')} className="ml-1 hover:text-foreground">×</button>
-          </Badge>
+          {filter !== 'all' && (
+            <Badge variant="secondary" className="gap-1">
+              {getStatusLabel(filter)}
+              <button onClick={() => setFilter('all')} className="ml-1 hover:text-foreground">×</button>
+            </Badge>
+          )}
         </div>
-      )}
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">Sortieren:</span>
+          <Button 
+            variant={sortBy === 'score' ? 'secondary' : 'ghost'} 
+            size="sm"
+            onClick={() => setSortBy('score')}
+          >
+            Nach Score
+          </Button>
+          <Button 
+            variant={sortBy === 'date' ? 'secondary' : 'ghost'} 
+            size="sm"
+            onClick={() => setSortBy('date')}
+          >
+            Nach Datum
+          </Button>
+        </div>
+      </div>
 
       {/* Leads List */}
       <Card>
@@ -362,6 +446,15 @@ export function LeadsTab() {
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-1">
                           <h4 className="font-semibold">{lead.name}</h4>
+                          {/* Lead Score Badge */}
+                          {(() => {
+                            const { score, label, color } = getLeadScore(lead);
+                            return (
+                              <Badge className={cn('text-xs', color)}>
+                                {score} · {label}
+                              </Badge>
+                            );
+                          })()}
                           <Badge variant="outline" className={cn('text-xs', getStatusClass(lead.status))}>
                             {getStatusLabel(lead.status)}
                           </Badge>
