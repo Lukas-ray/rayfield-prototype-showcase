@@ -286,83 +286,10 @@ export function LeadsTab() {
 
   return (
     <div className="space-y-6">
-      {/* Summary with Lead Ranking */}
-      <div className="grid grid-cols-5 gap-4">
-        <Card className="cursor-pointer hover:border-red-500/50 transition-colors" onClick={() => setSortBy('score')}>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-red-500/10 flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-red-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{hotLeadsCount}</p>
-                <p className="text-sm text-muted-foreground">Heiße Leads</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => setFilter('all')}>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center">
-                <MessageSquare className="h-6 w-6 text-accent" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{leads.length}</p>
-                <p className="text-sm text-muted-foreground">Gesamt</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="cursor-pointer hover:border-blue-500/50 transition-colors" onClick={() => setFilter('new')}>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                <Clock className="h-6 w-6 text-blue-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{newCount}</p>
-                <p className="text-sm text-muted-foreground">Neue</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="cursor-pointer hover:border-yellow-500/50 transition-colors" onClick={() => setFilter('contacted')}>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-yellow-500/10 flex items-center justify-center">
-                <Mail className="h-6 w-6 text-yellow-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{contactedCount}</p>
-                <p className="text-sm text-muted-foreground">Kontaktiert</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="cursor-pointer hover:border-green-500/50 transition-colors" onClick={() => setFilter('qualified')}>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center">
-                <CheckCircle2 className="h-6 w-6 text-green-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{qualifiedCount}</p>
-                <p className="text-sm text-muted-foreground">Qualifiziert</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-
       {/* Filter & Sort */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
+          <span className="text-sm font-medium">{leads.length} Anfragen</span>
           {filter !== 'all' && (
             <Badge variant="secondary" className="gap-1">
               {getStatusLabel(filter)}
