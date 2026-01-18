@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Download, Image, Video, Box, LayoutGrid, Share2, Send, Check, ExternalLink, Instagram, Youtube, Facebook, Linkedin, Eye, Edit3, ArrowRight, Clock, ImageIcon } from 'lucide-react';
+import { Download, Image, Video, Box, LayoutGrid, Share2, Send, Check, ExternalLink, Instagram, Youtube, Facebook, Linkedin, Eye, Edit3, ArrowRight, Clock, ImageIcon, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -71,6 +71,71 @@ const platformAccounts: PlatformAccount[] = [
   { id: '2', name: 'Immowelt', logo: '🌍', connected: true, lastSync: 'Vor 5 Stunden', url: 'https://www.immowelt.de' },
   { id: '3', name: 'Kleinanzeigen', logo: '📢', connected: false, url: 'https://www.kleinanzeigen.de' },
   { id: '4', name: 'Immonet', logo: '🏢', connected: false, url: 'https://www.immonet.de' },
+];
+
+// Platform image format requirements
+const platformImageFormats = [
+  {
+    platform: 'ImmoScout24',
+    logo: '🏠',
+    formats: [
+      { name: 'Hauptbild', ratio: '4:3', pixels: '1024 × 768 px', minPixels: '400 × 300 px' },
+      { name: 'Galerie', ratio: '4:3', pixels: '1024 × 768 px', minPixels: '400 × 300 px' },
+      { name: 'Grundriss', ratio: 'Beliebig', pixels: 'Max 5 MB', minPixels: '600 × 400 px' },
+    ]
+  },
+  {
+    platform: 'Immowelt',
+    logo: '🌍',
+    formats: [
+      { name: 'Hauptbild', ratio: '16:9', pixels: '1920 × 1080 px', minPixels: '800 × 450 px' },
+      { name: 'Galerie', ratio: '16:9', pixels: '1920 × 1080 px', minPixels: '600 × 338 px' },
+      { name: 'Grundriss', ratio: 'Beliebig', pixels: 'Max 10 MB', minPixels: '800 × 600 px' },
+    ]
+  },
+  {
+    platform: 'Kleinanzeigen',
+    logo: '📢',
+    formats: [
+      { name: 'Alle Bilder', ratio: '4:3', pixels: '1200 × 900 px', minPixels: '400 × 300 px' },
+      { name: 'Titelbild', ratio: '4:3', pixels: '1200 × 900 px', minPixels: '640 × 480 px' },
+    ]
+  },
+  {
+    platform: 'Instagram',
+    logo: 'IG',
+    formats: [
+      { name: 'Feed Post (Quadrat)', ratio: '1:1', pixels: '1080 × 1080 px', minPixels: '600 × 600 px' },
+      { name: 'Feed Post (Portrait)', ratio: '4:5', pixels: '1080 × 1350 px', minPixels: '600 × 750 px' },
+      { name: 'Story / Reel', ratio: '9:16', pixels: '1080 × 1920 px', minPixels: '600 × 1067 px' },
+      { name: 'Karussell', ratio: '1:1', pixels: '1080 × 1080 px', minPixels: '600 × 600 px' },
+    ]
+  },
+  {
+    platform: 'Facebook',
+    logo: 'FB',
+    formats: [
+      { name: 'Feed Post', ratio: '1.91:1', pixels: '1200 × 630 px', minPixels: '600 × 315 px' },
+      { name: 'Story', ratio: '9:16', pixels: '1080 × 1920 px', minPixels: '500 × 889 px' },
+      { name: 'Titelbild', ratio: '16:9', pixels: '1640 × 924 px', minPixels: '820 × 462 px' },
+    ]
+  },
+  {
+    platform: 'LinkedIn',
+    logo: 'LI',
+    formats: [
+      { name: 'Feed Post', ratio: '1.91:1', pixels: '1200 × 627 px', minPixels: '552 × 289 px' },
+      { name: 'Artikel-Titelbild', ratio: '1.91:1', pixels: '1200 × 644 px', minPixels: '744 × 400 px' },
+    ]
+  },
+  {
+    platform: 'YouTube',
+    logo: 'YT',
+    formats: [
+      { name: 'Thumbnail', ratio: '16:9', pixels: '1280 × 720 px', minPixels: '640 × 360 px' },
+      { name: 'Video', ratio: '16:9', pixels: '1920 × 1080 px (Full HD)', minPixels: '1280 × 720 px' },
+    ]
+  },
 ];
 
 const defaultPostTexts: Record<string, string> = {
@@ -317,6 +382,46 @@ export function MediaTab() {
                     ))}
                   </div>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Platform Image Format Requirements */}
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Info className="h-5 w-5 text-accent" />
+                  Bildformat-Anforderungen
+                </CardTitle>
+                <Badge variant="outline">Referenz</Badge>
+              </div>
+              <p className="text-sm text-muted-foreground">Optimale Bildgrößen für verschiedene Plattformen</p>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {platformImageFormats.map((platform) => (
+                  <div key={platform.platform} className="border rounded-lg p-4 bg-secondary/20">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-xl">{platform.logo}</span>
+                      <h4 className="font-semibold">{platform.platform}</h4>
+                    </div>
+                    <div className="space-y-2">
+                      {platform.formats.map((format, idx) => (
+                        <div key={idx} className="text-sm bg-background rounded-md p-2">
+                          <div className="font-medium text-foreground">{format.name}</div>
+                          <div className="flex items-center gap-2 mt-1 text-muted-foreground">
+                            <Badge variant="secondary" className="text-xs font-mono">{format.ratio}</Badge>
+                            <span className="text-xs">{format.pixels}</span>
+                          </div>
+                          <div className="text-xs text-muted-foreground/70 mt-0.5">
+                            Min: {format.minPixels}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
