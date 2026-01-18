@@ -34,16 +34,28 @@ export interface MediaItem {
   status: 'processing' | 'ready';
 }
 
+export interface DocumentIssue {
+  type: 'incomplete' | 'outdated' | 'wrong_property' | 'illegible' | 'missing_signature' | 'wrong_format';
+  description: string;
+  severity: 'low' | 'medium' | 'high';
+  suggestedAction?: string;
+}
+
 export interface Document {
   id: string;
   name: string;
   type: string;
-  status: 'missing' | 'requested' | 'received' | 'verified';
+  status: 'missing' | 'requested' | 'review' | 'verified';
   uploadedAt?: string;
   source?: 'seller' | 'hausverwaltung' | 'agent';
   holder: 'seller' | 'hausverwaltung' | 'agent' | 'notary' | 'authority';
   holderName?: string;
   holderEmail?: string;
+  aiAnalysis?: {
+    analyzedAt: string;
+    issues: DocumentIssue[];
+    confidence: number;
+  };
 }
 
 export interface AgentRun {
@@ -309,7 +321,7 @@ export const propertyDocuments: Record<string, Document[]> = {
     { id: '1', name: 'Grundbuchauszug', type: 'Grundbuch', status: 'verified', uploadedAt: '2024-01-10', holder: 'authority', holderName: 'Grundbuchamt München', holderEmail: 'grundbuchamt@muenchen.de' },
     { id: '2', name: 'Energieausweis', type: 'Energieausweis', status: 'requested', holder: 'seller', holderName: 'Maria Weber', holderEmail: 'maria.weber@email.de' },
     { id: '3', name: 'Baulastenverzeichnis', type: 'Baulastenverzeichnis', status: 'missing', holder: 'authority', holderName: 'Bauamt München', holderEmail: 'bauamt@muenchen.de' },
-    { id: '4', name: 'Mieterliste', type: 'Mieterliste', status: 'received', uploadedAt: '2024-01-08', holder: 'seller', holderName: 'Maria Weber', holderEmail: 'maria.weber@email.de' },
+    { id: '4', name: 'Mieterliste', type: 'Mieterliste', status: 'verified', uploadedAt: '2024-01-08', holder: 'seller', holderName: 'Maria Weber', holderEmail: 'maria.weber@email.de' },
     { id: '5', name: 'Gewerbemietverträge', type: 'Gewerbemietvertrag', status: 'missing', holder: 'seller', holderName: 'Maria Weber', holderEmail: 'maria.weber@email.de' },
     { id: '6', name: 'Brandschutznachweis', type: 'Brandschutz', status: 'missing', holder: 'authority', holderName: 'Branddirektion München', holderEmail: 'branddirektion@muenchen.de' },
   ],
@@ -318,16 +330,16 @@ export const propertyDocuments: Record<string, Document[]> = {
     { id: '1', name: 'Grundbuchauszug', type: 'Grundbuch', status: 'verified', uploadedAt: '2024-01-10', holder: 'authority', holderName: 'Grundbuchamt Freising', holderEmail: 'grundbuchamt@freising.de' },
     { id: '2', name: 'Energieausweis', type: 'Energieausweis', status: 'missing', holder: 'seller', holderName: 'Thomas Müller', holderEmail: 'thomas.mueller@email.de' },
     { id: '3', name: 'Teilungserklärung', type: 'Teilungserklärung', status: 'requested', holder: 'hausverwaltung', holderName: 'HV Hohenkammer', holderEmail: 'info@hv-hohenkammer.de' },
-    { id: '4', name: 'Wirtschaftsplan 2024', type: 'Wirtschaftsplan', status: 'received', uploadedAt: '2024-01-12', holder: 'hausverwaltung', holderName: 'HV Hohenkammer', holderEmail: 'info@hv-hohenkammer.de' },
+    { id: '4', name: 'Wirtschaftsplan 2024', type: 'Wirtschaftsplan', status: 'verified', uploadedAt: '2024-01-12', holder: 'hausverwaltung', holderName: 'HV Hohenkammer', holderEmail: 'info@hv-hohenkammer.de' },
     { id: '5', name: 'Protokolle Eigentümerversammlung', type: 'Protokolle', status: 'missing', holder: 'hausverwaltung', holderName: 'HV Hohenkammer', holderEmail: 'info@hv-hohenkammer.de' },
     { id: '6', name: 'Hausgeldabrechnung', type: 'Hausgeldabrechnung', status: 'verified', uploadedAt: '2024-01-08', holder: 'seller', holderName: 'Thomas Müller', holderEmail: 'thomas.mueller@email.de' },
   ],
-  // Property 4 - Pelkovenstraße - Ready to Publish, alles komplett
+  // Property 4 - Pelkovenstraße - Ready to Publish, mit Review-Beispiel
   '4': [
     { id: '1', name: 'Grundbuchauszug', type: 'Grundbuch', status: 'verified', uploadedAt: '2024-01-05', holder: 'authority', holderName: 'Grundbuchamt München', holderEmail: 'grundbuchamt@muenchen.de' },
-    { id: '2', name: 'Energieausweis', type: 'Energieausweis', status: 'verified', uploadedAt: '2024-01-06', holder: 'seller', holderName: 'Anna Fischer', holderEmail: 'anna.fischer@email.de' },
+    { id: '2', name: 'Energieausweis', type: 'Energieausweis', status: 'review', uploadedAt: '2024-01-06', holder: 'seller', holderName: 'Anna Fischer', holderEmail: 'anna.fischer@email.de', aiAnalysis: { analyzedAt: '2024-01-06 10:15', issues: [{ type: 'outdated', description: 'Der Energieausweis ist vom 15.03.2014 und damit älter als 10 Jahre. Ab Mai 2024 ist er nicht mehr gültig.', severity: 'high', suggestedAction: 'Neuen Energieausweis beim Energieberater beantragen.' }, { type: 'incomplete', description: 'Modernisierungsempfehlungen fehlen (Anlage zum Energieausweis).', severity: 'low', suggestedAction: 'Anlage mit Modernisierungsempfehlungen nachreichen.' }], confidence: 0.94 } },
     { id: '3', name: 'Teilungserklärung', type: 'Teilungserklärung', status: 'verified', uploadedAt: '2024-01-04', holder: 'hausverwaltung', holderName: 'HV Moosach GmbH', holderEmail: 'info@hv-moosach.de' },
-    { id: '4', name: 'Wirtschaftsplan 2024', type: 'Wirtschaftsplan', status: 'verified', uploadedAt: '2024-01-07', holder: 'hausverwaltung', holderName: 'HV Moosach GmbH', holderEmail: 'info@hv-moosach.de' },
+    { id: '4', name: 'Wirtschaftsplan 2024', type: 'Wirtschaftsplan', status: 'review', uploadedAt: '2024-01-07', holder: 'hausverwaltung', holderName: 'HV Moosach GmbH', holderEmail: 'info@hv-moosach.de', aiAnalysis: { analyzedAt: '2024-01-07 16:45', issues: [{ type: 'wrong_property', description: 'Der Wirtschaftsplan bezieht sich auf "Pelkovenstraße 43" statt "Pelkovenstraße 45". Möglicherweise falsches Dokument.', severity: 'high', suggestedAction: 'Korrekten Wirtschaftsplan für Pelkovenstraße 45 anfordern.' }], confidence: 0.91 } },
     { id: '5', name: 'Protokolle Eigentümerversammlung', type: 'Protokolle', status: 'verified', uploadedAt: '2024-01-03', holder: 'hausverwaltung', holderName: 'HV Moosach GmbH', holderEmail: 'info@hv-moosach.de' },
     { id: '6', name: 'Hausgeldabrechnung', type: 'Hausgeldabrechnung', status: 'verified', uploadedAt: '2024-01-08', holder: 'seller', holderName: 'Anna Fischer', holderEmail: 'anna.fischer@email.de' },
     { id: '7', name: 'Wohnflächenberechnung', type: 'Flächenberechnung', status: 'verified', uploadedAt: '2024-01-02', holder: 'seller', holderName: 'Anna Fischer', holderEmail: 'anna.fischer@email.de' },
@@ -356,7 +368,7 @@ export const propertyDocuments: Record<string, Document[]> = {
     { id: '2', name: 'Energieausweis', type: 'Energieausweis', status: 'verified', uploadedAt: '2024-01-09', holder: 'seller', holderName: 'Lisa Hoffmann', holderEmail: 'lisa.hoffmann@email.de' },
     { id: '3', name: 'Teilungserklärung', type: 'Teilungserklärung', status: 'verified', uploadedAt: '2024-01-07', holder: 'hausverwaltung', holderName: 'HV Bogenhausen', holderEmail: 'info@hv-bogenhausen.de' },
     { id: '4', name: 'Hausgeldabrechnung', type: 'Hausgeldabrechnung', status: 'verified', uploadedAt: '2024-01-10', holder: 'seller', holderName: 'Lisa Hoffmann', holderEmail: 'lisa.hoffmann@email.de' },
-    { id: '5', name: 'Wohnflächenberechnung', type: 'Flächenberechnung', status: 'received', uploadedAt: '2024-01-11', holder: 'seller', holderName: 'Lisa Hoffmann', holderEmail: 'lisa.hoffmann@email.de' },
+    { id: '5', name: 'Wohnflächenberechnung', type: 'Flächenberechnung', status: 'review', uploadedAt: '2024-01-11', holder: 'seller', holderName: 'Lisa Hoffmann', holderEmail: 'lisa.hoffmann@email.de', aiAnalysis: { analyzedAt: '2024-01-11 14:32', issues: [{ type: 'incomplete', description: 'Die Balkonfläche fehlt in der Berechnung. Das Dokument zeigt 54m² Wohnfläche, aber der Grundriss zeigt einen Balkon von ca. 8m², der anteilig berücksichtigt werden sollte.', severity: 'medium', suggestedAction: 'Bitte um aktualisierte Wohnflächenberechnung inklusive Balkonfläche (anteilig 25-50%).' }], confidence: 0.87 } },
   ],
   // Property 8 - Berg-am-Laim-Straße - Inquiries Active, komplett
   '8': [
