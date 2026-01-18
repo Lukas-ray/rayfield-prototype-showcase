@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TrendingUp, Eye, MousePointer, MessageSquare, Globe, Instagram, Facebook, ArrowUpRight, ArrowDownRight, Euro, Users, Timer, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
+import { TrendingUp, Eye, MousePointer, MessageSquare, ArrowUpRight, ArrowDownRight, Euro, Users, Timer, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { cn } from '@/lib/utils';
-import ebayLogo from '@/assets/ebay-kleinanzeigen-logo.png';
+import { PlatformLogo } from '@/components/ui/PlatformLogo';
 
 interface ChannelDetail {
   id: string;
@@ -40,8 +40,8 @@ const channelDetails: ChannelDetail[] = [
   {
     id: 'immoscout',
     name: 'ImmoScout24',
-    icon: <Globe className="h-6 w-6 text-orange-500" />,
-    color: '#f97316',
+    icon: <PlatformLogo platform="immoscout24" size="md" />,
+    color: '#ff7500',
     isConnected: true,
     publishedSince: '12.01.2024',
     listingUrl: 'https://immoscout24.de/expose/12345',
@@ -79,8 +79,8 @@ const channelDetails: ChannelDetail[] = [
   {
     id: 'immowelt',
     name: 'Immowelt',
-    icon: <Globe className="h-6 w-6 text-blue-500" />,
-    color: '#3b82f6',
+    icon: <PlatformLogo platform="immowelt" size="md" />,
+    color: '#003366',
     isConnected: true,
     publishedSince: '12.01.2024',
     listingUrl: 'https://immowelt.de/expose/67890',
@@ -117,8 +117,8 @@ const channelDetails: ChannelDetail[] = [
   {
     id: 'ebay',
     name: 'eBay Kleinanzeigen',
-    icon: <img src={ebayLogo} alt="eBay Kleinanzeigen" className="h-6 w-6 rounded" />,
-    color: '#22c55e',
+    icon: <PlatformLogo platform="kleinanzeigen" size="md" />,
+    color: '#86b817',
     isConnected: true,
     publishedSince: '14.01.2024',
     listingUrl: 'https://kleinanzeigen.de/s-anzeige/12345',
@@ -155,7 +155,7 @@ const channelDetails: ChannelDetail[] = [
   {
     id: 'instagram',
     name: 'Instagram',
-    icon: <Instagram className="h-6 w-6 text-pink-500" />,
+    icon: <PlatformLogo platform="instagram" size="md" />,
     color: '#ec4899',
     isConnected: true,
     publishedSince: '10.01.2024',
@@ -193,8 +193,8 @@ const channelDetails: ChannelDetail[] = [
   {
     id: 'facebook',
     name: 'Facebook',
-    icon: <Facebook className="h-6 w-6 text-blue-600" />,
-    color: '#2563eb',
+    icon: <PlatformLogo platform="facebook" size="md" />,
+    color: '#1877f2',
     isConnected: false,
     publishedSince: '',
     metrics: {
