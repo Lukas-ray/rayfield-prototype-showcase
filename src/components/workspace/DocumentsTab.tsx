@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Upload, FileText, Check, Clock, AlertCircle, Send, Link, ExternalLink, Mail, User, Building2, Scale, Landmark, Eye, Pause, ChevronRight, Paperclip, Plus, MessageSquare, Inbox, X } from 'lucide-react';
+import { Upload, FileText, Check, Clock, AlertCircle, Send, Link, ExternalLink, Mail, User, Building2, Scale, Landmark, Eye, Pause, ChevronRight, Paperclip, Plus, MessageSquare, Inbox, X, Search, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { propertyDocuments, Document } from '@/data/dummyData';
+import { propertyDocuments, Document, DocumentIssue } from '@/data/dummyData';
 import { 
   RequestPacket, 
   EmailThread, 
@@ -38,7 +38,7 @@ import { useToast } from '@/hooks/use-toast';
 const docStatusConfig = {
   missing: { icon: AlertCircle, label: 'Fehlt', class: 'text-destructive', bg: 'bg-destructive/10' },
   requested: { icon: Clock, label: 'Angefordert', class: 'text-amber-600', bg: 'bg-amber-50' },
-  received: { icon: FileText, label: 'Erhalten', class: 'text-blue-600', bg: 'bg-blue-50' },
+  review: { icon: Eye, label: 'Prüfung erforderlich', class: 'text-orange-600', bg: 'bg-orange-50' },
   verified: { icon: Check, label: 'Verifiziert', class: 'text-green-600', bg: 'bg-green-50' },
 };
 
@@ -82,6 +82,12 @@ export function DocumentsTab({ propertyId = '3' }: DocumentsTabProps) {
   const [exceptions, setExceptions] = useState<MailException[]>([]);
   const [simulateDialogOpen, setSimulateDialogOpen] = useState(false);
   const [selectedReplyType, setSelectedReplyType] = useState<string>('docs_attached');
+  
+  // Review dialog state
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [reviewDoc, setReviewDoc] = useState<Document | null>(null);
+  const [followUpEmailOpen, setFollowUpEmailOpen] = useState(false);
+  const [followUpEmailBody, setFollowUpEmailBody] = useState('');
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -174,12 +180,96 @@ Tel: +49 89 123 456 78`;
       
       setEmailBody(generateEmailBody());
       setRequestDialogOpen(true);
+    } else if (doc.status === 'review') {
+      // Open review dialog for documents that need review
+      setReviewDoc(doc);
+      setReviewDialogOpen(true);
     } else {
       toast({
         title: doc.name,
         description: `Status: ${docStatusConfig[doc.status].label}${doc.uploadedAt ? ` • Hochgeladen: ${doc.uploadedAt}` : ''}`,
       });
     }
+  };
+
+  const handleOpenFollowUpEmail = (doc: Document, issue: DocumentIssue) => {
+    const greeting = doc.holder === 'seller' 
+      ? 'Sehr geehrte Frau Fischer'
+      : doc.holder === 'hausverwaltung'
+      ? 'Sehr geehrte Damen und Herren'
+      : 'Sehr geehrte Damen und Herren';
+
+    const issueDescription = issue.description;
+    const suggestedAction = issue.suggestedAction || 'Bitte um Korrektur oder Ergänzung des Dokuments.';
+
+    const emailBody = `${greeting},
+
+vielen Dank für die Zusendung des Dokuments "${doc.name}".
+
+Bei der Prüfung der Unterlagen ist uns folgendes aufgefallen:
+
+${issueDescription}
+
+${suggestedAction}
+
+Über den folgenden sicheren Upload-Link können Sie das korrigierte Dokument hochladen:
+https://upload.immosmart.io/p/${doc.id}
+
+Für Rückfragen stehe ich Ihnen selbstverständlich gerne zur Verfügung.
+
+Mit freundlichen Grüßen
+Max Mustermann
+Immosmart Immobilien
+Tel: +49 89 123 456 78`;
+
+    setFollowUpEmailBody(emailBody);
+    setFollowUpEmailOpen(true);
+  };
+
+  const handleSendFollowUpEmail = () => {
+    if (!reviewDoc) return;
+
+    toast({
+      title: 'Nachfrage gesendet',
+      description: `E-Mail an ${reviewDoc.holderName} gesendet.`,
+    });
+    setFollowUpEmailOpen(false);
+  };
+
+  const handleVerifyDocument = (doc: Document) => {
+    setDocs(prev => prev.map(d => 
+      d.id === doc.id 
+        ? { ...d, status: 'verified' as const, aiAnalysis: undefined }
+        : d
+    ));
+    setReviewDialogOpen(false);
+    toast({
+      title: 'Dokument verifiziert',
+      description: `"${doc.name}" wurde als korrekt markiert.`,
+    });
+  };
+
+  const getIssueSeverityConfig = (severity: 'low' | 'medium' | 'high') => {
+    switch (severity) {
+      case 'high':
+        return { icon: AlertTriangle, class: 'text-destructive', bg: 'bg-destructive/10', label: 'Kritisch' };
+      case 'medium':
+        return { icon: AlertCircle, class: 'text-orange-600', bg: 'bg-orange-50', label: 'Mittel' };
+      case 'low':
+        return { icon: AlertCircle, class: 'text-amber-600', bg: 'bg-amber-50', label: 'Gering' };
+    }
+  };
+
+  const getIssueTypeLabel = (type: DocumentIssue['type']) => {
+    const labels: Record<DocumentIssue['type'], string> = {
+      incomplete: 'Unvollständig',
+      outdated: 'Veraltet',
+      wrong_property: 'Falsche Immobilie',
+      illegible: 'Unleserlich',
+      missing_signature: 'Signatur fehlt',
+      wrong_format: 'Falsches Format',
+    };
+    return labels[type];
   };
 
   const handleSendRequest = () => {
@@ -352,11 +442,11 @@ Tel: +49 89 123 456 78`;
       )
     } : null);
 
-    // Update document checklist
+    // Update document checklist - documents go to review status first (AI will analyze)
     setDocs(prev => prev.map(doc => {
       const matchingAtt = attachmentsToIngest.find(a => a.type === doc.type);
       if (matchingAtt) {
-        return { ...doc, status: 'received' as const };
+        return { ...doc, status: 'review' as const };
       }
       return doc;
     }));
@@ -488,7 +578,8 @@ Tel: +49 89 123 456 78`;
                       {holderDocs.map((doc) => {
                         const status = docStatusConfig[doc.status];
                         const StatusIcon = status.icon;
-                        const isClickable = doc.status === 'missing' || doc.status === 'requested';
+                        const isClickable = doc.status === 'missing' || doc.status === 'requested' || doc.status === 'review';
+                        const hasIssues = doc.status === 'review' && doc.aiAnalysis && doc.aiAnalysis.issues.length > 0;
                         
                         return (
                           <div 
@@ -505,14 +596,36 @@ Tel: +49 89 123 456 78`;
                               <StatusIcon className={cn('h-5 w-5', status.class)} />
                               <div>
                                 <p className="font-medium">{doc.name}</p>
-                                <p className="text-xs text-muted-foreground">{doc.type}</p>
+                                <div className="flex items-center gap-2">
+                                  <p className="text-xs text-muted-foreground">{doc.type}</p>
+                                  {hasIssues && (
+                                    <Badge variant="outline" className="text-xs text-orange-600 border-orange-300">
+                                      {doc.aiAnalysis!.issues.length} {doc.aiAnalysis!.issues.length === 1 ? 'Problem' : 'Probleme'}
+                                    </Badge>
+                                  )}
+                                </div>
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
                               <Badge variant="outline" className={cn('text-xs', status.class)}>
                                 {status.label}
                               </Badge>
-                              {isClickable && mailboxSettings.connected && (
+                              {doc.status === 'review' && (
+                                <Button 
+                                  size="sm" 
+                                  variant="outline" 
+                                  className="h-8 gap-1 text-orange-600 border-orange-300 hover:bg-orange-50"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setReviewDoc(doc);
+                                    setReviewDialogOpen(true);
+                                  }}
+                                >
+                                  <Search className="h-3 w-3" />
+                                  Untersuchen
+                                </Button>
+                              )}
+                              {(doc.status === 'missing' || doc.status === 'requested') && mailboxSettings.connected && (
                                 <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
                                   <Send className="h-4 w-4" />
                                 </Button>
@@ -572,9 +685,9 @@ Tel: +49 89 123 456 78`;
                     <span className="text-sm text-green-700">Verifiziert</span>
                     <span className="font-semibold text-green-700">{verifiedDocsCount}</span>
                   </div>
-                  <div className="flex items-center justify-between p-2 rounded bg-blue-50">
-                    <span className="text-sm text-blue-700">Erhalten</span>
-                    <span className="font-semibold text-blue-700">{docs.filter(d => d.status === 'received').length}</span>
+                  <div className="flex items-center justify-between p-2 rounded bg-orange-50">
+                    <span className="text-sm text-orange-700">Prüfung</span>
+                    <span className="font-semibold text-orange-700">{docs.filter(d => d.status === 'review').length}</span>
                   </div>
                   <div className="flex items-center justify-between p-2 rounded bg-amber-50">
                     <span className="text-sm text-amber-700">Angefordert</span>
@@ -810,6 +923,184 @@ Tel: +49 89 123 456 78`;
           <Button onClick={handleConfirmUpload} className="w-full mt-4">
             Bestätigen
           </Button>
+        </DialogContent>
+      </Dialog>
+
+      {/* Review Document Dialog */}
+      <Dialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="h-5 w-5 text-orange-600" />
+              Dokumentenprüfung: {reviewDoc?.name}
+            </DialogTitle>
+          </DialogHeader>
+          {reviewDoc && (
+            <div className="space-y-6">
+              {/* Document Info */}
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50">
+                <div className={cn('p-2 rounded-lg', holderLabels[reviewDoc.holder].bg)}>
+                  {(() => {
+                    const Icon = holderLabels[reviewDoc.holder].icon;
+                    return <Icon className={cn('h-4 w-4', holderLabels[reviewDoc.holder].color)} />;
+                  })()}
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium">{reviewDoc.holderName || holderLabels[reviewDoc.holder].label}</p>
+                  <p className="text-sm text-muted-foreground">{reviewDoc.holderEmail}</p>
+                </div>
+                {reviewDoc.uploadedAt && (
+                  <Badge variant="secondary">Hochgeladen: {reviewDoc.uploadedAt}</Badge>
+                )}
+              </div>
+
+              {/* AI Analysis */}
+              {reviewDoc.aiAnalysis && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4 text-orange-600" />
+                      KI-Analyse
+                    </h4>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span>Analysiert: {reviewDoc.aiAnalysis.analyzedAt}</span>
+                      <Badge variant="outline">
+                        {Math.round(reviewDoc.aiAnalysis.confidence * 100)}% Konfidenz
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {reviewDoc.aiAnalysis.issues.length > 0 ? (
+                    <div className="space-y-3">
+                      {reviewDoc.aiAnalysis.issues.map((issue, idx) => {
+                        const severityConfig = getIssueSeverityConfig(issue.severity);
+                        const SeverityIcon = severityConfig.icon;
+                        return (
+                          <div key={idx} className={cn('p-4 rounded-lg border', severityConfig.bg)}>
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex items-start gap-3">
+                                <SeverityIcon className={cn('h-5 w-5 mt-0.5', severityConfig.class)} />
+                                <div className="space-y-2">
+                                  <div className="flex items-center gap-2">
+                                    <Badge variant="outline" className={severityConfig.class}>
+                                      {getIssueTypeLabel(issue.type)}
+                                    </Badge>
+                                    <Badge variant="secondary" className="text-xs">
+                                      {severityConfig.label}
+                                    </Badge>
+                                  </div>
+                                  <p className="text-sm">{issue.description}</p>
+                                  {issue.suggestedAction && (
+                                    <p className="text-sm text-muted-foreground flex items-center gap-1">
+                                      <ChevronRight className="h-3 w-3" />
+                                      <strong>Empfehlung:</strong> {issue.suggestedAction}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleOpenFollowUpEmail(reviewDoc, issue)}
+                              >
+                                <Mail className="h-4 w-4 mr-1" />
+                                Nachfragen
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="p-4 rounded-lg bg-green-50 border border-green-200 flex items-center gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                      <p className="text-sm text-green-700">Keine Probleme erkannt</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex justify-end gap-2 pt-4 border-t">
+                <Button variant="outline" onClick={() => setReviewDialogOpen(false)}>
+                  Schließen
+                </Button>
+                <Button 
+                  variant="default"
+                  className="bg-green-600 hover:bg-green-700"
+                  onClick={() => handleVerifyDocument(reviewDoc)}
+                >
+                  <Check className="h-4 w-4 mr-2" />
+                  Trotzdem verifizieren
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Follow-Up Email Dialog */}
+      <Dialog open={followUpEmailOpen} onOpenChange={setFollowUpEmailOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Nachfrage senden: {reviewDoc?.name}</DialogTitle>
+          </DialogHeader>
+          {reviewDoc && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50">
+                <div className={cn('p-2 rounded-lg', holderLabels[reviewDoc.holder].bg)}>
+                  {(() => {
+                    const Icon = holderLabels[reviewDoc.holder].icon;
+                    return <Icon className={cn('h-4 w-4', holderLabels[reviewDoc.holder].color)} />;
+                  })()}
+                </div>
+                <div>
+                  <p className="font-medium">{reviewDoc.holderName || holderLabels[reviewDoc.holder].label}</p>
+                  <p className="text-sm text-muted-foreground">{reviewDoc.holderEmail}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-muted-foreground">An:</label>
+                  <Input value={reviewDoc.holderEmail || ''} readOnly className="mt-1" />
+                </div>
+                <div>
+                  <label className="text-sm text-muted-foreground">Betreff:</label>
+                  <Input 
+                    value={`Rückfrage zu: ${reviewDoc.name}`} 
+                    readOnly 
+                    className="mt-1" 
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm text-muted-foreground">Nachricht:</label>
+                <Textarea 
+                  value={followUpEmailBody}
+                  onChange={(e) => setFollowUpEmailBody(e.target.value)}
+                  className="mt-1 min-h-[250px] font-mono text-sm"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setFollowUpEmailOpen(false)}>
+                  Abbrechen
+                </Button>
+                <Button onClick={handleSendFollowUpEmail} disabled={!mailboxSettings.connected}>
+                  <Send className="h-4 w-4 mr-2" />
+                  Nachfrage senden
+                </Button>
+              </div>
+              
+              {!mailboxSettings.connected && (
+                <p className="text-sm text-amber-600 text-center">
+                  Bitte verbinden Sie zuerst Ihre Mailbox, um E-Mails zu senden.
+                </p>
+              )}
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
