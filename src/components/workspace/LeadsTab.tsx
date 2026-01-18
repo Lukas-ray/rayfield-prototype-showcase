@@ -359,25 +359,6 @@ export function LeadsTab() {
         </Card>
       </div>
 
-      {/* Quick Reply Templates */}
-      <Card className="bg-accent/5 border-accent/20">
-        <CardContent className="py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Zap className="h-4 w-4 text-accent" />
-              <span className="text-sm font-medium">Schnellantworten</span>
-            </div>
-            <div className="flex gap-2">
-              {quickReplyTemplates.map((template) => (
-                <Button key={template.id} variant="outline" size="sm" className="gap-1">
-                  <template.icon className="h-3 w-3" />
-                  {template.label}
-                </Button>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Filter & Sort */}
       <div className="flex items-center justify-between">
