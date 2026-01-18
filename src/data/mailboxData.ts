@@ -4,7 +4,7 @@ export interface MailboxSettings {
   connected: boolean;
   provider: 'gmail' | 'microsoft365' | null;
   sendingIdentity: string;
-  trackRayfieldOnly: boolean;
+  trackImmosmartOnly: boolean;
   followUpCadence: '3d' | '7d' | 't-2';
   autoSendMode: boolean;
 }
@@ -69,7 +69,7 @@ export const defaultMailboxSettings: MailboxSettings = {
   connected: false,
   provider: null,
   sendingIdentity: '',
-  trackRayfieldOnly: true,
+  trackImmosmartOnly: true,
   followUpCadence: '3d',
   autoSendMode: false,
 };

@@ -102,7 +102,7 @@ export default function ExternalUpload() {
           <Button variant="ghost" asChild className="gap-2">
             <a href="/">
               <ChevronLeft className="h-4 w-4" />
-              Zurück zu Rayfield
+              Zurück zu Immosmart
             </a>
           </Button>
         </div>

@@ -43,7 +43,7 @@ ${exposeUrl}
 Für Fragen oder einen Besichtigungstermin stehe ich Ihnen gerne zur Verfügung.
 
 Mit freundlichen Grüßen,
-Ihr Rayfield Immobilien Team` : '';
+Ihr Immosmart Team` : '';
 
   const [message, setMessage] = useState(defaultMessage);
   const [subject, setSubject] = useState(`Exposé: ${propertyAddress}`);
@@ -62,7 +62,7 @@ ${exposeUrl}
 Für Fragen oder einen Besichtigungstermin stehe ich Ihnen gerne zur Verfügung.
 
 Mit freundlichen Grüßen,
-Ihr Rayfield Immobilien Team`);
+Ihr Immosmart Team`);
       setSubject(`Exposé: ${propertyAddress}`);
     }
   });

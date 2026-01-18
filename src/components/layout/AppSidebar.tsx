@@ -32,7 +32,7 @@ export function AppSidebar({ collapsed = false, onCollapsedChange }: AppSidebarP
             <Building2 className="h-5 w-5 text-sidebar-primary-foreground" />
           </div>
           {!collapsed && (
-            <span className="text-xl font-semibold text-sidebar-foreground">Rayfield</span>
+            <span className="text-xl font-semibold text-sidebar-foreground">Immosmart</span>
           )}
           
           {/* Collapse Toggle - positioned at edge */}

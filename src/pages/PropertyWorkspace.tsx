@@ -12,7 +12,7 @@ import { DocumentsTab } from '@/components/workspace/DocumentsTab';
 import { ActivityTab } from '@/components/workspace/ActivityTab';
 import { PerformanceTab } from '@/components/workspace/PerformanceTab';
 import { LeadsTab } from '@/components/workspace/LeadsTab';
-import { AskRayfieldWidget } from '@/components/workspace/AskRayfieldWidget';
+import { AskImmosmart } from '@/components/workspace/AskRayfieldWidget';
 import { properties, getWorkflowStateLabel, getWorkflowStateClass, tasks } from '@/data/dummyData';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -329,8 +329,8 @@ export default function PropertyWorkspace() {
         </Tabs>
       </div>
 
-      {/* Ask Rayfield Widget */}
-      <AskRayfieldWidget />
+      {/* Ask Immosmart Widget */}
+      <AskImmosmart />
     </AppLayout>
   );
 }

@@ -102,7 +102,7 @@ export function DocumentsTab({ propertyId = '3' }: DocumentsTabProps) {
   };
 
   const copyUploadLink = () => {
-    navigator.clipboard.writeText('https://upload.rayfield.io/p/abc123');
+    navigator.clipboard.writeText('https://upload.immosmart.io/p/abc123');
     toast({
       title: 'Link kopiert',
       description: 'Verkäufer-Upload-Link in die Zwischenablage kopiert.',
@@ -119,12 +119,12 @@ im Rahmen des Verkaufsprozesses für die Immobilie Maximilianstraße 42, Münche
 • ${doc.name}
 
 Bitte laden Sie das Dokument über den folgenden Link hoch:
-https://upload.rayfield.io/p/${doc.id}
+https://upload.immosmart.io/p/${doc.id}
 
 Frist: 25. Januar 2024
 
 Mit freundlichen Grüßen
-Ihr Rayfield Team`);
+Ihr Immosmart Team`);
       setRequestDialogOpen(true);
     } else {
       toast({
@@ -155,7 +155,7 @@ Ihr Rayfield Team`);
       const newMessage: EmailMessage = {
         id: `msg_${Date.now()}`,
         direction: 'outgoing',
-        from: 'makler@rayfield-immobilien.de',
+        from: 'makler@immosmart.de',
         to: selectedDoc.holderEmail || '',
         subject: `Dokumentenanfrage: ${selectedDoc.name}`,
         body: emailBody,
@@ -607,7 +607,7 @@ Ihr Rayfield Team`);
             <div className="p-3 rounded-lg bg-secondary/50 text-sm">
               <p className="flex items-center gap-2">
                 <Check className="h-4 w-4 text-green-600" />
-                Nur Rayfield-Threads werden verfolgt (empfohlen)
+                Nur Immosmart-Threads werden verfolgt (empfohlen)
               </p>
             </div>
           </div>
