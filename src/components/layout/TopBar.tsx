@@ -1,4 +1,4 @@
-import { Search, Bell, ChevronDown, Building2, Home, Settings, LayoutDashboard, LogOut } from 'lucide-react';
+import { Search, ChevronDown, Building2, Home, Settings, LayoutDashboard, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -68,12 +68,6 @@ export function TopBar({ currentProperty, onPropertyChange }: TopBarProps) {
             </DropdownMenuContent>
           </DropdownMenu>
         )}
-
-        {/* Notifications */}
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
-          <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-accent" />
-        </Button>
 
         {/* User Menu with Navigation */}
         <DropdownMenu>
