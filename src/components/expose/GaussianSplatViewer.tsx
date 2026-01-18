@@ -11,11 +11,11 @@ const SPLAT_SOURCES = {
   living: {
     name: 'Wohnzimmer',
     icon: Sofa,
-    // Using a public demo splat file
-    url: 'https://huggingface.co/cakewalk/splat-data/resolve/main/train.splat',
+    // Living room / interior scan from HuggingFace
+    url: 'https://huggingface.co/cakewalk/splat-data/resolve/main/room.splat',
     position: [0, 0, 0] as [number, number, number],
     rotation: [0, 0, 0] as [number, number, number],
-    scale: 1,
+    scale: 0.5,
   },
 };
 
