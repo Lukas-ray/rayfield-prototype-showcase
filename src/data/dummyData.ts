@@ -469,3 +469,265 @@ export const roles = [
   { id: '3', name: 'Koordinator', users: 3, permissions: ['dokumente', 'aufgaben'] },
   { id: '4', name: 'Betrachter', users: 8, permissions: ['nur-lesen'] },
 ];
+
+// Transaction Coordination Types
+export type MilestoneStatus = 'not_started' | 'in_progress' | 'done' | 'blocked';
+export type StakeholderRole = 'seller' | 'buyer' | 'agent' | 'notary' | 'bank' | 'coordinator';
+export type RiskLevel = 'low' | 'medium' | 'high';
+export type TransactionDocStatus = 'missing' | 'uploaded' | 'verified';
+
+export interface TransactionMilestone {
+  id: string;
+  name: string;
+  status: MilestoneStatus;
+  owner: StakeholderRole;
+  dueDate: string;
+  evidence?: { type: 'file' | 'email' | 'note'; name: string };
+  completedAt?: string;
+}
+
+export interface TransactionTask {
+  id: string;
+  title: string;
+  owner: StakeholderRole;
+  dueDate: string;
+  completed: boolean;
+  category: 'buyer' | 'seller' | 'agent' | 'notary_bank';
+  dependency?: string;
+}
+
+export interface TransactionDocument {
+  id: string;
+  name: string;
+  status: TransactionDocStatus;
+  evidenceSource?: 'upload' | 'email' | 'manual';
+  uploadedAt?: string;
+}
+
+export interface TransactionStakeholder {
+  id: string;
+  name: string;
+  role: StakeholderRole;
+  email: string;
+  phone?: string;
+  waitingOn?: string;
+}
+
+export interface TransactionLogEntry {
+  id: string;
+  type: 'milestone' | 'task' | 'document' | 'note';
+  action: string;
+  actor: string;
+  timestamp: string;
+  details?: string;
+}
+
+export interface Transaction {
+  id: string;
+  propertyId: string;
+  propertyAddress: string;
+  sellerName: string;
+  buyerName: string;
+  currentMilestone: string;
+  nextMilestoneDate: string;
+  risk: RiskLevel;
+  riskReason?: string;
+  topBlocker?: string;
+  owner: string;
+  milestones: TransactionMilestone[];
+  tasks: TransactionTask[];
+  documents: TransactionDocument[];
+  stakeholders: TransactionStakeholder[];
+  activityLog: TransactionLogEntry[];
+}
+
+// Transaction sample data
+export const transactions: Transaction[] = [
+  {
+    id: 'tx1',
+    propertyId: '3',
+    propertyAddress: 'Rosenheimer Str. 12, München',
+    sellerName: 'Dr. Thomas Müller',
+    buyerName: 'Stefan & Anna Weber',
+    currentMilestone: 'Notary Scheduled',
+    nextMilestoneDate: '25.01.2026',
+    risk: 'medium',
+    riskReason: 'Missing documents',
+    topBlocker: 'Vertragsentwurf ausstehend',
+    owner: 'Florian Hubrich',
+    milestones: [
+      { id: 'm1', name: 'Angebot angenommen', status: 'done', owner: 'agent', dueDate: '10.01.2026', completedAt: '10.01.2026', evidence: { type: 'email', name: 'Angebotsbestätigung.eml' } },
+      { id: 'm2', name: 'Finanzierung bestätigt', status: 'done', owner: 'bank', dueDate: '15.01.2026', completedAt: '14.01.2026', evidence: { type: 'file', name: 'Finanzierungszusage.pdf' } },
+      { id: 'm3', name: 'Due Diligence abgeschlossen', status: 'done', owner: 'buyer', dueDate: '18.01.2026', completedAt: '17.01.2026', evidence: { type: 'note', name: 'Prüfung abgeschlossen' } },
+      { id: 'm4', name: 'Notartermin vereinbart', status: 'in_progress', owner: 'notary', dueDate: '22.01.2026' },
+      { id: 'm5', name: 'Vertragsentwurf geprüft', status: 'blocked', owner: 'agent', dueDate: '25.01.2026' },
+      { id: 'm6', name: 'Unterzeichnung', status: 'not_started', owner: 'notary', dueDate: '28.01.2026' },
+      { id: 'm7', name: 'Zahlung bestätigt', status: 'not_started', owner: 'bank', dueDate: '05.02.2026' },
+      { id: 'm8', name: 'Übergabe', status: 'not_started', owner: 'agent', dueDate: '15.02.2026' },
+      { id: 'm9', name: 'Abgeschlossen', status: 'not_started', owner: 'agent', dueDate: '15.02.2026' },
+    ],
+    tasks: [
+      { id: 't1', title: 'Finanzierungsnachweis prüfen', owner: 'agent', dueDate: '20.01.2026', completed: true, category: 'agent' },
+      { id: 't2', title: 'Vertragsentwurf beim Notar anfordern', owner: 'agent', dueDate: '21.01.2026', completed: false, category: 'notary_bank' },
+      { id: 't3', title: 'Übergabeprotokoll vorbereiten', owner: 'agent', dueDate: '10.02.2026', completed: false, category: 'agent' },
+      { id: 't4', title: 'Personalausweis-Kopie senden', owner: 'buyer', dueDate: '22.01.2026', completed: false, category: 'buyer' },
+      { id: 't5', title: 'Grundschuldbestellung vorbereiten', owner: 'bank', dueDate: '23.01.2026', completed: false, category: 'notary_bank', dependency: 'Finanzierungsbestätigung' },
+      { id: 't6', title: 'Löschungsbewilligung besorgen', owner: 'seller', dueDate: '24.01.2026', completed: false, category: 'seller' },
+    ],
+    documents: [
+      { id: 'd1', name: 'Energieausweis', status: 'verified', evidenceSource: 'upload', uploadedAt: '12.01.2026' },
+      { id: 'd2', name: 'Grundriss', status: 'verified', evidenceSource: 'upload', uploadedAt: '12.01.2026' },
+      { id: 'd3', name: 'Finanzierungsbestätigung', status: 'verified', evidenceSource: 'email', uploadedAt: '14.01.2026' },
+      { id: 'd4', name: 'Personalausweis (Käufer)', status: 'missing' },
+      { id: 'd5', name: 'WEG-Unterlagen', status: 'uploaded', evidenceSource: 'upload', uploadedAt: '16.01.2026' },
+      { id: 'd6', name: 'Vertragsentwurf', status: 'missing' },
+      { id: 'd7', name: 'Unterschriebener Kaufvertrag', status: 'missing' },
+      { id: 'd8', name: 'Übergabeprotokoll', status: 'missing' },
+    ],
+    stakeholders: [
+      { id: 's1', name: 'Dr. Thomas Müller', role: 'seller', email: 'thomas.mueller@email.de', phone: '+49 89 123456', waitingOn: 'Löschungsbewilligung' },
+      { id: 's2', name: 'Stefan Weber', role: 'buyer', email: 'stefan.weber@email.de', phone: '+49 89 234567', waitingOn: 'Personalausweis-Kopie' },
+      { id: 's3', name: 'Notar Dr. Huber', role: 'notary', email: 'huber@notar-muenchen.de', phone: '+49 89 345678', waitingOn: 'Vertragsentwurf' },
+      { id: 's4', name: 'Sparkasse München', role: 'bank', email: 'finanzierung@spk-muc.de', phone: '+49 89 456789' },
+      { id: 's5', name: 'Florian Hubrich', role: 'agent', email: 'florian.hubrich@immosmart.de', phone: '+49 89 4141888-86' },
+    ],
+    activityLog: [
+      { id: 'a1', type: 'milestone', action: 'Due Diligence abgeschlossen', actor: 'Stefan Weber', timestamp: '17.01.2026 14:30', details: 'Alle Unterlagen geprüft' },
+      { id: 'a2', type: 'document', action: 'WEG-Unterlagen hochgeladen', actor: 'Dr. Thomas Müller', timestamp: '16.01.2026 10:15' },
+      { id: 'a3', type: 'milestone', action: 'Finanzierung bestätigt', actor: 'Sparkasse München', timestamp: '14.01.2026 16:00', details: 'Zusage per E-Mail' },
+      { id: 'a4', type: 'task', action: 'Finanzierungsnachweis geprüft', actor: 'Florian Hubrich', timestamp: '14.01.2026 17:30' },
+      { id: 'a5', type: 'note', action: 'Notiz hinzugefügt', actor: 'Florian Hubrich', timestamp: '13.01.2026 09:00', details: 'Käufer wünscht Übergabe am 15.02.' },
+    ],
+  },
+  {
+    id: 'tx2',
+    propertyId: '5',
+    propertyAddress: 'Lindwurmstr. 44, München',
+    sellerName: 'Frank Meier',
+    buyerName: 'Julia Schneider',
+    currentMilestone: 'Financing Confirmed',
+    nextMilestoneDate: '28.01.2026',
+    risk: 'low',
+    owner: 'Doreen Hesse',
+    milestones: [
+      { id: 'm1', name: 'Angebot angenommen', status: 'done', owner: 'agent', dueDate: '12.01.2026', completedAt: '12.01.2026', evidence: { type: 'email', name: 'Zusage.eml' } },
+      { id: 'm2', name: 'Finanzierung bestätigt', status: 'done', owner: 'bank', dueDate: '18.01.2026', completedAt: '17.01.2026', evidence: { type: 'file', name: 'Zusage_HypoVereinsbank.pdf' } },
+      { id: 'm3', name: 'Due Diligence abgeschlossen', status: 'in_progress', owner: 'buyer', dueDate: '22.01.2026' },
+      { id: 'm4', name: 'Notartermin vereinbart', status: 'not_started', owner: 'notary', dueDate: '25.01.2026' },
+      { id: 'm5', name: 'Vertragsentwurf geprüft', status: 'not_started', owner: 'agent', dueDate: '28.01.2026' },
+      { id: 'm6', name: 'Unterzeichnung', status: 'not_started', owner: 'notary', dueDate: '02.02.2026' },
+      { id: 'm7', name: 'Zahlung bestätigt', status: 'not_started', owner: 'bank', dueDate: '10.02.2026' },
+      { id: 'm8', name: 'Übergabe', status: 'not_started', owner: 'agent', dueDate: '01.03.2026' },
+      { id: 'm9', name: 'Abgeschlossen', status: 'not_started', owner: 'agent', dueDate: '01.03.2026' },
+    ],
+    tasks: [
+      { id: 't1', title: 'Objektbesichtigung dokumentieren', owner: 'agent', dueDate: '20.01.2026', completed: true, category: 'agent' },
+      { id: 't2', title: 'Mängelliste erstellen', owner: 'buyer', dueDate: '22.01.2026', completed: false, category: 'buyer' },
+      { id: 't3', title: 'Notartermin koordinieren', owner: 'agent', dueDate: '23.01.2026', completed: false, category: 'notary_bank' },
+    ],
+    documents: [
+      { id: 'd1', name: 'Energieausweis', status: 'verified', evidenceSource: 'upload', uploadedAt: '13.01.2026' },
+      { id: 'd2', name: 'Grundriss', status: 'verified', evidenceSource: 'upload', uploadedAt: '13.01.2026' },
+      { id: 'd3', name: 'Finanzierungsbestätigung', status: 'verified', evidenceSource: 'email', uploadedAt: '17.01.2026' },
+      { id: 'd4', name: 'Personalausweis (Käufer)', status: 'uploaded', evidenceSource: 'upload', uploadedAt: '18.01.2026' },
+      { id: 'd5', name: 'WEG-Unterlagen', status: 'verified', evidenceSource: 'upload', uploadedAt: '14.01.2026' },
+      { id: 'd6', name: 'Vertragsentwurf', status: 'missing' },
+      { id: 'd7', name: 'Unterschriebener Kaufvertrag', status: 'missing' },
+      { id: 'd8', name: 'Übergabeprotokoll', status: 'missing' },
+    ],
+    stakeholders: [
+      { id: 's1', name: 'Frank Meier', role: 'seller', email: 'frank.meier@email.de', phone: '+49 89 567890' },
+      { id: 's2', name: 'Julia Schneider', role: 'buyer', email: 'julia.schneider@email.de', phone: '+49 89 678901', waitingOn: 'Mängelliste' },
+      { id: 's3', name: 'Notar Schmidt', role: 'notary', email: 'schmidt@notar-muc.de', phone: '+49 89 789012' },
+      { id: 's4', name: 'HypoVereinsbank', role: 'bank', email: 'baufi@hvb.de' },
+      { id: 's5', name: 'Doreen Hesse', role: 'agent', email: 'doreen.hesse@immosmart.de', phone: '+49 89 4141888-00' },
+    ],
+    activityLog: [
+      { id: 'a1', type: 'milestone', action: 'Finanzierung bestätigt', actor: 'HypoVereinsbank', timestamp: '17.01.2026 11:00' },
+      { id: 'a2', type: 'document', action: 'Personalausweis hochgeladen', actor: 'Julia Schneider', timestamp: '18.01.2026 09:30' },
+      { id: 'a3', type: 'task', action: 'Objektbesichtigung dokumentiert', actor: 'Doreen Hesse', timestamp: '20.01.2026 15:00' },
+    ],
+  },
+  {
+    id: 'tx3',
+    propertyId: '6',
+    propertyAddress: 'Leopoldstr. 101, München',
+    sellerName: 'Klaus Becker',
+    buyerName: 'Investmentgruppe Süd GmbH',
+    currentMilestone: 'Offer Accepted',
+    nextMilestoneDate: '30.01.2026',
+    risk: 'high',
+    riskReason: 'Financing delay',
+    topBlocker: 'Finanzierungsnachweis fehlt',
+    owner: 'Lars Roth',
+    milestones: [
+      { id: 'm1', name: 'Angebot angenommen', status: 'done', owner: 'agent', dueDate: '15.01.2026', completedAt: '15.01.2026', evidence: { type: 'email', name: 'LOI_signed.pdf' } },
+      { id: 'm2', name: 'Finanzierung bestätigt', status: 'blocked', owner: 'bank', dueDate: '22.01.2026' },
+      { id: 'm3', name: 'Due Diligence abgeschlossen', status: 'not_started', owner: 'buyer', dueDate: '28.01.2026' },
+      { id: 'm4', name: 'Notartermin vereinbart', status: 'not_started', owner: 'notary', dueDate: '05.02.2026' },
+      { id: 'm5', name: 'Vertragsentwurf geprüft', status: 'not_started', owner: 'agent', dueDate: '10.02.2026' },
+      { id: 'm6', name: 'Unterzeichnung', status: 'not_started', owner: 'notary', dueDate: '15.02.2026' },
+      { id: 'm7', name: 'Zahlung bestätigt', status: 'not_started', owner: 'bank', dueDate: '01.03.2026' },
+      { id: 'm8', name: 'Übergabe', status: 'not_started', owner: 'agent', dueDate: '15.03.2026' },
+      { id: 'm9', name: 'Abgeschlossen', status: 'not_started', owner: 'agent', dueDate: '15.03.2026' },
+    ],
+    tasks: [
+      { id: 't1', title: 'Finanzierungsnachweis nachfassen', owner: 'agent', dueDate: '19.01.2026', completed: false, category: 'agent' },
+      { id: 't2', title: 'Alternative Finanzierung prüfen', owner: 'buyer', dueDate: '25.01.2026', completed: false, category: 'buyer', dependency: 'Finanzierungsnachweis' },
+      { id: 't3', title: 'Verkäufer über Verzögerung informieren', owner: 'agent', dueDate: '20.01.2026', completed: true, category: 'seller' },
+    ],
+    documents: [
+      { id: 'd1', name: 'Energieausweis', status: 'verified', evidenceSource: 'upload', uploadedAt: '10.01.2026' },
+      { id: 'd2', name: 'Grundriss', status: 'verified', evidenceSource: 'upload', uploadedAt: '10.01.2026' },
+      { id: 'd3', name: 'Finanzierungsbestätigung', status: 'missing' },
+      { id: 'd4', name: 'Handelsregisterauszug (Käufer)', status: 'uploaded', evidenceSource: 'upload', uploadedAt: '16.01.2026' },
+      { id: 'd5', name: 'Vollmacht Geschäftsführer', status: 'missing' },
+      { id: 'd6', name: 'Vertragsentwurf', status: 'missing' },
+      { id: 'd7', name: 'Unterschriebener Kaufvertrag', status: 'missing' },
+      { id: 'd8', name: 'Übergabeprotokoll', status: 'missing' },
+    ],
+    stakeholders: [
+      { id: 's1', name: 'Klaus Becker', role: 'seller', email: 'klaus.becker@email.de', phone: '+49 89 890123', waitingOn: 'Status-Update' },
+      { id: 's2', name: 'Max Huber (Investmentgruppe)', role: 'buyer', email: 'huber@invest-sued.de', phone: '+49 89 901234', waitingOn: 'Finanzierungsnachweis' },
+      { id: 's3', name: 'Notar Dr. Klein', role: 'notary', email: 'klein@notar-leo.de', phone: '+49 89 012345' },
+      { id: 's4', name: 'Deutsche Bank', role: 'bank', email: 'gewerbe@db.de', waitingOn: 'Kreditentscheidung' },
+      { id: 's5', name: 'Lars Roth', role: 'agent', email: 'lars.roth@immosmart.de', phone: '+49 89 4141888-00' },
+    ],
+    activityLog: [
+      { id: 'a1', type: 'milestone', action: 'Angebot angenommen', actor: 'Klaus Becker', timestamp: '15.01.2026 10:00', details: 'LOI unterschrieben' },
+      { id: 'a2', type: 'note', action: 'Risiko auf Hoch gesetzt', actor: 'Lars Roth', timestamp: '18.01.2026 14:00', details: 'Finanzierungsverzögerung gemeldet' },
+      { id: 'a3', type: 'task', action: 'Verkäufer informiert', actor: 'Lars Roth', timestamp: '20.01.2026 09:00', details: 'Telefonat mit Herrn Becker' },
+    ],
+  },
+];
+
+export const getStakeholderLabel = (role: StakeholderRole): string => {
+  const labels: Record<StakeholderRole, string> = {
+    seller: 'Verkäufer',
+    buyer: 'Käufer',
+    agent: 'Makler',
+    notary: 'Notar',
+    bank: 'Bank',
+    coordinator: 'Koordinator',
+  };
+  return labels[role];
+};
+
+export const getMilestoneStatusLabel = (status: MilestoneStatus): string => {
+  const labels: Record<MilestoneStatus, string> = {
+    not_started: 'Nicht gestartet',
+    in_progress: 'In Bearbeitung',
+    done: 'Erledigt',
+    blocked: 'Blockiert',
+  };
+  return labels[status];
+};
+
+export const getRiskLabel = (risk: RiskLevel): string => {
+  const labels: Record<RiskLevel, string> = {
+    low: 'Niedrig',
+    medium: 'Mittel',
+    high: 'Hoch',
+  };
+  return labels[risk];
+};
