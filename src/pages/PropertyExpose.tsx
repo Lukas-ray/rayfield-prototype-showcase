@@ -1,15 +1,21 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, Ruler, BedDouble, Bath, Calendar, Home, ChevronLeft, ChevronRight, X, Box, Lock, FileText, TrendingUp, Crown, Gift, UtensilsCrossed, Fence, Flame, Sun, Building, Car, Package, Droplets, Wifi, Snowflake, ShieldCheck, TreePine, LucideIcon } from 'lucide-react';
+import { ArrowLeft, MapPin, Ruler, BedDouble, Bath, Calendar, Home, ChevronLeft, ChevronRight, X, Box, Lock, FileText, TrendingUp, Crown, Gift, UtensilsCrossed, Fence, Flame, Sun, Building, Car, Package, Droplets, Wifi, Snowflake, ShieldCheck, TreePine, LucideIcon, Share2, Heart, Copy, Mail, MessageCircle, Euro } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { properties } from '@/data/dummyData';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { GatedContentCard } from '@/components/expose/GatedContentCard';
 import { UnlockRewardToast } from '@/components/expose/UnlockRewardToast';
 import { LocationMapSection } from '@/components/expose/LocationMapSection';
 import { SignupGamificationCard } from '@/components/expose/SignupGamificationCard';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import immosmartLogo from '@/assets/immosmart-logo.svg';
 
 // Property images
@@ -24,7 +30,6 @@ import energyCertificateImage from '@/assets/energy-certificate.jpg';
 
 // Dynamic property images based on property type
 const getPropertyImages = (property: typeof properties[0]) => {
-  // Use property thumbnail as main image, fallback to defaults
   const mainImage = property.thumbnail || propertyExterior;
   
   return [
@@ -63,6 +68,8 @@ export default function PropertyExpose() {
   const { toast } = useToast();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isImageTransitioning, setIsImageTransitioning] = useState(false);
   
   // Gamification state
   const [unlockLevel, setUnlockLevel] = useState(0);
@@ -78,29 +85,104 @@ export default function PropertyExpose() {
 
   const property = properties.find(p => p.id === id) || properties[0];
   const propertyImages = getPropertyImages(property);
+  
+  // Preis pro m² berechnen
+  const pricePerSqm = useMemo(() => {
+    return Math.round(property.price / property.area);
+  }, [property.price, property.area]);
+  
+  // Baujahr stabil berechnen (basierend auf property id)
+  const buildYear = useMemo(() => {
+    const hash = property.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return 1960 + (hash % 60);
+  }, [property.id]);
+
+  const changeImage = (newIndex: number) => {
+    setIsImageTransitioning(true);
+    setTimeout(() => {
+      setCurrentImageIndex(newIndex);
+      setIsImageTransitioning(false);
+    }, 150);
+  };
 
   const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % propertyImages.length);
+    changeImage((currentImageIndex + 1) % propertyImages.length);
   };
 
   const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + propertyImages.length) % propertyImages.length);
+    changeImage((currentImageIndex - 1 + propertyImages.length) % propertyImages.length);
+  };
+
+  const handleShare = (method: 'copy' | 'whatsapp' | 'email') => {
+    const url = window.location.href;
+    const text = `${property.address}, ${property.city} - ${property.price.toLocaleString('de-DE')} €`;
+    
+    switch (method) {
+      case 'copy':
+        navigator.clipboard.writeText(url);
+        toast({ title: 'Link kopiert!', description: 'Der Link wurde in die Zwischenablage kopiert.' });
+        break;
+      case 'whatsapp':
+        window.open(`https://wa.me/?text=${encodeURIComponent(text + '\n' + url)}`, '_blank');
+        break;
+      case 'email':
+        window.open(`mailto:?subject=${encodeURIComponent('Immobilie: ' + property.address)}&body=${encodeURIComponent(text + '\n\n' + url)}`, '_blank');
+        break;
+    }
+  };
+
+  const toggleFavorite = () => {
+    setIsFavorite(!isFavorite);
+    toast({
+      title: isFavorite ? 'Aus Favoriten entfernt' : 'Zu Favoriten hinzugefügt',
+      description: isFavorite ? 'Die Immobilie wurde aus Ihren Favoriten entfernt.' : 'Die Immobilie wurde zu Ihren Favoriten hinzugefügt.',
+    });
   };
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <img src={immosmartLogo} alt="Immosmart" className="h-10 w-auto" />
-            <span className="text-lg font-semibold text-foreground hidden sm:block">Immosmart</span>
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img src={immosmartLogo} alt="Immosmart" className="h-8 w-auto" />
+            <span className="text-base font-semibold text-foreground hidden sm:block">Immosmart</span>
           </div>
-          <div className="flex items-center gap-4">
-            <Badge variant="secondary" className="text-sm">
+          <div className="flex items-center gap-2">
+            {/* Share Button */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="hover:bg-secondary">
+                  <Share2 className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => handleShare('copy')} className="gap-2">
+                  <Copy className="h-4 w-4" /> Link kopieren
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleShare('whatsapp')} className="gap-2">
+                  <MessageCircle className="h-4 w-4" /> WhatsApp
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleShare('email')} className="gap-2">
+                  <Mail className="h-4 w-4" /> Per E-Mail teilen
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            {/* Favorite Button */}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={toggleFavorite}
+              className={`hover:bg-secondary transition-all ${isFavorite ? 'text-red-500' : ''}`}
+            >
+              <Heart className={`h-5 w-5 transition-all ${isFavorite ? 'fill-current scale-110' : ''}`} />
+            </Button>
+            
+            <Badge variant="secondary" className="text-sm hidden sm:flex">
               Exposé
             </Badge>
-            <Button variant="ghost" onClick={() => navigate(`/property/${id}`)} className="gap-2">
+            <Button variant="ghost" onClick={() => navigate(`/property/${id}`)} className="gap-2" size="sm">
               <ArrowLeft className="h-4 w-4" />
               <span className="hidden sm:inline">Zur Verwaltung</span>
             </Button>
@@ -110,56 +192,56 @@ export default function PropertyExpose() {
 
       {/* Hero Section */}
       <section className="relative">
-        <div className="relative h-[60vh] overflow-hidden">
+        <div className="relative h-[50vh] sm:h-[60vh] overflow-hidden">
           <img
             src={propertyImages[currentImageIndex].src}
             alt={propertyImages[currentImageIndex].label}
-            className="w-full h-full object-cover cursor-pointer"
+            className={`w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${isImageTransitioning ? 'opacity-0' : 'opacity-100'}`}
             onClick={() => setLightboxOpen(true)}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
           
           {/* Navigation Arrows */}
           <button
             onClick={prevImage}
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-background/80 backdrop-blur flex items-center justify-center hover:bg-background transition-colors"
+            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-background/80 backdrop-blur flex items-center justify-center hover:bg-background hover:scale-105 transition-all shadow-lg"
           >
-            <ChevronLeft className="h-6 w-6" />
+            <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
           </button>
           <button
             onClick={nextImage}
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-background/80 backdrop-blur flex items-center justify-center hover:bg-background transition-colors"
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-background/80 backdrop-blur flex items-center justify-center hover:bg-background hover:scale-105 transition-all shadow-lg"
           >
-            <ChevronRight className="h-6 w-6" />
+            <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
           </button>
 
           {/* Image Counter */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur px-4 py-2 rounded-full text-sm font-medium">
+          <div className="absolute bottom-20 sm:bottom-24 left-1/2 -translate-x-1/2 bg-background/90 backdrop-blur-md px-4 py-2 rounded-full text-sm font-medium shadow-lg">
             {currentImageIndex + 1} / {propertyImages.length} — {propertyImages[currentImageIndex].label}
           </div>
 
           {/* Quick Info Overlay */}
-          <div className="absolute bottom-0 left-0 right-0 p-8">
+          <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-8">
             <div className="max-w-7xl mx-auto">
-              <Badge className="mb-4 bg-accent text-accent-foreground">Exklusives Angebot</Badge>
-              <h1 className="text-4xl font-bold text-foreground mb-2">{property.address}</h1>
+              <Badge className="mb-3 bg-accent text-accent-foreground animate-fade-in">Exklusives Angebot</Badge>
+              <h1 className="text-2xl sm:text-4xl font-bold text-foreground mb-2">{property.address}</h1>
               <div className="flex items-center gap-2 text-muted-foreground">
-                <MapPin className="h-5 w-5" />
-                <span className="text-lg">{property.city}</span>
+                <MapPin className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="text-base sm:text-lg">{property.city}</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Thumbnail Strip */}
-        <div className="max-w-7xl mx-auto px-4 -mt-12 relative z-10">
-          <div className="flex gap-2 overflow-x-auto pb-4">
+        <div className="max-w-7xl mx-auto px-4 -mt-8 sm:-mt-10 relative z-10">
+          <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
             {propertyImages.map((img, idx) => (
               <button
                 key={idx}
-                onClick={() => setCurrentImageIndex(idx)}
-                className={`flex-shrink-0 w-24 h-16 rounded-lg overflow-hidden border-2 transition-all ${
-                  idx === currentImageIndex ? 'border-accent ring-2 ring-accent/30' : 'border-transparent opacity-70 hover:opacity-100'
+                onClick={() => changeImage(idx)}
+                className={`flex-shrink-0 w-16 h-12 sm:w-24 sm:h-16 rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
+                  idx === currentImageIndex ? 'border-accent ring-2 ring-accent/30 scale-105' : 'border-transparent opacity-70 hover:opacity-100'
                 }`}
               >
                 <img src={img.src} alt={img.label} className="w-full h-full object-cover" />
@@ -170,60 +252,72 @@ export default function PropertyExpose() {
       </section>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-12">
-        <div className="grid grid-cols-3 gap-8">
+      <main className="max-w-7xl mx-auto px-4 py-8 sm:py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Left Column - Details */}
-          <div className="col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-6">
             {/* Price & Key Stats */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between mb-6">
+            <Card className="animate-fade-in overflow-hidden">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
                   <div>
                     <p className="text-sm text-muted-foreground mb-1">Kaufpreis</p>
-                    <p className="text-4xl font-bold text-accent">{property.price.toLocaleString('de-DE')} €</p>
+                    <p className="text-3xl sm:text-4xl font-bold text-accent">{property.price.toLocaleString('de-DE')} €</p>
+                    <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1">
+                      <Euro className="h-3 w-3" />
+                      {pricePerSqm.toLocaleString('de-DE')} €/m²
+                    </p>
                   </div>
-                  <Badge variant="outline" className="text-lg px-4 py-2">
+                  <Badge variant="outline" className="text-base sm:text-lg px-3 sm:px-4 py-1.5 sm:py-2 self-start">
                     {property.propertyType}
                   </Badge>
                 </div>
                 
-                <div className="grid grid-cols-4 gap-4">
-                  <div className="text-center p-4 rounded-xl bg-secondary/50">
-                    <Ruler className="h-6 w-6 mx-auto mb-2 text-accent" />
-                    <p className="text-2xl font-bold">{property.area}</p>
-                    <p className="text-sm text-muted-foreground">m² Wohnfläche</p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                  <div className="text-center p-3 sm:p-4 rounded-xl bg-secondary/50 hover:bg-secondary/70 transition-colors group">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+                      <Ruler className="h-5 w-5 sm:h-6 sm:w-6 text-accent" />
+                    </div>
+                    <p className="text-xl sm:text-2xl font-bold">{property.area}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">m² Wohnfläche</p>
                   </div>
-                  <div className="text-center p-4 rounded-xl bg-secondary/50">
-                    <BedDouble className="h-6 w-6 mx-auto mb-2 text-accent" />
-                    <p className="text-2xl font-bold">{property.rooms}</p>
-                    <p className="text-sm text-muted-foreground">Zimmer</p>
+                  <div className="text-center p-3 sm:p-4 rounded-xl bg-secondary/50 hover:bg-secondary/70 transition-colors group">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+                      <BedDouble className="h-5 w-5 sm:h-6 sm:w-6 text-accent" />
+                    </div>
+                    <p className="text-xl sm:text-2xl font-bold">{property.rooms}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Zimmer</p>
                   </div>
-                  <div className="text-center p-4 rounded-xl bg-secondary/50">
-                    <Bath className="h-6 w-6 mx-auto mb-2 text-accent" />
-                    <p className="text-2xl font-bold">{Math.max(1, Math.floor(property.rooms / 2))}</p>
-                    <p className="text-sm text-muted-foreground">Bäder</p>
+                  <div className="text-center p-3 sm:p-4 rounded-xl bg-secondary/50 hover:bg-secondary/70 transition-colors group">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+                      <Bath className="h-5 w-5 sm:h-6 sm:w-6 text-accent" />
+                    </div>
+                    <p className="text-xl sm:text-2xl font-bold">{Math.max(1, Math.floor(property.rooms / 2))}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Bäder</p>
                   </div>
-                  <div className="text-center p-4 rounded-xl bg-secondary/50">
-                    <Calendar className="h-6 w-6 mx-auto mb-2 text-accent" />
-                    <p className="text-2xl font-bold">{2024 - Math.floor(Math.random() * 40)}</p>
-                    <p className="text-sm text-muted-foreground">Baujahr</p>
+                  <div className="text-center p-3 sm:p-4 rounded-xl bg-secondary/50 hover:bg-secondary/70 transition-colors group">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+                      <Calendar className="h-5 w-5 sm:h-6 sm:w-6 text-accent" />
+                    </div>
+                    <p className="text-xl sm:text-2xl font-bold">{buildYear}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Baujahr</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Description */}
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Objektbeschreibung</h2>
+            <Card className="animate-fade-in" style={{ animationDelay: '100ms' }}>
+              <CardContent className="p-4 sm:p-6">
+                <h2 className="text-lg sm:text-xl font-semibold mb-4">Objektbeschreibung</h2>
                 <div className="prose prose-neutral dark:prose-invert max-w-none">
-                  <p className="text-muted-foreground leading-relaxed">
+                  <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
                     {property.propertyType === 'Wohn- & Geschäftshaus' || property.propertyType === 'Mehrparteienhaus'
                       ? `Dieses beeindruckende ${property.propertyType} in ${property.city} bietet mit ${property.area} m² Nutzfläche und ${property.rooms} Einheiten eine erstklassige Investitionsmöglichkeit in einer der gefragtesten Lagen.`
                       : `Diese ${property.propertyType === 'Wohnung' || property.propertyType === 'Dachgeschosswohnung' || property.propertyType === 'Apartment' || property.propertyType === 'Penthouse' ? 'attraktive' : 'exklusive'} ${property.propertyType} in ${property.city} bietet Ihnen höchsten Wohnkomfort. Mit ${property.area} m² Wohnfläche und ${property.rooms} Zimmern ist dieses Objekt ${property.rooms <= 2 ? 'ideal für Singles oder Paare' : property.rooms <= 4 ? 'perfekt für Familien' : 'bestens für größere Familien geeignet'}.`
                     }
                   </p>
-                  <p className="text-muted-foreground leading-relaxed mt-4">
+                  <p className="text-muted-foreground leading-relaxed mt-4 text-sm sm:text-base">
                     {property.propertyType === 'Penthouse' 
                       ? 'Das Penthouse besticht durch seine exklusive Lage mit Dachterrasse und Panoramablick. Hochwertige Materialien und moderne Architektur schaffen ein einzigartiges Wohnerlebnis.'
                       : property.propertyType === 'Reihenmittelhaus'
@@ -231,7 +325,7 @@ export default function PropertyExpose() {
                       : 'Die Räume sind hell und lichtdurchflutet mit hochwertiger Ausstattung. Moderne Einbauküche, edle Böden und durchdachte Grundrisse sorgen für höchsten Wohnkomfort.'
                     }
                   </p>
-                  <p className="text-muted-foreground leading-relaxed mt-4">
+                  <p className="text-muted-foreground leading-relaxed mt-4 text-sm sm:text-base">
                     Die Lage bietet eine optimale Anbindung an öffentliche Verkehrsmittel, Einkaufsmöglichkeiten und Naherholungsgebiete. 
                     {property.price > 1000000 ? ' Ein exklusives Objekt für anspruchsvolle Käufer.' : ' Überzeugen Sie sich selbst bei einer persönlichen Besichtigung!'}
                   </p>
@@ -240,18 +334,22 @@ export default function PropertyExpose() {
             </Card>
 
             {/* Features */}
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Ausstattung</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <Card className="animate-fade-in" style={{ animationDelay: '200ms' }}>
+              <CardContent className="p-4 sm:p-6">
+                <h2 className="text-lg sm:text-xl font-semibold mb-4">Ausstattung</h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
                   {features.map((feature, idx) => {
                     const FeatureIcon = feature.icon;
                     return (
-                      <div key={idx} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors">
-                        <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
-                          <FeatureIcon className="h-5 w-5 text-accent" />
+                      <div 
+                        key={idx} 
+                        className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-all hover:scale-[1.02] cursor-default"
+                        style={{ animationDelay: `${idx * 50}ms` }}
+                      >
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
+                          <FeatureIcon className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
                         </div>
-                        <span className="font-medium text-sm">{feature.name}</span>
+                        <span className="font-medium text-xs sm:text-sm">{feature.name}</span>
                       </div>
                     );
                   })}
@@ -260,10 +358,10 @@ export default function PropertyExpose() {
             </Card>
 
             {/* Virtual Tour - Gated behind Level 1 */}
-            <Card>
-              <CardContent className="p-6">
+            <Card className="animate-fade-in" style={{ animationDelay: '300ms' }}>
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold">Virtuelle Besichtigung</h2>
+                  <h2 className="text-lg sm:text-xl font-semibold">Virtuelle Besichtigung</h2>
                   {unlockLevel >= 1 ? (
                     <Badge className="bg-accent/20 text-accent">
                       <Gift className="h-3 w-3 mr-1" /> Freigeschaltet
@@ -286,11 +384,11 @@ export default function PropertyExpose() {
                   <div className="aspect-video rounded-xl bg-gradient-to-br from-accent/20 to-primary/20 flex items-center justify-center relative overflow-hidden">
                     <img src={propertyLivingRoom} alt="360° Tour" className="absolute inset-0 w-full h-full object-cover opacity-30" />
                     <div className="relative text-center">
-                      <div className="w-20 h-20 rounded-full bg-accent/90 flex items-center justify-center mx-auto mb-4 cursor-pointer hover:scale-110 transition-transform">
-                        <Box className="h-10 w-10 text-accent-foreground" />
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-accent/90 flex items-center justify-center mx-auto mb-4 cursor-pointer hover:scale-110 transition-transform shadow-lg">
+                        <Box className="h-8 w-8 sm:h-10 sm:w-10 text-accent-foreground" />
                       </div>
-                      <p className="font-semibold text-lg">360° Tour starten</p>
-                      <p className="text-sm text-muted-foreground">Erkunden Sie die Wohnung virtuell</p>
+                      <p className="font-semibold text-base sm:text-lg">360° Tour starten</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">Erkunden Sie die Wohnung virtuell</p>
                     </div>
                   </div>
                 </GatedContentCard>
@@ -298,10 +396,10 @@ export default function PropertyExpose() {
             </Card>
 
             {/* Floor Plans - Gated behind Level 2 */}
-            <Card>
-              <CardContent className="p-6">
+            <Card className="animate-fade-in" style={{ animationDelay: '400ms' }}>
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold">Grundrisse & Dokumente</h2>
+                  <h2 className="text-lg sm:text-xl font-semibold">Grundrisse & Dokumente</h2>
                   {unlockLevel >= 2 ? (
                     <Badge className="bg-accent/20 text-accent">
                       <Gift className="h-3 w-3 mr-1" /> Freigeschaltet
@@ -320,10 +418,10 @@ export default function PropertyExpose() {
                   unlockAction="Mit Telefon freischalten"
                   onUnlock={scrollToUnlock}
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div className="space-y-3">
-                      <p className="font-medium text-center">Grundriss</p>
-                      <div className="rounded-xl overflow-hidden border bg-white">
+                      <p className="font-medium text-center text-sm sm:text-base">Grundriss</p>
+                      <div className="rounded-xl overflow-hidden border bg-white hover:shadow-lg transition-shadow">
                         <img 
                           src={floorPlanImage} 
                           alt="Grundriss" 
@@ -334,8 +432,8 @@ export default function PropertyExpose() {
                       <p className="text-xs text-muted-foreground text-center">Klicken zum Vergrößern</p>
                     </div>
                     <div className="space-y-3">
-                      <p className="font-medium text-center">Energieausweis</p>
-                      <div className="rounded-xl overflow-hidden border bg-white">
+                      <p className="font-medium text-center text-sm sm:text-base">Energieausweis</p>
+                      <div className="rounded-xl overflow-hidden border bg-white hover:shadow-lg transition-shadow">
                         <img 
                           src={energyCertificateImage} 
                           alt="Energieausweis" 
@@ -351,10 +449,10 @@ export default function PropertyExpose() {
             </Card>
 
             {/* Price History - Gated behind Level 3 */}
-            <Card>
-              <CardContent className="p-6">
+            <Card className="animate-fade-in" style={{ animationDelay: '500ms' }}>
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold">Preishistorie & Marktdaten</h2>
+                  <h2 className="text-lg sm:text-xl font-semibold">Preishistorie & Marktdaten</h2>
                   {unlockLevel >= 3 ? (
                     <Badge className="bg-gradient-to-r from-accent to-primary text-accent-foreground">
                       <Crown className="h-3 w-3 mr-1" /> Priority
@@ -376,15 +474,15 @@ export default function PropertyExpose() {
                   <div className="space-y-4">
                     <div className="p-4 rounded-xl bg-secondary/50">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-muted-foreground">Aktueller Preis</span>
+                        <span className="text-muted-foreground text-sm">Aktueller Preis</span>
                         <span className="font-bold text-accent">{property.price.toLocaleString('de-DE')} €</span>
                       </div>
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-muted-foreground">Preis bei Einstellung</span>
+                        <span className="text-muted-foreground text-sm">Preis bei Einstellung</span>
                         <span className="font-medium">{(property.price * 1.05).toLocaleString('de-DE')} €</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Preisänderung</span>
+                        <span className="text-muted-foreground text-sm">Preisänderung</span>
                         <span className="text-green-500 font-medium">-5%</span>
                       </div>
                     </div>
@@ -398,9 +496,9 @@ export default function PropertyExpose() {
             </Card>
 
             {/* Location */}
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Lage & Umgebung</h2>
+            <Card className="animate-fade-in" style={{ animationDelay: '600ms' }}>
+              <CardContent className="p-4 sm:p-6">
+                <h2 className="text-lg sm:text-xl font-semibold mb-4">Lage & Umgebung</h2>
                 <LocationMapSection 
                   address={property.address} 
                   city={property.city}
@@ -412,8 +510,9 @@ export default function PropertyExpose() {
 
           {/* Right Column - Combined Signup & Gamification */}
           <div className="space-y-6">
-            <Card id="unlock-section" className="sticky top-24">
-              <CardContent className="p-6">
+            {/* Mobile: Show contact card first */}
+            <Card id="unlock-section" className="lg:sticky lg:top-20">
+              <CardContent className="p-4 sm:p-6">
                 <SignupGamificationCard
                   onProfileUpdate={(profile, level) => {
                     setUnlockLevel(level);
@@ -444,9 +543,9 @@ export default function PropertyExpose() {
 
             {/* Download Exposé */}
             <Card>
-              <CardContent className="p-6 text-center">
-                <h3 className="font-semibold mb-2">Exposé herunterladen</h3>
-                <p className="text-sm text-muted-foreground mb-4">Alle Informationen als PDF</p>
+              <CardContent className="p-4 sm:p-6 text-center">
+                <h3 className="font-semibold mb-2 text-sm sm:text-base">Exposé herunterladen</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground mb-4">Alle Informationen als PDF</p>
                 <Button variant="outline" className="w-full">
                   PDF herunterladen
                 </Button>
@@ -456,34 +555,47 @@ export default function PropertyExpose() {
         </div>
       </main>
 
+      {/* Sticky Mobile CTA */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur border-t lg:hidden z-40">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-xs text-muted-foreground">Kaufpreis</p>
+            <p className="text-lg font-bold text-accent">{property.price.toLocaleString('de-DE')} €</p>
+          </div>
+          <Button onClick={scrollToUnlock} className="px-6">
+            Kontakt aufnehmen
+          </Button>
+        </div>
+      </div>
+
       {/* Lightbox */}
       {lightboxOpen && (
-        <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur flex items-center justify-center">
+        <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur flex items-center justify-center animate-fade-in">
           <button
             onClick={() => setLightboxOpen(false)}
-            className="absolute top-4 right-4 w-12 h-12 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80"
+            className="absolute top-4 right-4 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors"
           >
-            <X className="h-6 w-6" />
+            <X className="h-5 w-5 sm:h-6 sm:w-6" />
           </button>
           <button
             onClick={prevImage}
-            className="absolute left-4 w-12 h-12 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80"
+            className="absolute left-2 sm:left-4 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors"
           >
-            <ChevronLeft className="h-6 w-6" />
+            <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
           </button>
           <button
             onClick={nextImage}
-            className="absolute right-4 w-12 h-12 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80"
+            className="absolute right-2 sm:right-4 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors"
           >
-            <ChevronRight className="h-6 w-6" />
+            <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
           </button>
           <img
             src={propertyImages[currentImageIndex].src}
             alt={propertyImages[currentImageIndex].label}
-            className="max-h-[80vh] max-w-[90vw] object-contain rounded-lg"
+            className={`max-h-[80vh] max-w-[90vw] object-contain rounded-lg transition-opacity duration-300 ${isImageTransitioning ? 'opacity-0' : 'opacity-100'}`}
           />
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-secondary px-6 py-3 rounded-full">
-            <p className="font-medium">{propertyImages[currentImageIndex].label}</p>
+          <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 bg-secondary px-4 sm:px-6 py-2 sm:py-3 rounded-full">
+            <p className="font-medium text-sm sm:text-base">{propertyImages[currentImageIndex].label}</p>
           </div>
         </div>
       )}
