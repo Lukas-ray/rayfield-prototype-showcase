@@ -62,10 +62,10 @@ interface PlatformAccount {
 }
 
 const socialAccounts: SocialAccount[] = [
-  { id: '1', name: 'Instagram', platform: 'instagram', icon: Instagram, connected: true, handle: '@rayfield_immobilien' },
-  { id: '2', name: 'YouTube', platform: 'youtube', icon: Youtube, connected: true, handle: 'Rayfield Immobilien' },
+  { id: '1', name: 'Instagram', platform: 'instagram', icon: Instagram, connected: true, handle: '@immosmart_immo' },
+  { id: '2', name: 'YouTube', platform: 'youtube', icon: Youtube, connected: true, handle: 'Immosmart Immobilien' },
   { id: '3', name: 'Facebook', platform: 'facebook', icon: Facebook, connected: false, handle: '' },
-  { id: '4', name: 'LinkedIn', platform: 'linkedin', icon: Linkedin, connected: true, handle: 'Rayfield GmbH' },
+  { id: '4', name: 'LinkedIn', platform: 'linkedin', icon: Linkedin, connected: true, handle: 'Immosmart GmbH' },
 ];
 
 const platformAccounts: PlatformAccount[] = [
@@ -156,6 +156,17 @@ export function MediaTab() {
   const videos = mediaItems.filter(m => m.type === 'video');
   const tours = mediaItems.filter(m => m.type === '3d_tour');
   const floorPlans = mediaItems.filter(m => m.type === 'floor_plan');
+
+  // Get the first selected media image for preview
+  const getPreviewImage = () => {
+    if (selectedMedia.length > 0) {
+      const selectedPhotoIndex = photos.findIndex(p => p.id === selectedMedia[0]);
+      if (selectedPhotoIndex >= 0) {
+        return propertyImages[selectedPhotoIndex % propertyImages.length];
+      }
+    }
+    return propertyImages[0];
+  };
 
   const handleExport = () => {
     if (selectedPreset) {
@@ -626,18 +637,18 @@ export function MediaTab() {
                     <div className="flex items-center gap-3 p-3 border-b border-border">
                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 flex items-center justify-center">
                         <div className="w-7 h-7 rounded-full bg-background flex items-center justify-center">
-                          <span className="text-xs font-bold">R</span>
+                          <span className="text-xs font-bold">I</span>
                         </div>
                       </div>
                       <div>
-                        <p className="text-sm font-semibold">rayfield_immobilien</p>
-                        <p className="text-xs text-muted-foreground">Berlin, Germany</p>
+                        <p className="text-sm font-semibold">immosmart_immo</p>
+                        <p className="text-xs text-muted-foreground">München, Germany</p>
                       </div>
                     </div>
                     {/* Image */}
                     <div className="aspect-square bg-muted relative">
                       <img 
-                        src={propertyLivingRoom}
+                        src={getPreviewImage()}
                         alt="Preview"
                         className="w-full h-full object-cover"
                       />
@@ -650,7 +661,7 @@ export function MediaTab() {
                     {/* Caption Preview */}
                     <div className="p-3">
                       <p className="text-sm line-clamp-3">
-                        <span className="font-semibold">rayfield_immobilien</span>{' '}
+                        <span className="font-semibold">immosmart_immo</span>{' '}
                         {postText.slice(0, 100)}...
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">Vor 0 Minuten</p>
@@ -663,10 +674,10 @@ export function MediaTab() {
                     {/* LinkedIn Header */}
                     <div className="flex items-center gap-3 p-3">
                       <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center">
-                        <span className="text-lg font-bold text-accent">R</span>
+                        <span className="text-lg font-bold text-accent">I</span>
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm font-semibold">Rayfield GmbH</p>
+                        <p className="text-sm font-semibold">Immosmart GmbH</p>
                         <p className="text-xs text-muted-foreground">1.234 Follower</p>
                         <p className="text-xs text-muted-foreground">Jetzt • 🌐</p>
                       </div>
@@ -678,7 +689,7 @@ export function MediaTab() {
                     {/* Image */}
                     <div className="aspect-video bg-muted">
                       <img 
-                        src={propertyLivingRoom}
+                        src={getPreviewImage()}
                         alt="Preview"
                         className="w-full h-full object-cover"
                       />
@@ -696,7 +707,7 @@ export function MediaTab() {
                     {/* Video Thumbnail */}
                     <div className="aspect-video bg-muted relative">
                       <img 
-                        src={propertyLivingRoom}
+                        src={getPreviewImage()}
                         alt="Preview"
                         className="w-full h-full object-cover"
                       />
@@ -715,7 +726,7 @@ export function MediaTab() {
                         {postText.split('\n')[0] || 'Videotitel hier...'}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Rayfield Immobilien • 0 Aufrufe • Jetzt
+                        Immosmart Immobilien • 0 Aufrufe • Jetzt
                       </p>
                     </div>
                   </div>

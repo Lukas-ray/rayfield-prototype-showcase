@@ -110,7 +110,7 @@ const initialMembers: TeamMember[] = [
   {
     id: '1',
     name: 'Maria Schmidt',
-    email: 'maria@rayfield-immobilien.de',
+    email: 'maria@immosmart.de',
     phone: '+49 89 123 456 01',
     role: 'owner',
     status: 'active',
@@ -120,7 +120,7 @@ const initialMembers: TeamMember[] = [
   {
     id: '2',
     name: 'Thomas Weber',
-    email: 'thomas@rayfield-immobilien.de',
+    email: 'thomas@immosmart.de',
     phone: '+49 89 123 456 02',
     role: 'admin',
     status: 'active',
@@ -130,7 +130,7 @@ const initialMembers: TeamMember[] = [
   {
     id: '3',
     name: 'Anna Müller',
-    email: 'anna@rayfield-immobilien.de',
+    email: 'anna@immosmart.de',
     phone: '+49 89 123 456 03',
     role: 'makler',
     status: 'active',
@@ -140,7 +140,7 @@ const initialMembers: TeamMember[] = [
   {
     id: '4',
     name: 'Felix Braun',
-    email: 'felix@rayfield-immobilien.de',
+    email: 'felix@immosmart.de',
     role: 'makler',
     status: 'active',
     lastActive: 'Gestern',
@@ -149,7 +149,7 @@ const initialMembers: TeamMember[] = [
   {
     id: '5',
     name: 'Laura Fischer',
-    email: 'laura@rayfield-immobilien.de',
+    email: 'laura@immosmart.de',
     role: 'koordinator',
     status: 'active',
     lastActive: 'Vor 1 Stunde',

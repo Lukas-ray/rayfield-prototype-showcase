@@ -70,7 +70,7 @@ export default function Admin() {
       description: 'Makler-CRM für Objektverwaltung und Kundenkontakte',
       icon: <img src={onOfficeLogo} alt="onOffice" className="h-8 w-8 rounded" />,
       connected: true,
-      connectedAccount: 'Rayfield GmbH',
+      connectedAccount: 'Immosmart GmbH',
       category: 'crm',
     },
     {
@@ -103,7 +103,7 @@ export default function Admin() {
       description: 'Immobilienfotos und Stories automatisch posten',
       icon: <PlatformLogo platform="instagram" size="lg" />,
       connected: true,
-      connectedAccount: '@rayfield_immobilien',
+      connectedAccount: '@immosmart_immo',
       category: 'social',
     },
     {
@@ -120,7 +120,7 @@ export default function Admin() {
       description: 'Professionelle Immobilienpostings',
       icon: <PlatformLogo platform="linkedin" size="lg" />,
       connected: true,
-      connectedAccount: 'Rayfield Immobilien GmbH',
+      connectedAccount: 'Immosmart GmbH',
       category: 'social',
     },
     {
@@ -137,7 +137,7 @@ export default function Admin() {
       description: 'Automatische Synchronisation mit ImmoScout24',
       icon: <PlatformLogo platform="immoscout24" size="lg" />,
       connected: true,
-      connectedAccount: 'rayfield_munich',
+      connectedAccount: 'immosmart_munich',
       category: 'portal',
     },
     {
@@ -163,8 +163,8 @@ export default function Admin() {
   const [selectedMailProvider, setSelectedMailProvider] = useState<string | null>(null);
   const [mailboxStep, setMailboxStep] = useState(1);
   const [mailboxSettings, setMailboxSettings] = useState({
-    sendingIdentity: 'makler@rayfield-immobilien.de',
-    trackRayfieldOnly: true,
+    sendingIdentity: 'makler@immosmart.de',
+    trackImmosmart: true,
     followUpCadence: '3d',
     autoSendMode: false,
   });
@@ -602,9 +602,9 @@ export default function Admin() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="makler@rayfield-immobilien.de">makler@rayfield-immobilien.de</SelectItem>
-                      <SelectItem value="info@rayfield-immobilien.de">info@rayfield-immobilien.de</SelectItem>
-                      <SelectItem value="team@rayfield-immobilien.de">team@rayfield-immobilien.de</SelectItem>
+                      <SelectItem value="makler@immosmart.de">makler@immosmart.de</SelectItem>
+                      <SelectItem value="info@immosmart.de">info@immosmart.de</SelectItem>
+                      <SelectItem value="team@immosmart.de">team@immosmart.de</SelectItem>
                     </SelectContent>
                   </Select>
                 </>
@@ -615,15 +615,15 @@ export default function Admin() {
                   <h4 className="font-medium">Tracking-Bereich</h4>
                   <div className="flex items-center justify-between p-4 rounded-lg bg-secondary/50">
                     <div>
-                      <p className="font-medium">Nur Rayfield-Threads verfolgen</p>
+                      <p className="font-medium">Nur Immosmart-Threads verfolgen</p>
                       <p className="text-sm text-muted-foreground">Empfohlen für Datenschutz</p>
                     </div>
                     <Switch 
-                      checked={mailboxSettings.trackRayfieldOnly}
-                      onCheckedChange={(v) => setMailboxSettings(prev => ({ ...prev, trackRayfieldOnly: v }))}
+                      checked={mailboxSettings.trackImmosmart}
+                      onCheckedChange={(v) => setMailboxSettings(prev => ({ ...prev, trackImmosmart: v }))}
                     />
                   </div>
-                  {!mailboxSettings.trackRayfieldOnly && (
+                  {!mailboxSettings.trackImmosmart && (
                     <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-50 text-amber-800 text-sm">
                       <AlertCircle className="h-4 w-4 mt-0.5" />
                       <p>Alle E-Mails werden analysiert. Stellen Sie sicher, dass dies den Datenschutzrichtlinien entspricht.</p>

@@ -17,12 +17,12 @@ const suggestedQuestions = [
   { text: "Zeige die letzte Agent-Ausgabe", navigateTo: 'overview' },
 ];
 
-export function AskRayfieldWidget() {
+export function AskImmosmart() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Hallo! Ich bin Ihr Rayfield-Assistent. Ich kann Ihnen helfen, den Status dieses Objekts zu verstehen und Aktionen durchzuführen.",
+      content: "Hallo! Ich bin Ihr Immosmart-Assistent. Ich kann Ihnen helfen, den Status dieses Objekts zu verstehen und Aktionen durchzuführen.",
     },
   ]);
   const [input, setInput] = useState('');
@@ -117,7 +117,7 @@ export function AskRayfieldWidget() {
         <div className="fixed bottom-24 right-6 w-96 bg-card rounded-xl shadow-modal border z-50 animate-slide-up">
           {/* Header */}
           <div className="p-4 border-b">
-            <h3 className="font-semibold">Rayfield fragen</h3>
+            <h3 className="font-semibold">Immosmart fragen</h3>
             <p className="text-xs text-muted-foreground">KI-Assistent für dieses Objekt</p>
           </div>
 
