@@ -217,12 +217,12 @@ export default function PropertyExpose() {
           </button>
 
           {/* Image Counter */}
-          <div className="absolute bottom-20 sm:bottom-24 left-1/2 -translate-x-1/2 bg-background/90 backdrop-blur-md px-4 py-2 rounded-full text-sm font-medium shadow-lg">
+          <div className="absolute bottom-32 sm:bottom-40 left-1/2 -translate-x-1/2 bg-background/90 backdrop-blur-md px-4 py-2 rounded-full text-sm font-medium shadow-lg z-20">
             {currentImageIndex + 1} / {propertyImages.length} — {propertyImages[currentImageIndex].label}
           </div>
 
           {/* Quick Info Overlay */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-8">
+          <div className="absolute bottom-16 sm:bottom-20 left-0 right-0 p-4 sm:p-8 z-10">
             <div className="max-w-7xl mx-auto">
               <Badge className="mb-3 bg-accent text-accent-foreground animate-fade-in">Exklusives Angebot</Badge>
               <h1 className="text-2xl sm:text-4xl font-bold text-foreground mb-2">{property.address}</h1>
@@ -234,9 +234,9 @@ export default function PropertyExpose() {
           </div>
         </div>
 
-        {/* Thumbnail Strip */}
-        <div className="max-w-7xl mx-auto px-4 -mt-8 sm:-mt-10 relative z-10">
-          <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
+        {/* Thumbnail Strip - positioned below hero */}
+        <div className="max-w-7xl mx-auto px-4 py-4 relative z-30 bg-background">
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             {propertyImages.map((img, idx) => (
               <button
                 key={idx}
