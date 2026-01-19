@@ -944,37 +944,56 @@ Tel: +49 89 123 456 78`;
             <div className="space-y-6">
               {/* PDF Preview */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="aspect-[3/4] bg-muted rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center relative overflow-hidden">
-                  {/* Simulated PDF Preview */}
-                  <div className="absolute inset-0 bg-white p-4 flex flex-col">
-                    <div className="flex items-center justify-between mb-4 pb-2 border-b">
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-5 w-5 text-red-500" />
-                        <span className="text-xs font-medium text-muted-foreground">PDF Dokument</span>
-                      </div>
-                      <span className="text-xs text-muted-foreground">Seite 1 von 2</span>
+                <div className="aspect-[3/4] bg-muted rounded-lg border border-border flex flex-col items-center justify-center relative overflow-hidden">
+                  {/* Real Document Preview Image */}
+                  {(() => {
+                    const getDocumentPreviewUrl = (docType: string) => {
+                      const typeMap: Record<string, string> = {
+                        'Energieausweis': '/documents/energieausweis-preview.jpg',
+                        'Grundbuch': '/documents/grundbuchauszug-preview.jpg',
+                        'Teilungserklärung': '/documents/teilungserklaerung-preview.jpg',
+                        'Wirtschaftsplan': '/documents/teilungserklaerung-preview.jpg',
+                        'Hausgeldabrechnung': '/documents/grundbuchauszug-preview.jpg',
+                        'Flächenberechnung': '/documents/teilungserklaerung-preview.jpg',
+                        'Baulastenverzeichnis': '/documents/grundbuchauszug-preview.jpg',
+                        'Protokolle': '/documents/teilungserklaerung-preview.jpg',
+                        'Flurkarte': '/documents/grundbuchauszug-preview.jpg',
+                      };
+                      return typeMap[docType] || '/documents/grundbuchauszug-preview.jpg';
+                    };
+                    
+                    return (
+                      <img 
+                        src={getDocumentPreviewUrl(reviewDoc.type)} 
+                        alt={reviewDoc.name}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                    );
+                  })()}
+                  
+                  {/* Issue overlay for documents with problems */}
+                  {reviewDoc.aiAnalysis && reviewDoc.aiAnalysis.issues.some(i => i.severity === 'high') && (
+                    <div className="absolute top-4 left-4 right-4 p-2 border-2 border-red-500 rounded bg-red-500/90 flex items-center justify-center">
+                      <span className="text-xs text-white font-medium">⚠ Problem erkannt</span>
                     </div>
-                    <div className="flex-1 space-y-3">
-                      <div className="h-6 bg-muted rounded w-3/4"></div>
-                      <div className="h-4 bg-muted rounded w-full"></div>
-                      <div className="h-4 bg-muted rounded w-5/6"></div>
-                      <div className="h-4 bg-muted rounded w-full"></div>
-                      <div className="h-4 bg-muted rounded w-2/3"></div>
-                      <div className="h-16 bg-muted/50 rounded mt-4"></div>
-                      <div className="h-4 bg-muted rounded w-full"></div>
-                      <div className="h-4 bg-muted rounded w-4/5"></div>
-                      <div className="h-4 bg-muted rounded w-full"></div>
-                      {reviewDoc.aiAnalysis && reviewDoc.aiAnalysis.issues.some(i => i.severity === 'high') && (
-                        <div className="absolute top-16 left-8 right-8 h-8 border-2 border-red-500 rounded bg-red-500/10 flex items-center justify-center">
-                          <span className="text-xs text-red-600 font-medium">⚠ Problem erkannt</span>
-                        </div>
-                      )}
+                  )}
+                  {reviewDoc.aiAnalysis && reviewDoc.aiAnalysis.issues.some(i => i.severity === 'medium') && !reviewDoc.aiAnalysis.issues.some(i => i.severity === 'high') && (
+                    <div className="absolute top-4 left-4 right-4 p-2 border-2 border-orange-500 rounded bg-orange-500/90 flex items-center justify-center">
+                      <span className="text-xs text-white font-medium">⚠ Hinweis</span>
                     </div>
-                  </div>
+                  )}
+                  
+                  {/* Verified badge */}
+                  {reviewDoc.status === 'verified' && (
+                    <div className="absolute top-4 right-4 p-2 rounded-full bg-green-500">
+                      <Check className="h-4 w-4 text-white" />
+                    </div>
+                  )}
+                  
                   <Button 
                     variant="secondary" 
                     size="sm" 
-                    className="absolute bottom-3 gap-2"
+                    className="absolute bottom-3 gap-2 bg-white/90 hover:bg-white"
                     onClick={() => window.open('#', '_blank')}
                   >
                     <ExternalLink className="h-4 w-4" />
