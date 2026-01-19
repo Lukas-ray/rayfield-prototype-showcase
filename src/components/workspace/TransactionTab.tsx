@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { 
   CheckCircle2, Circle, Clock, AlertTriangle, FileText, Mail, 
   StickyNote, Upload, ShieldCheck, Phone, ChevronRight, Plus,
-  Send, Flag, Copy, X, User, Building, Landmark, Wallet
+  Send, Flag, Copy, X, User, Building, Landmark, Wallet, Eye,
+  AlertCircle, Info, ExternalLink
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -33,8 +34,37 @@ export function TransactionTab({ transaction: initialTransaction }: TransactionT
   const [showRequestDocsModal, setShowRequestDocsModal] = useState(false);
   const [showStatusUpdateModal, setShowStatusUpdateModal] = useState(false);
   const [showRiskModal, setShowRiskModal] = useState(false);
+  const [showDocumentPreviewModal, setShowDocumentPreviewModal] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<TransactionDocument | null>(null);
   const [newTask, setNewTask] = useState('');
   const [newNote, setNewNote] = useState('');
+
+  // Sample AI issues for documents
+  const getDocumentIssues = (docId: string): { type: 'error' | 'warning' | 'info'; message: string; details?: string }[] => {
+    const issuesMap: Record<string, { type: 'error' | 'warning' | 'info'; message: string; details?: string }[]> = {
+      'd1': [], // Kaufvertragsentwurf - verified, no issues
+      'd2': [
+        { type: 'warning', message: 'Finanzierungsbestätigung fehlt Bankstempel', details: 'Die eingereichte Finanzierungsbestätigung wurde ohne offiziellen Bankstempel eingereicht. Bitte fordern Sie eine gestempelte Version an.' }
+      ],
+      'd3': [
+        { type: 'error', message: 'Grundbuchauszug veraltet', details: 'Der Grundbuchauszug ist älter als 3 Monate. Für den Notartermin wird ein aktueller Auszug benötigt (nicht älter als 4 Wochen).' },
+        { type: 'warning', message: 'Wohnrecht eingetragen', details: 'Im Grundbuch ist ein lebenslanges Wohnrecht für Else Müller eingetragen. Klären Sie die Löschungsbewilligung.' }
+      ],
+      'd4': [],
+      'd5': [
+        { type: 'info', message: 'Energieausweis läuft in 6 Monaten ab', details: 'Der Energieausweis ist noch gültig, läuft aber am 15.07.2026 ab.' }
+      ],
+      'd6': [
+        { type: 'warning', message: 'Unterschrift fehlt', details: 'Die Löschungsbewilligung wurde ohne Unterschrift des Gläubigers eingereicht.' }
+      ]
+    };
+    return issuesMap[docId] || [];
+  };
+
+  const handleDocumentClick = (doc: TransactionDocument) => {
+    setSelectedDocument(doc);
+    setShowDocumentPreviewModal(true);
+  };
 
   // Calculate progress
   const completedMilestones = transaction.milestones.filter(m => m.status === 'done').length;
@@ -413,38 +443,70 @@ Verantwortlich: ${transaction.owner}
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {transaction.documents.slice(0, 6).map(doc => (
-                  <div key={doc.id} className="flex items-center justify-between py-1.5 border-b border-border/50 last:border-0">
-                    <div className="flex items-center gap-2">
-                      <FileText className={cn(
-                        "h-4 w-4",
-                        doc.status === 'verified' ? "text-green-500" : 
-                        doc.status === 'uploaded' ? "text-blue-500" : "text-muted-foreground"
-                      )} />
-                      <span className="text-sm">{doc.name}</span>
+                {transaction.documents.slice(0, 6).map(doc => {
+                  const issues = getDocumentIssues(doc.id);
+                  const hasIssues = issues.length > 0;
+                  const hasErrors = issues.some(i => i.type === 'error');
+                  const hasWarnings = issues.some(i => i.type === 'warning');
+                  
+                  return (
+                    <div 
+                      key={doc.id} 
+                      className={cn(
+                        "flex items-center justify-between py-1.5 px-2 -mx-2 border-b border-border/50 last:border-0 rounded cursor-pointer transition-colors hover:bg-accent/50",
+                        hasErrors && doc.status !== 'missing' && "bg-red-500/5 hover:bg-red-500/10",
+                        hasWarnings && !hasErrors && doc.status !== 'missing' && "bg-yellow-500/5 hover:bg-yellow-500/10"
+                      )}
+                      onClick={() => handleDocumentClick(doc)}
+                    >
+                      <div className="flex items-center gap-2">
+                        <FileText className={cn(
+                          "h-4 w-4",
+                          doc.status === 'verified' && !hasIssues ? "text-green-500" : 
+                          doc.status === 'uploaded' && hasErrors ? "text-red-500" :
+                          doc.status === 'uploaded' && hasWarnings ? "text-yellow-500" :
+                          doc.status === 'uploaded' ? "text-blue-500" : "text-muted-foreground"
+                        )} />
+                        <span className="text-sm">{doc.name}</span>
+                        {hasIssues && doc.status !== 'missing' && (
+                          <Badge variant="outline" className={cn(
+                            "text-xs",
+                            hasErrors ? "border-red-500/30 text-red-600 bg-red-500/10" : "border-yellow-500/30 text-yellow-600 bg-yellow-500/10"
+                          )}>
+                            {hasErrors ? <AlertCircle className="h-3 w-3 mr-1" /> : <AlertTriangle className="h-3 w-3 mr-1" />}
+                            {issues.length} {issues.length === 1 ? 'Problem' : 'Probleme'}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {doc.status === 'missing' && (
+                          <Button size="sm" variant="ghost" className="h-6 text-xs" onClick={(e) => { e.stopPropagation(); handleDocUpload(doc.id); }}>
+                            <Upload className="h-3 w-3 mr-1" />
+                            Upload
+                          </Button>
+                        )}
+                        {doc.status === 'uploaded' && !hasIssues && (
+                          <Button size="sm" variant="ghost" className="h-6 text-xs text-green-600" onClick={(e) => { e.stopPropagation(); handleDocVerify(doc.id); }}>
+                            <ShieldCheck className="h-3 w-3 mr-1" />
+                            Verifizieren
+                          </Button>
+                        )}
+                        {doc.status === 'uploaded' && hasIssues && (
+                          <Button size="sm" variant="ghost" className="h-6 text-xs text-yellow-600" onClick={(e) => { e.stopPropagation(); handleDocumentClick(doc); }}>
+                            <Eye className="h-3 w-3 mr-1" />
+                            Prüfen
+                          </Button>
+                        )}
+                        {doc.status === 'verified' && (
+                          <Badge variant="secondary" className="text-xs bg-green-500/10 text-green-600">
+                            <ShieldCheck className="h-3 w-3 mr-1" />
+                            Verifiziert
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      {doc.status === 'missing' && (
-                        <Button size="sm" variant="ghost" className="h-6 text-xs" onClick={() => handleDocUpload(doc.id)}>
-                          <Upload className="h-3 w-3 mr-1" />
-                          Upload
-                        </Button>
-                      )}
-                      {doc.status === 'uploaded' && (
-                        <Button size="sm" variant="ghost" className="h-6 text-xs text-green-600" onClick={() => handleDocVerify(doc.id)}>
-                          <ShieldCheck className="h-3 w-3 mr-1" />
-                          Verifizieren
-                        </Button>
-                      )}
-                      {doc.status === 'verified' && (
-                        <Badge variant="secondary" className="text-xs bg-green-500/10 text-green-600">
-                          <ShieldCheck className="h-3 w-3 mr-1" />
-                          Verifiziert
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
@@ -708,6 +770,125 @@ ${transaction.owner}`}
             <Button onClick={() => { toast.success('Risiko aktualisiert'); setShowRiskModal(false); }}>
               Speichern
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Document Preview Modal */}
+      <Dialog open={showDocumentPreviewModal} onOpenChange={setShowDocumentPreviewModal}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              {selectedDocument?.name || 'Dokument'}
+            </DialogTitle>
+          </DialogHeader>
+          {selectedDocument && (
+            <div className="space-y-4">
+              {/* Document Preview Placeholder */}
+              <div className="aspect-[4/3] bg-muted rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center">
+                <FileText className="h-16 w-16 text-muted-foreground/50 mb-4" />
+                <p className="text-muted-foreground font-medium">{selectedDocument.name}</p>
+                <p className="text-sm text-muted-foreground/70 mt-1">
+                  {selectedDocument.status === 'missing' ? 'Noch nicht hochgeladen' : 'Vorschau des Dokuments'}
+                </p>
+                {selectedDocument.status !== 'missing' && (
+                  <Button variant="outline" size="sm" className="mt-4 gap-2">
+                    <ExternalLink className="h-4 w-4" />
+                    Im neuen Tab öffnen
+                  </Button>
+                )}
+              </div>
+
+              {/* Document Info */}
+              <div className="grid grid-cols-2 gap-4 p-4 bg-accent/30 rounded-lg">
+                <div>
+                  <p className="text-xs text-muted-foreground">Status</p>
+                  <p className="font-medium capitalize">
+                    {selectedDocument.status === 'verified' ? 'Verifiziert' :
+                     selectedDocument.status === 'uploaded' ? 'Hochgeladen' : 'Fehlt'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Hochgeladen am</p>
+                  <p className="font-medium">{selectedDocument.uploadedAt || '-'}</p>
+                </div>
+              </div>
+
+              {/* AI Analysis Issues */}
+              {selectedDocument.status !== 'missing' && (
+                <div className="space-y-3">
+                  <h4 className="font-medium text-sm flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4" />
+                    KI-Dokumentenprüfung
+                  </h4>
+                  {getDocumentIssues(selectedDocument.id).length === 0 ? (
+                    <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg flex items-center gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                      <div>
+                        <p className="font-medium text-green-700">Keine Probleme gefunden</p>
+                        <p className="text-sm text-green-600/80">Das Dokument wurde erfolgreich geprüft und enthält keine Auffälligkeiten.</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {getDocumentIssues(selectedDocument.id).map((issue, idx) => (
+                        <div 
+                          key={idx}
+                          className={cn(
+                            "p-3 rounded-lg border flex items-start gap-3",
+                            issue.type === 'error' ? "bg-red-500/10 border-red-500/30" :
+                            issue.type === 'warning' ? "bg-yellow-500/10 border-yellow-500/30" :
+                            "bg-blue-500/10 border-blue-500/30"
+                          )}
+                        >
+                          {issue.type === 'error' ? (
+                            <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                          ) : issue.type === 'warning' ? (
+                            <AlertTriangle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                          ) : (
+                            <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                          )}
+                          <div>
+                            <p className={cn(
+                              "font-medium",
+                              issue.type === 'error' ? "text-red-700" :
+                              issue.type === 'warning' ? "text-yellow-700" : "text-blue-700"
+                            )}>
+                              {issue.message}
+                            </p>
+                            {issue.details && (
+                              <p className="text-sm text-muted-foreground mt-1">{issue.details}</p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDocumentPreviewModal(false)}>Schließen</Button>
+            {selectedDocument?.status === 'missing' && (
+              <Button onClick={() => { handleDocUpload(selectedDocument.id); setShowDocumentPreviewModal(false); }}>
+                <Upload className="h-4 w-4 mr-2" />
+                Hochladen
+              </Button>
+            )}
+            {selectedDocument?.status === 'uploaded' && getDocumentIssues(selectedDocument.id).length === 0 && (
+              <Button className="bg-green-600 hover:bg-green-700" onClick={() => { handleDocVerify(selectedDocument.id); setShowDocumentPreviewModal(false); }}>
+                <ShieldCheck className="h-4 w-4 mr-2" />
+                Verifizieren
+              </Button>
+            )}
+            {selectedDocument?.status === 'uploaded' && getDocumentIssues(selectedDocument.id).length > 0 && (
+              <Button variant="outline" className="text-yellow-600 border-yellow-500/30" onClick={() => { toast.info('Dokument erneut anfordern...'); setShowDocumentPreviewModal(false); }}>
+                <Send className="h-4 w-4 mr-2" />
+                Korrektur anfordern
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
