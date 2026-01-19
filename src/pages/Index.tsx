@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Filter, Search, TrendingUp, Users, FileCheck, Clock, ArrowRight, AlertTriangle, CheckCircle2, Sparkles } from 'lucide-react';
+import { Plus, Filter, Search, ArrowRight, AlertTriangle, CheckCircle2, Sparkles, Users } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import { CreatePropertyDialog } from '@/components/properties/CreatePropertyDialog';
@@ -33,13 +33,6 @@ const Index = () => {
     return matchesFilter && matchesSearch;
   });
 
-  // Dashboard statistics
-  const stats = useMemo(() => ({
-    totalProperties: properties.length,
-    activeInquiries: properties.filter(p => p.workflowState === 'inquiries_active').length,
-    readyToPublish: properties.filter(p => p.workflowState === 'ready_to_publish').length,
-    avgCompletion: Math.round(properties.reduce((acc, p) => acc + p.completionPercent, 0) / properties.length),
-  }), [properties]);
 
   // Map workflow state to target tab
   const getTargetTab = (workflowState: WorkflowState): string => {
@@ -210,29 +203,6 @@ const Index = () => {
           </Card>
         )}
 
-        {/* Compact Stats Row */}
-        <div className="grid grid-cols-4 gap-3 mb-6">
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-card border">
-            <TrendingUp className="h-4 w-4 text-accent" />
-            <span className="text-lg font-bold">{stats.totalProperties}</span>
-            <span className="text-xs text-muted-foreground">Objekte</span>
-          </div>
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-card border">
-            <Users className="h-4 w-4 text-info" />
-            <span className="text-lg font-bold">{stats.activeInquiries}</span>
-            <span className="text-xs text-muted-foreground">Anfragen</span>
-          </div>
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-card border">
-            <FileCheck className="h-4 w-4 text-success" />
-            <span className="text-lg font-bold">{stats.readyToPublish}</span>
-            <span className="text-xs text-muted-foreground">Bereit</span>
-          </div>
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-card border">
-            <Clock className="h-4 w-4 text-warning" />
-            <span className="text-lg font-bold">{stats.avgCompletion}%</span>
-            <span className="text-xs text-muted-foreground">Ø Fertig</span>
-          </div>
-        </div>
 
         {/* Active Listings Header with Search */}
         <div className="flex items-center justify-between mb-4">
