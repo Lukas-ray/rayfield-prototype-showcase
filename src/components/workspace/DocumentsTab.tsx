@@ -184,11 +184,10 @@ Tel: +49 89 123 456 78`;
       // Open review dialog for documents that need review
       setReviewDoc(doc);
       setReviewDialogOpen(true);
-    } else {
-      toast({
-        title: doc.name,
-        description: `Status: ${docStatusConfig[doc.status].label}${doc.uploadedAt ? ` • Hochgeladen: ${doc.uploadedAt}` : ''}`,
-      });
+    } else if (doc.status === 'verified' || doc.status === 'requested') {
+      // Open review dialog to show PDF preview for verified/uploaded documents
+      setReviewDoc(doc);
+      setReviewDialogOpen(true);
     }
   };
 
@@ -578,7 +577,7 @@ Tel: +49 89 123 456 78`;
                       {holderDocs.map((doc) => {
                         const status = docStatusConfig[doc.status];
                         const StatusIcon = status.icon;
-                        const isClickable = doc.status === 'missing' || doc.status === 'requested' || doc.status === 'review';
+                        const isClickable = true; // All documents are now clickable
                         const hasIssues = doc.status === 'review' && doc.aiAnalysis && doc.aiAnalysis.issues.length > 0;
                         
                         return (
@@ -931,27 +930,93 @@ Tel: +49 89 123 456 78`;
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Eye className="h-5 w-5 text-orange-600" />
-              Dokumentenprüfung: {reviewDoc?.name}
+              {reviewDoc?.status === 'verified' ? (
+                <Check className="h-5 w-5 text-green-600" />
+              ) : reviewDoc?.status === 'review' ? (
+                <Eye className="h-5 w-5 text-orange-600" />
+              ) : (
+                <FileText className="h-5 w-5 text-blue-600" />
+              )}
+              {reviewDoc?.status === 'verified' ? 'Dokument: ' : reviewDoc?.status === 'review' ? 'Dokumentenprüfung: ' : 'Dokument: '}{reviewDoc?.name}
             </DialogTitle>
           </DialogHeader>
           {reviewDoc && (
             <div className="space-y-6">
-              {/* Document Info */}
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50">
-                <div className={cn('p-2 rounded-lg', holderLabels[reviewDoc.holder].bg)}>
-                  {(() => {
-                    const Icon = holderLabels[reviewDoc.holder].icon;
-                    return <Icon className={cn('h-4 w-4', holderLabels[reviewDoc.holder].color)} />;
-                  })()}
+              {/* PDF Preview */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="aspect-[3/4] bg-muted rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center relative overflow-hidden">
+                  {/* Simulated PDF Preview */}
+                  <div className="absolute inset-0 bg-white p-4 flex flex-col">
+                    <div className="flex items-center justify-between mb-4 pb-2 border-b">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-red-500" />
+                        <span className="text-xs font-medium text-muted-foreground">PDF Dokument</span>
+                      </div>
+                      <span className="text-xs text-muted-foreground">Seite 1 von 2</span>
+                    </div>
+                    <div className="flex-1 space-y-3">
+                      <div className="h-6 bg-muted rounded w-3/4"></div>
+                      <div className="h-4 bg-muted rounded w-full"></div>
+                      <div className="h-4 bg-muted rounded w-5/6"></div>
+                      <div className="h-4 bg-muted rounded w-full"></div>
+                      <div className="h-4 bg-muted rounded w-2/3"></div>
+                      <div className="h-16 bg-muted/50 rounded mt-4"></div>
+                      <div className="h-4 bg-muted rounded w-full"></div>
+                      <div className="h-4 bg-muted rounded w-4/5"></div>
+                      <div className="h-4 bg-muted rounded w-full"></div>
+                      {reviewDoc.aiAnalysis && reviewDoc.aiAnalysis.issues.some(i => i.severity === 'high') && (
+                        <div className="absolute top-16 left-8 right-8 h-8 border-2 border-red-500 rounded bg-red-500/10 flex items-center justify-center">
+                          <span className="text-xs text-red-600 font-medium">⚠ Problem erkannt</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <Button 
+                    variant="secondary" 
+                    size="sm" 
+                    className="absolute bottom-3 gap-2"
+                    onClick={() => window.open('#', '_blank')}
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Vollansicht
+                  </Button>
                 </div>
-                <div className="flex-1">
-                  <p className="font-medium">{reviewDoc.holderName || holderLabels[reviewDoc.holder].label}</p>
-                  <p className="text-sm text-muted-foreground">{reviewDoc.holderEmail}</p>
+
+                {/* Document Info */}
+                <div className="space-y-4">
+                  <div className="p-4 rounded-lg bg-secondary/50">
+                    <h4 className="font-medium mb-3">{reviewDoc.name}</h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Typ:</span>
+                        <span>{reviewDoc.type}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Hochgeladen:</span>
+                        <span>{reviewDoc.uploadedAt || '-'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Status:</span>
+                        <Badge variant="outline" className={docStatusConfig[reviewDoc.status].class}>
+                          {docStatusConfig[reviewDoc.status].label}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30">
+                    <div className={cn('p-2 rounded-lg', holderLabels[reviewDoc.holder].bg)}>
+                      {(() => {
+                        const Icon = holderLabels[reviewDoc.holder].icon;
+                        return <Icon className={cn('h-4 w-4', holderLabels[reviewDoc.holder].color)} />;
+                      })()}
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">{reviewDoc.holderName || holderLabels[reviewDoc.holder].label}</p>
+                      <p className="text-xs text-muted-foreground">{reviewDoc.holderEmail}</p>
+                    </div>
+                  </div>
                 </div>
-                {reviewDoc.uploadedAt && (
-                  <Badge variant="secondary">Hochgeladen: {reviewDoc.uploadedAt}</Badge>
-                )}
               </div>
 
               {/* AI Analysis */}
@@ -1025,14 +1090,22 @@ Tel: +49 89 123 456 78`;
                 <Button variant="outline" onClick={() => setReviewDialogOpen(false)}>
                   Schließen
                 </Button>
-                <Button 
-                  variant="default"
-                  className="bg-green-600 hover:bg-green-700"
-                  onClick={() => handleVerifyDocument(reviewDoc)}
-                >
-                  <Check className="h-4 w-4 mr-2" />
-                  Trotzdem verifizieren
-                </Button>
+                {reviewDoc.status === 'review' && (
+                  <Button 
+                    variant="default"
+                    className="bg-green-600 hover:bg-green-700"
+                    onClick={() => handleVerifyDocument(reviewDoc)}
+                  >
+                    <Check className="h-4 w-4 mr-2" />
+                    Trotzdem verifizieren
+                  </Button>
+                )}
+                {reviewDoc.status === 'verified' && (
+                  <Button variant="secondary" onClick={() => window.open('#', '_blank')}>
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Herunterladen
+                  </Button>
+                )}
               </div>
             </div>
           )}
