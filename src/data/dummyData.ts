@@ -312,7 +312,7 @@ export const propertyDocuments: Record<string, Document[]> = {
   // Property 1 - Bahnhofsallee, Eching - Draft, nur wenige Dokumente
   '1': [
     { id: '1', name: 'Grundbuchauszug', type: 'Grundbuch', status: 'missing', holder: 'authority', holderName: 'Grundbuchamt Freising', holderEmail: 'grundbuchamt@freising.de' },
-    { id: '2', name: 'Energieausweis', type: 'Energieausweis', status: 'missing', holder: 'seller', holderName: 'Hans Schmidt', holderEmail: 'hans.schmidt@email.de' },
+    { id: '2', name: 'Energieausweis', type: 'Energieausweis', status: 'review', uploadedAt: '2024-01-14', holder: 'seller', holderName: 'Hans Schmidt', holderEmail: 'hans.schmidt@email.de', aiAnalysis: { analyzedAt: '2024-01-14 09:30', issues: [{ type: 'illegible', description: 'Der Energieausweis ist schlecht lesbar - einige Werte sind durch schlechte Scan-Qualität nicht erkennbar.', severity: 'medium', suggestedAction: 'Bitte fordern Sie einen besser lesbaren Scan oder das Original an.' }], confidence: 0.78 } },
     { id: '3', name: 'Teilungserklärung', type: 'Teilungserklärung', status: 'missing', holder: 'hausverwaltung', holderName: 'HV Eching GmbH', holderEmail: 'info@hv-eching.de' },
     { id: '4', name: 'Wohnflächenberechnung', type: 'Flächenberechnung', status: 'missing', holder: 'seller', holderName: 'Hans Schmidt', holderEmail: 'hans.schmidt@email.de' },
   ],
@@ -320,7 +320,7 @@ export const propertyDocuments: Record<string, Document[]> = {
   '2': [
     { id: '1', name: 'Grundbuchauszug', type: 'Grundbuch', status: 'verified', uploadedAt: '2024-01-10', holder: 'authority', holderName: 'Grundbuchamt München', holderEmail: 'grundbuchamt@muenchen.de' },
     { id: '2', name: 'Energieausweis', type: 'Energieausweis', status: 'requested', holder: 'seller', holderName: 'Maria Weber', holderEmail: 'maria.weber@email.de' },
-    { id: '3', name: 'Baulastenverzeichnis', type: 'Baulastenverzeichnis', status: 'missing', holder: 'authority', holderName: 'Bauamt München', holderEmail: 'bauamt@muenchen.de' },
+    { id: '3', name: 'Baulastenverzeichnis', type: 'Baulastenverzeichnis', status: 'review', uploadedAt: '2024-01-12', holder: 'authority', holderName: 'Bauamt München', holderEmail: 'bauamt@muenchen.de', aiAnalysis: { analyzedAt: '2024-01-12 11:20', issues: [{ type: 'outdated', description: 'Das Baulastenverzeichnis ist vom 15.06.2020. Für ein Wohn- & Geschäftshaus dieser Größe sollte ein aktuellerer Auszug verwendet werden.', severity: 'medium', suggestedAction: 'Aktuellen Auszug aus dem Baulastenverzeichnis anfordern.' }, { type: 'incomplete', description: 'Gewerbliche Nutzungsänderungen der letzten 3 Jahre sind nicht ersichtlich.', severity: 'low', suggestedAction: 'Ergänzende Informationen zur gewerblichen Nutzung anfordern.' }], confidence: 0.85 } },
     { id: '4', name: 'Mieterliste', type: 'Mieterliste', status: 'verified', uploadedAt: '2024-01-08', holder: 'seller', holderName: 'Maria Weber', holderEmail: 'maria.weber@email.de' },
     { id: '5', name: 'Gewerbemietverträge', type: 'Gewerbemietvertrag', status: 'missing', holder: 'seller', holderName: 'Maria Weber', holderEmail: 'maria.weber@email.de' },
     { id: '6', name: 'Brandschutznachweis', type: 'Brandschutz', status: 'missing', holder: 'authority', holderName: 'Branddirektion München', holderEmail: 'branddirektion@muenchen.de' },
@@ -329,7 +329,7 @@ export const propertyDocuments: Record<string, Document[]> = {
   '3': [
     { id: '1', name: 'Grundbuchauszug', type: 'Grundbuch', status: 'verified', uploadedAt: '2024-01-10', holder: 'authority', holderName: 'Grundbuchamt Freising', holderEmail: 'grundbuchamt@freising.de' },
     { id: '2', name: 'Energieausweis', type: 'Energieausweis', status: 'missing', holder: 'seller', holderName: 'Thomas Müller', holderEmail: 'thomas.mueller@email.de' },
-    { id: '3', name: 'Teilungserklärung', type: 'Teilungserklärung', status: 'requested', holder: 'hausverwaltung', holderName: 'HV Hohenkammer', holderEmail: 'info@hv-hohenkammer.de' },
+    { id: '3', name: 'Teilungserklärung', type: 'Teilungserklärung', status: 'review', uploadedAt: '2024-01-13', holder: 'hausverwaltung', holderName: 'HV Hohenkammer', holderEmail: 'info@hv-hohenkammer.de', aiAnalysis: { analyzedAt: '2024-01-13 15:45', issues: [{ type: 'incomplete', description: 'Die Teilungserklärung enthält nur 8 von 12 Seiten. Die Nachtragsurkunden und Gemeinschaftsordnung fehlen.', severity: 'high', suggestedAction: 'Vollständige Teilungserklärung inkl. aller Nachträge anfordern.' }], confidence: 0.92 } },
     { id: '4', name: 'Wirtschaftsplan 2024', type: 'Wirtschaftsplan', status: 'verified', uploadedAt: '2024-01-12', holder: 'hausverwaltung', holderName: 'HV Hohenkammer', holderEmail: 'info@hv-hohenkammer.de' },
     { id: '5', name: 'Protokolle Eigentümerversammlung', type: 'Protokolle', status: 'missing', holder: 'hausverwaltung', holderName: 'HV Hohenkammer', holderEmail: 'info@hv-hohenkammer.de' },
     { id: '6', name: 'Hausgeldabrechnung', type: 'Hausgeldabrechnung', status: 'verified', uploadedAt: '2024-01-08', holder: 'seller', holderName: 'Thomas Müller', holderEmail: 'thomas.mueller@email.de' },
@@ -350,14 +350,14 @@ export const propertyDocuments: Record<string, Document[]> = {
     { id: '1', name: 'Grundbuchauszug', type: 'Grundbuch', status: 'verified', uploadedAt: '2024-01-02', holder: 'authority', holderName: 'Grundbuchamt München', holderEmail: 'grundbuchamt@muenchen.de' },
     { id: '2', name: 'Energieausweis', type: 'Energieausweis', status: 'verified', uploadedAt: '2024-01-02', holder: 'seller', holderName: 'Frank Meier', holderEmail: 'frank.meier@email.de' },
     { id: '3', name: 'Teilungserklärung', type: 'Teilungserklärung', status: 'verified', uploadedAt: '2024-01-01', holder: 'hausverwaltung', holderName: 'HV Pasing', holderEmail: 'info@hv-pasing.de' },
-    { id: '4', name: 'Hausgeldabrechnung', type: 'Hausgeldabrechnung', status: 'verified', uploadedAt: '2024-01-01', holder: 'seller', holderName: 'Frank Meier', holderEmail: 'frank.meier@email.de' },
+    { id: '4', name: 'Hausgeldabrechnung', type: 'Hausgeldabrechnung', status: 'review', uploadedAt: '2024-01-03', holder: 'seller', holderName: 'Frank Meier', holderEmail: 'frank.meier@email.de', aiAnalysis: { analyzedAt: '2024-01-03 08:15', issues: [{ type: 'missing_signature', description: 'Die Hausgeldabrechnung wurde nicht vom Verwalter unterschrieben.', severity: 'low', suggestedAction: 'Unterschriebene Version der Hausgeldabrechnung anfordern.' }], confidence: 0.89 } },
     { id: '5', name: 'Wohnflächenberechnung', type: 'Flächenberechnung', status: 'verified', uploadedAt: '2024-01-02', holder: 'seller', holderName: 'Frank Meier', holderEmail: 'frank.meier@email.de' },
   ],
   // Property 6 - Gutshof Amerang - Under Offer, alles komplett
   '6': [
     { id: '1', name: 'Grundbuchauszug', type: 'Grundbuch', status: 'verified', uploadedAt: '2023-12-15', holder: 'authority', holderName: 'Grundbuchamt Rosenheim', holderEmail: 'grundbuchamt@rosenheim.de' },
     { id: '2', name: 'Energieausweis', type: 'Energieausweis', status: 'verified', uploadedAt: '2023-12-16', holder: 'seller', holderName: 'Klaus Becker', holderEmail: 'klaus.becker@email.de' },
-    { id: '3', name: 'Baulastenverzeichnis', type: 'Baulastenverzeichnis', status: 'verified', uploadedAt: '2023-12-14', holder: 'authority', holderName: 'Bauamt Amerang', holderEmail: 'bauamt@amerang.de' },
+    { id: '3', name: 'Baulastenverzeichnis', type: 'Baulastenverzeichnis', status: 'review', uploadedAt: '2023-12-17', holder: 'authority', holderName: 'Bauamt Amerang', holderEmail: 'bauamt@amerang.de', aiAnalysis: { analyzedAt: '2023-12-17 10:00', issues: [{ type: 'wrong_format', description: 'Das Dokument ist ein Foto statt eines PDF-Scans. Einige Randbereiche sind abgeschnitten.', severity: 'medium', suggestedAction: 'Offiziellen Auszug als PDF oder vollständigen Scan anfordern.' }], confidence: 0.83 } },
     { id: '4', name: 'Flurkarte', type: 'Flurkarte', status: 'verified', uploadedAt: '2023-12-13', holder: 'authority', holderName: 'Katasteramt Rosenheim', holderEmail: 'katasteramt@rosenheim.de' },
     { id: '5', name: 'Mieterliste', type: 'Mieterliste', status: 'verified', uploadedAt: '2023-12-17', holder: 'seller', holderName: 'Klaus Becker', holderEmail: 'klaus.becker@email.de' },
     { id: '6', name: 'Mietverträge', type: 'Mietvertrag', status: 'verified', uploadedAt: '2023-12-18', holder: 'seller', holderName: 'Klaus Becker', holderEmail: 'klaus.becker@email.de' },
@@ -372,7 +372,7 @@ export const propertyDocuments: Record<string, Document[]> = {
   ],
   // Property 8 - Berg-am-Laim-Straße - Inquiries Active, komplett
   '8': [
-    { id: '1', name: 'Grundbuchauszug', type: 'Grundbuch', status: 'verified', uploadedAt: '2024-01-01', holder: 'authority', holderName: 'Grundbuchamt München', holderEmail: 'grundbuchamt@muenchen.de' },
+    { id: '1', name: 'Grundbuchauszug', type: 'Grundbuch', status: 'review', uploadedAt: '2024-01-01', holder: 'authority', holderName: 'Grundbuchamt München', holderEmail: 'grundbuchamt@muenchen.de', aiAnalysis: { analyzedAt: '2024-01-01 16:20', issues: [{ type: 'outdated', description: 'Der Grundbuchauszug ist vom 01.03.2023 und damit älter als 6 Monate. Käufer und Banken verlangen oft einen aktuellen Auszug.', severity: 'medium', suggestedAction: 'Aktuellen Grundbuchauszug (nicht älter als 4 Wochen) beim Grundbuchamt anfordern.' }], confidence: 0.91 } },
     { id: '2', name: 'Energieausweis', type: 'Energieausweis', status: 'verified', uploadedAt: '2024-01-02', holder: 'seller', holderName: 'Michael Braun', holderEmail: 'michael.braun@email.de' },
     { id: '3', name: 'Teilungserklärung', type: 'Teilungserklärung', status: 'verified', uploadedAt: '2024-01-01', holder: 'hausverwaltung', holderName: 'HV Berg am Laim', holderEmail: 'info@hv-bal.de' },
     { id: '4', name: 'Hausgeldabrechnung', type: 'Hausgeldabrechnung', status: 'verified', uploadedAt: '2024-01-03', holder: 'seller', holderName: 'Michael Braun', holderEmail: 'michael.braun@email.de' },
