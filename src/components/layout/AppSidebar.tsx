@@ -1,7 +1,7 @@
 import { Settings, Home, LayoutDashboard, ChevronLeft, ChevronRight, Scan, FileCheck, Send, Users, Handshake } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import immosmartLogo from '@/assets/immosmart-logo.svg';
+import estateLogo from '@/assets/estate-logo.png';
 
 // Pipeline-first navigation matching workflow: Scan → Record → Agents → Publish → Leads
 const navigation = [
@@ -34,7 +34,7 @@ export function AppSidebar({ collapsed = false, onCollapsedChange }: AppSidebarP
           collapsed ? "justify-center px-2" : "gap-3 px-6"
         )}>
           <div className="flex h-9 w-9 items-center justify-center flex-shrink-0">
-            <img src={immosmartLogo} alt="Immosmart" className="h-9 w-9" />
+            <img src={estateLogo} alt="Rayfield" className="h-9 w-9" />
           </div>
           {!collapsed && (
             <span className="text-xl font-semibold text-sidebar-foreground">Rayfield</span>
@@ -92,7 +92,7 @@ export function AppSidebar({ collapsed = false, onCollapsedChange }: AppSidebarP
             </div>
             {!collapsed && (
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-sidebar-foreground truncate">Immosmart GmbH</p>
+                <p className="text-sm font-medium text-sidebar-foreground truncate">Rayfield GmbH</p>
                 <p className="text-xs text-accent">6 aktive Objekte</p>
               </div>
             )}
