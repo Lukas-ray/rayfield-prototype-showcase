@@ -506,13 +506,9 @@ export function MediaTab() {
               <Sparkles className="h-4 w-4" />
               Creator Area
             </TabsTrigger>
-            <TabsTrigger value="social" className="gap-2">
-              <Share2 className="h-4 w-4" />
-              Social Media
-            </TabsTrigger>
-            <TabsTrigger value="platforms" className="gap-2">
-              <ExternalLink className="h-4 w-4" />
-              Plattform-Konten
+            <TabsTrigger value="publishing" className="gap-2">
+              <Send className="h-4 w-4" />
+              Bereit zum Posten
             </TabsTrigger>
           </TabsList>
           <Button variant="outline" onClick={() => setExportDialogOpen(true)} className="gap-2">
@@ -809,160 +805,75 @@ export function MediaTab() {
           </Card>
         </TabsContent>
 
-        {/* Social Media Tab */}
-        <TabsContent value="social" className="mt-6 space-y-4">
+        {/* Bereit zum Posten Tab */}
+        <TabsContent value="publishing" className="mt-6 space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Social Media Konten</CardTitle>
-              <p className="text-sm text-muted-foreground">Veröffentlichen Sie Inhalte direkt auf Ihren Social-Media-Kanälen</p>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {socialAccounts.map((account) => {
-                const Icon = account.icon;
-                return (
-                  <div
-                    key={account.id}
-                    className={cn(
-                      'flex items-center justify-between p-4 rounded-lg border transition-colors',
-                      account.connected ? 'bg-secondary/30 border-border' : 'bg-muted/30 border-dashed'
-                    )}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className={cn(
-                        'w-10 h-10 rounded-full flex items-center justify-center',
-                        account.connected ? 'bg-accent/10 text-accent' : 'bg-muted text-muted-foreground'
-                      )}>
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <p className="font-medium">{account.name}</p>
-                        {account.connected ? (
-                          <p className="text-sm text-muted-foreground">{account.handle}</p>
-                        ) : (
-                          <p className="text-sm text-muted-foreground">Nicht verbunden</p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {account.connected ? (
-                        publishedSocialAccounts.includes(account.id) ? (
-                          <>
-                            <Badge variant="default" className="bg-green-600 text-white">
-                              <Check className="h-3 w-3 mr-1" />
-                              Veröffentlicht
-                            </Badge>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => {
-                                toast({
-                                  title: 'Link kopiert',
-                                  description: `Der Link zu Ihrem ${account.name}-Beitrag wurde kopiert.`,
-                                });
-                              }}
-                              className="gap-2"
-                            >
-                              <ExternalLink className="h-4 w-4" />
-                              Zum Post
-                            </Button>
-                          </>
-                        ) : (
-                          <>
-                            <Badge variant="outline" className="text-green-600 border-green-600">
-                              <Check className="h-3 w-3 mr-1" />
-                              Verbunden
-                            </Badge>
-                            <Button size="sm" onClick={() => handleSocialPost(account)} className="gap-2">
-                              <Eye className="h-4 w-4" />
-                              Vorschau & Posten
-                            </Button>
-                          </>
-                        )
-                      ) : (
-                        <Button variant="outline" size="sm">
-                          Verbinden
-                        </Button>
-                      )}
-                    </div>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Send className="h-5 w-5 text-accent" />
+                    Bereit zum Posten
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">Alle verbundenen Accounts mit Medien-Status für diese Immobilie</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-4 px-3 py-1.5 rounded-lg bg-muted/50 text-sm">
+                    <span className="flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-success" />
+                      <span className="text-muted-foreground">{publishingAccounts.filter(a => a.status === 'online').length} Online</span>
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-accent" />
+                      <span className="text-muted-foreground">{publishingAccounts.filter(a => a.status === 'draft').length} Bereit</span>
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-info" />
+                      <span className="text-muted-foreground">{publishingAccounts.filter(a => a.status === 'scheduled').length} Geplant</span>
+                    </span>
                   </div>
-                );
-              })}
+                  <Button size="sm" className="gap-1.5">
+                    <Play className="h-4 w-4" />
+                    Alle posten
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {publishingAccounts.map((account) => (
+                  <PublishingAccountCard key={account.id} account={account} images={propertyImages} />
+                ))}
+              </div>
             </CardContent>
           </Card>
-        </TabsContent>
 
-        {/* Platform Accounts Tab */}
-        <TabsContent value="platforms" className="mt-6 space-y-4">
+          {/* Format Reference - Collapsible */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Immobilien-Plattformen</CardTitle>
-              <p className="text-sm text-muted-foreground">Veröffentlichen Sie Inserate direkt auf Immobilienportalen</p>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-medium flex items-center gap-2 text-muted-foreground">
+                  <Info className="h-4 w-4" />
+                  Bildformat-Referenz
+                </CardTitle>
+              </div>
             </CardHeader>
-            <CardContent className="space-y-3">
-              {platformAccounts.map((platform) => (
-                <div
-                  key={platform.id}
-                  className={cn(
-                    'flex items-center justify-between p-4 rounded-lg border transition-colors',
-                    platform.connected ? 'bg-secondary/30 border-border' : 'bg-muted/30 border-dashed'
-                  )}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className={cn(
-                      'w-10 h-10 rounded-lg flex items-center justify-center text-xl',
-                      platform.connected ? 'bg-accent/10' : 'bg-muted'
-                    )}>
-                      {platform.logo}
-                    </div>
-                    <div>
-                      <p className="font-medium">{platform.name}</p>
-                      {platform.connected && platform.lastSync ? (
-                        <p className="text-sm text-muted-foreground">Letzte Sync: {platform.lastSync}</p>
-                      ) : (
-                        <p className="text-sm text-muted-foreground">Nicht verbunden</p>
-                      )}
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {platformImageFormats.slice(0, 4).map((platform) => (
+                  <div key={platform.platform} className="p-3 rounded-lg bg-muted/30 border border-border/50">
+                    <p className="font-medium text-sm mb-2">{platform.platform}</p>
+                    <div className="space-y-1">
+                      {platform.formats.slice(0, 2).map((format, idx) => (
+                        <div key={idx} className="text-xs text-muted-foreground flex justify-between">
+                          <span>{format.name}</span>
+                          <span className="font-mono">{format.ratio}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {platform.connected ? (
-                      publishedPlatforms.includes(platform.id) ? (
-                        <>
-                          <Badge variant="default" className="bg-green-600 text-white">
-                            <Check className="h-3 w-3 mr-1" />
-                            Live
-                          </Badge>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => {
-                              window.open(platform.url, '_blank');
-                            }}
-                            className="gap-2"
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                            Zum Inserat
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <Badge variant="outline" className="text-green-600 border-green-600">
-                            <Check className="h-3 w-3 mr-1" />
-                            Verbunden
-                          </Badge>
-                          <Button size="sm" onClick={() => handlePlatformPublish(platform)} className="gap-2">
-                            <Eye className="h-4 w-4" />
-                            Vorschau & Veröffentlichen
-                          </Button>
-                        </>
-                      )
-                    ) : (
-                      <Button variant="outline" size="sm">
-                        Verbinden
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
