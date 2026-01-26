@@ -474,9 +474,15 @@ function PlatformPreviewDialog({
 function PublishingAccountCard({ account, images }: { account: PublishingAccount; images: string[] }) {
   const [mediaIdx, setMediaIdx] = useState(0);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [isConnected, setIsConnected] = useState(account.connected);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [currentStatus, setCurrentStatus] = useState(account.status);
+  
+  // Simulated data after connection
+  const connectedMediaReady = { photos: account.totalMedia.photos, videos: account.totalMedia.videos };
   
   const getStatusBadge = () => {
-    switch (account.status) {
+    switch (currentStatus) {
       case 'online':
         return <Badge className="bg-success text-success-foreground border-0 gap-1 text-xs"><CheckCircle2 className="h-3 w-3" /> Online</Badge>;
       case 'scheduled':
@@ -489,7 +495,7 @@ function PublishingAccountCard({ account, images }: { account: PublishingAccount
   };
 
   const getActionButton = () => {
-    switch (account.status) {
+    switch (currentStatus) {
       case 'online':
         return (
           <Button size="sm" variant="secondary" className="gap-1.5" onClick={(e) => e.stopPropagation()}>
@@ -521,10 +527,23 @@ function PublishingAccountCard({ account, images }: { account: PublishingAccount
 
   const handleConnect = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setIsConnecting(true);
+    
     toast({ 
-      title: 'Verbindung wird hergestellt', 
-      description: `${account.name} wird verbunden. Sie werden zur Authentifizierung weitergeleitet.` 
+      title: 'Verbindung wird hergestellt...', 
+      description: `${account.name} wird verbunden.` 
     });
+    
+    // Simulate connection delay
+    setTimeout(() => {
+      setIsConnecting(false);
+      setIsConnected(true);
+      setCurrentStatus('draft');
+      toast({ 
+        title: 'Erfolgreich verbunden! ✓', 
+        description: `${account.name} wurde erfolgreich verbunden. ${account.totalMedia.photos} Bilder wurden geladen.` 
+      });
+    }, 1500);
   };
 
   return (
@@ -532,15 +551,33 @@ function PublishingAccountCard({ account, images }: { account: PublishingAccount
       <div 
         className={cn(
           "border rounded-xl overflow-hidden transition-all hover:shadow-md cursor-pointer group",
-          account.status === 'draft' && "ring-1 ring-accent/40",
-          account.status === 'online' && "ring-1 ring-success/30",
-          account.status === 'not_connected' && "border-dashed border-muted-foreground/30"
+          currentStatus === 'draft' && "ring-1 ring-accent/40",
+          currentStatus === 'online' && "ring-1 ring-success/30",
+          !isConnected && !isConnecting && "border-dashed border-muted-foreground/30"
         )}
-        onClick={() => account.connected ? setPreviewOpen(true) : handleConnect({ stopPropagation: () => {} } as React.MouseEvent)}
+        onClick={() => isConnected ? setPreviewOpen(true) : handleConnect({ stopPropagation: () => {} } as React.MouseEvent)}
       >
         {/* Media Preview */}
         <div className="relative aspect-[16/10] bg-slate-900">
-          {account.connected && account.mediaReady.photos > 0 ? (
+          {isConnecting ? (
+            /* Connecting state with animation */
+            <div className="w-full h-full relative overflow-hidden">
+              <img 
+                src={images[0]} 
+                alt="Preview"
+                className="w-full h-full object-cover blur-sm brightness-75 scale-105 animate-pulse"
+              />
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/40">
+                <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center animate-pulse">
+                  <RefreshCw className="h-6 w-6 text-white animate-spin" />
+                </div>
+                <div className="text-center">
+                  <p className="text-white font-medium text-sm">Verbinde...</p>
+                  <p className="text-white/60 text-xs mt-0.5">Bilder werden geladen</p>
+                </div>
+              </div>
+            </div>
+          ) : isConnected ? (
             <>
               <img 
                 src={images[mediaIdx % images.length]} 
@@ -586,12 +623,12 @@ function PublishingAccountCard({ account, images }: { account: PublishingAccount
               <div className="absolute bottom-2 left-2 flex gap-1">
                 <Badge className="bg-black/70 text-white border-0 text-[10px] gap-1">
                   <Image className="h-3 w-3" />
-                  {account.mediaReady.photos}/{account.totalMedia.photos}
+                  {isConnected ? connectedMediaReady.photos : account.mediaReady.photos}/{account.totalMedia.photos}
                 </Badge>
                 {account.totalMedia.videos > 0 && (
                   <Badge className="bg-black/70 text-white border-0 text-[10px] gap-1">
                     <Video className="h-3 w-3" />
-                    {account.mediaReady.videos}/{account.totalMedia.videos}
+                    {isConnected ? connectedMediaReady.videos : account.mediaReady.videos}/{account.totalMedia.videos}
                   </Badge>
                 )}
               </div>
@@ -665,31 +702,35 @@ function PublishingAccountCard({ account, images }: { account: PublishingAccount
         {/* Account Info */}
         <div className={cn(
           "p-3 bg-card",
-          !account.connected && "bg-muted/30"
+          !isConnected && "bg-muted/30"
         )}>
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
-              <PlatformLogo platform={account.platform} size="sm" className={!account.connected ? "opacity-50" : ""} />
+              <PlatformLogo platform={account.platform} size="sm" className={!isConnected ? "opacity-50" : ""} />
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <p className={cn("font-medium text-sm truncate", !account.connected && "text-muted-foreground")}>{account.name}</p>
-                  {account.connected && <CheckCircle2 className="h-3.5 w-3.5 text-success flex-shrink-0" />}
+                  <p className={cn("font-medium text-sm truncate", !isConnected && "text-muted-foreground")}>{account.name}</p>
+                  {isConnected && <CheckCircle2 className="h-3.5 w-3.5 text-success flex-shrink-0" />}
                 </div>
                 <p className="text-xs text-muted-foreground truncate">
-                  {account.connected ? account.accountHandle : 'Nicht verbunden'}
+                  {isConnected ? account.accountHandle : 'Nicht verbunden'}
                 </p>
               </div>
             </div>
-            {account.connected ? getActionButton() : (
-              <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={handleConnect}>
-                <Link2 className="h-3.5 w-3.5" /> Verbinden
+            {isConnected ? getActionButton() : (
+              <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={handleConnect} disabled={isConnecting}>
+                {isConnecting ? (
+                  <><RefreshCw className="h-3.5 w-3.5 animate-spin" /> Verbinde...</>
+                ) : (
+                  <><Link2 className="h-3.5 w-3.5" /> Verbinden</>
+                )}
               </Button>
             )}
           </div>
-          {account.lastPublished && (
+          {account.lastPublished && isConnected && (
             <p className="text-[10px] text-muted-foreground mt-2">Zuletzt: {account.lastPublished}</p>
           )}
-          {!account.connected && (
+          {!isConnected && !isConnecting && (
             <p className="text-[10px] text-muted-foreground mt-2 flex items-center gap-1">
               <Image className="h-3 w-3" />
               {account.totalMedia.photos} Medien bereit zum Teilen
@@ -700,7 +741,7 @@ function PublishingAccountCard({ account, images }: { account: PublishingAccount
 
       {/* Preview Dialog */}
       <PlatformPreviewDialog 
-        account={account} 
+        account={{...account, connected: isConnected, status: currentStatus}} 
         images={images} 
         open={previewOpen} 
         onOpenChange={setPreviewOpen} 
