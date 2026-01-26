@@ -193,40 +193,46 @@ export default function PropertyExpose() {
 
       {/* Hero Section */}
       <section className="relative">
-        <div className="relative h-[50vh] sm:h-[60vh] overflow-hidden">
+        <div className="relative h-[50vh] sm:h-[60vh] overflow-hidden bg-black">
           <img
             src={propertyImages[currentImageIndex].src}
             alt={propertyImages[currentImageIndex].label}
             className={`w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${isImageTransitioning ? 'opacity-0' : 'opacity-100'}`}
             onClick={() => setLightboxOpen(true)}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+          {/* Subtle gradient only at the bottom for text readability */}
+          <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none" />
           
-          {/* Navigation Arrows */}
+          {/* Navigation Arrows - improved visibility */}
           <button
             onClick={prevImage}
-            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-background/80 backdrop-blur flex items-center justify-center hover:bg-background hover:scale-105 transition-all shadow-lg"
+            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center hover:bg-black/70 hover:scale-105 transition-all shadow-lg border border-white/20 group"
           >
-            <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+            <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6 text-white group-hover:scale-110 transition-transform" />
           </button>
           <button
             onClick={nextImage}
-            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-background/80 backdrop-blur flex items-center justify-center hover:bg-background hover:scale-105 transition-all shadow-lg"
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center hover:bg-black/70 hover:scale-105 transition-all shadow-lg border border-white/20 group"
           >
-            <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
+            <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6 text-white group-hover:scale-110 transition-transform" />
           </button>
 
-          {/* Image Counter */}
-          <div className="absolute bottom-32 sm:bottom-40 left-1/2 -translate-x-1/2 bg-background/90 backdrop-blur-md px-4 py-2 rounded-full text-sm font-medium shadow-lg z-20">
-            {currentImageIndex + 1} / {propertyImages.length} — {propertyImages[currentImageIndex].label}
+          {/* Image Counter - positioned in top right */}
+          <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-full text-sm font-medium text-white shadow-lg">
+            {currentImageIndex + 1} / {propertyImages.length}
           </div>
 
-          {/* Quick Info Overlay */}
-          <div className="absolute bottom-16 sm:bottom-20 left-0 right-0 p-4 sm:p-8 z-10">
+          {/* Current image label */}
+          <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-full text-sm font-medium text-white shadow-lg">
+            {propertyImages[currentImageIndex].label}
+          </div>
+
+          {/* Quick Info Overlay - improved contrast */}
+          <div className="absolute bottom-4 sm:bottom-6 left-0 right-0 px-4 sm:px-8 z-10">
             <div className="max-w-7xl mx-auto">
-              <Badge className="mb-3 bg-accent text-accent-foreground animate-fade-in">Exklusives Angebot</Badge>
-              <h1 className="text-2xl sm:text-4xl font-bold text-foreground mb-2">{property.address}</h1>
-              <div className="flex items-center gap-2 text-muted-foreground">
+              <Badge className="mb-2 bg-accent text-accent-foreground animate-fade-in">Exklusives Angebot</Badge>
+              <h1 className="text-2xl sm:text-4xl font-bold text-white mb-1 drop-shadow-lg">{property.address}</h1>
+              <div className="flex items-center gap-2 text-white/90">
                 <MapPin className="h-4 w-4 sm:h-5 sm:w-5" />
                 <span className="text-base sm:text-lg">{property.city}</span>
               </div>
