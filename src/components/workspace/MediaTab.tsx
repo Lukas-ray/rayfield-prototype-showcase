@@ -517,16 +517,26 @@ function PublishingAccountCard({ account, images }: { account: PublishingAccount
     }
   };
 
+  const { toast } = useToast();
+
+  const handleConnect = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toast({ 
+      title: 'Verbindung wird hergestellt', 
+      description: `${account.name} wird verbunden. Sie werden zur Authentifizierung weitergeleitet.` 
+    });
+  };
+
   return (
     <>
       <div 
         className={cn(
-          "border rounded-xl overflow-hidden transition-all hover:shadow-md cursor-pointer",
-          !account.connected && "opacity-60",
+          "border rounded-xl overflow-hidden transition-all hover:shadow-md cursor-pointer group",
           account.status === 'draft' && "ring-1 ring-accent/40",
-          account.status === 'online' && "ring-1 ring-success/30"
+          account.status === 'online' && "ring-1 ring-success/30",
+          account.status === 'not_connected' && "border-dashed border-muted-foreground/30"
         )}
-        onClick={() => account.connected && setPreviewOpen(true)}
+        onClick={() => account.connected ? setPreviewOpen(true) : handleConnect({ stopPropagation: () => {} } as React.MouseEvent)}
       >
         {/* Media Preview */}
         <div className="relative aspect-[16/10] bg-slate-900">
@@ -608,30 +618,82 @@ function PublishingAccountCard({ account, images }: { account: PublishingAccount
               )}
             </>
           ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center text-white/50 gap-2">
-              <Image className="h-8 w-8" />
-              <p className="text-xs">{account.connected ? 'Keine Medien' : 'Nicht verbunden'}</p>
+            /* Improved disconnected state with blurred preview */
+            <div className="w-full h-full relative overflow-hidden">
+              {/* Blurred background image to show potential */}
+              <img 
+                src={images[0]} 
+                alt="Preview"
+                className="w-full h-full object-cover blur-md brightness-50 scale-110"
+              />
+              
+              {/* Overlay with connect action */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/20">
+                <div className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center group-hover:bg-white/20 group-hover:scale-105 transition-all">
+                  <PlatformLogo platform={account.platform} size="lg" className="opacity-80" />
+                </div>
+                <div className="text-center">
+                  <p className="text-white font-medium text-sm">{account.name}</p>
+                  <p className="text-white/60 text-xs mt-0.5">Klicken zum Verbinden</p>
+                </div>
+                <Button 
+                  size="sm" 
+                  variant="secondary" 
+                  className="gap-1.5 bg-white/90 hover:bg-white text-slate-900 mt-1"
+                  onClick={handleConnect}
+                >
+                  <Link2 className="h-3.5 w-3.5" />
+                  Jetzt verbinden
+                </Button>
+              </div>
+
+              {/* Format hint */}
+              <div className="absolute bottom-2 right-2">
+                <Badge className="bg-black/50 text-white/60 border-0 text-[10px]">
+                  {account.format.label}
+                </Badge>
+              </div>
+
+              {/* Status */}
+              <div className="absolute top-2 right-2">
+                {getStatusBadge()}
+              </div>
             </div>
           )}
         </div>
 
         {/* Account Info */}
-        <div className="p-3 bg-card">
+        <div className={cn(
+          "p-3 bg-card",
+          !account.connected && "bg-muted/30"
+        )}>
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
-              <PlatformLogo platform={account.platform} size="sm" />
+              <PlatformLogo platform={account.platform} size="sm" className={!account.connected ? "opacity-50" : ""} />
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <p className="font-medium text-sm truncate">{account.name}</p>
+                  <p className={cn("font-medium text-sm truncate", !account.connected && "text-muted-foreground")}>{account.name}</p>
                   {account.connected && <CheckCircle2 className="h-3.5 w-3.5 text-success flex-shrink-0" />}
                 </div>
-                <p className="text-xs text-muted-foreground truncate">{account.accountHandle}</p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {account.connected ? account.accountHandle : 'Nicht verbunden'}
+                </p>
               </div>
             </div>
-            {getActionButton()}
+            {account.connected ? getActionButton() : (
+              <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={handleConnect}>
+                <Link2 className="h-3.5 w-3.5" /> Verbinden
+              </Button>
+            )}
           </div>
           {account.lastPublished && (
             <p className="text-[10px] text-muted-foreground mt-2">Zuletzt: {account.lastPublished}</p>
+          )}
+          {!account.connected && (
+            <p className="text-[10px] text-muted-foreground mt-2 flex items-center gap-1">
+              <Image className="h-3 w-3" />
+              {account.totalMedia.photos} Medien bereit zum Teilen
+            </p>
           )}
         </div>
       </div>
