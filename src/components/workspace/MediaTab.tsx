@@ -166,9 +166,314 @@ const publishingAccounts: PublishingAccount[] = [
   },
 ];
 
+// Platform Preview Dialog Component
+function PlatformPreviewDialog({ 
+  account, 
+  images, 
+  open, 
+  onOpenChange 
+}: { 
+  account: PublishingAccount; 
+  images: string[]; 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void;
+}) {
+  const { toast } = useToast();
+  const [currentImageIdx, setCurrentImageIdx] = useState(0);
+  
+  const previewText = {
+    immoscout24: 'Traumhafte 3-Zimmer Altbauwohnung mit Balkon in München-Schwabing. Hochwertig saniert mit originalem Stuck und Dielenboden. Ideal für Familien oder als Kapitalanlage.',
+    immowelt: 'Exklusive Altbauwohnung in begehrter Lage. 85 m² Wohnfläche, 3 Zimmer, Balkon mit Südausrichtung. Bezugsfrei ab sofort.',
+    kleinanzeigen: '🏠 Wunderschöne Altbauwohnung in Schwabing! 85m², 3 Zimmer, Balkon. Hohe Decken, Stuck, Dielenboden. VB 685.000€. Besichtigung nach Vereinbarung.',
+    instagram: '🏠 Neue Immobilie in München-Schwabing!\n\nLichtdurchflutete 3-Zimmer Altbauwohnung mit Balkon und Stuck.\n\n✨ 85 m² Wohnfläche\n🛏️ 3 Zimmer\n🌳 Ruhige Lage nahe Englischer Garten\n\n#immobilien #münchen #altbau',
+    facebook: '🏠 Exklusive Wohnung in München-Schwabing!\n\nDiese wunderschöne 3-Zimmer Altbauwohnung besticht durch ihren einzigartigen Charme. Mit 85 m², originalem Stuck und einem sonnigen Balkon ist sie perfekt für anspruchsvolle Käufer.',
+    website: 'Entdecken Sie diese außergewöhnliche Altbauwohnung im Herzen von München-Schwabing. Die 3-Zimmer Wohnung überzeugt mit 85 m² Wohnfläche, hohen Decken und einem charmanten Balkon.',
+  };
+
+  const renderPlatformPreview = () => {
+    switch (account.platform) {
+      case 'immoscout24':
+        return (
+          <div className="border rounded-xl overflow-hidden bg-white text-slate-900">
+            {/* ImmoScout Header */}
+            <div className="bg-[#ff7500] text-white px-4 py-2 flex items-center gap-2">
+              <span className="font-bold text-lg">ImmoScout24</span>
+            </div>
+            {/* Listing */}
+            <div className="p-4">
+              <div className="flex gap-4">
+                <div className="w-64 h-48 rounded-lg overflow-hidden flex-shrink-0">
+                  <img src={images[currentImageIdx]} alt="Immobilie" className="w-full h-full object-cover" />
+                </div>
+                <div className="flex-1">
+                  <Badge className="bg-green-100 text-green-800 border-0 mb-2">Kaufen</Badge>
+                  <h3 className="text-xl font-bold mb-1">3-Zimmer Altbauwohnung mit Balkon</h3>
+                  <p className="text-slate-600 text-sm mb-3">80802 München, Schwabing</p>
+                  <div className="grid grid-cols-3 gap-4 mb-3">
+                    <div>
+                      <p className="text-2xl font-bold text-[#ff7500]">685.000 €</p>
+                      <p className="text-xs text-slate-500">Kaufpreis</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-semibold">85 m²</p>
+                      <p className="text-xs text-slate-500">Wohnfläche</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-semibold">3</p>
+                      <p className="text-xs text-slate-500">Zimmer</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-slate-700 line-clamp-2">{previewText.immoscout24}</p>
+                </div>
+              </div>
+              {/* Thumbnail Gallery */}
+              <div className="flex gap-2 mt-4">
+                {images.slice(0, 6).map((img, idx) => (
+                  <div 
+                    key={idx} 
+                    className={cn(
+                      "w-16 h-12 rounded overflow-hidden cursor-pointer border-2",
+                      currentImageIdx === idx ? "border-[#ff7500]" : "border-transparent"
+                    )}
+                    onClick={() => setCurrentImageIdx(idx)}
+                  >
+                    <img src={img} alt="" className="w-full h-full object-cover" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'immowelt':
+        return (
+          <div className="border rounded-xl overflow-hidden bg-white text-slate-900">
+            {/* Immowelt Header */}
+            <div className="bg-[#003580] text-white px-4 py-2 flex items-center gap-2">
+              <span className="font-bold text-lg">immowelt</span>
+            </div>
+            {/* Listing */}
+            <div className="p-4">
+              <div className="aspect-video rounded-lg overflow-hidden mb-4">
+                <img src={images[currentImageIdx]} alt="Immobilie" className="w-full h-full object-cover" />
+              </div>
+              <h3 className="text-xl font-bold mb-1">Hochwertige 3-Zimmer Altbauwohnung</h3>
+              <p className="text-slate-600 text-sm mb-3">Leopoldstraße, 80802 München</p>
+              <div className="flex gap-6 mb-3 text-sm">
+                <span className="font-semibold">€ 685.000</span>
+                <span>85 m²</span>
+                <span>3 Zi.</span>
+              </div>
+              <p className="text-sm text-slate-700">{previewText.immowelt}</p>
+            </div>
+          </div>
+        );
+
+      case 'kleinanzeigen':
+        return (
+          <div className="border rounded-xl overflow-hidden bg-white text-slate-900">
+            {/* Kleinanzeigen Header */}
+            <div className="bg-[#86b817] text-white px-4 py-2 flex items-center gap-2">
+              <span className="font-bold text-lg">Kleinanzeigen</span>
+            </div>
+            {/* Listing */}
+            <div className="p-4">
+              <div className="flex gap-4">
+                <div className="w-48 h-36 rounded-lg overflow-hidden flex-shrink-0">
+                  <img src={images[currentImageIdx]} alt="Immobilie" className="w-full h-full object-cover" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold mb-1">3-Zimmer Altbauwohnung München Schwabing</h3>
+                  <p className="text-2xl font-bold text-[#86b817] mb-2">685.000 € VB</p>
+                  <p className="text-sm text-slate-600 mb-2">80802 München · Gestern, 14:32</p>
+                  <p className="text-sm text-slate-700 line-clamp-3">{previewText.kleinanzeigen}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'instagram':
+        return (
+          <div className="border rounded-xl overflow-hidden bg-white text-slate-900 max-w-sm mx-auto">
+            {/* Instagram Header */}
+            <div className="flex items-center gap-3 p-3 border-b">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 flex items-center justify-center">
+                <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center">
+                  <span className="text-xs font-bold">R</span>
+                </div>
+              </div>
+              <div>
+                <p className="text-sm font-semibold">rayfield_immo</p>
+                <p className="text-xs text-slate-500">München, Germany</p>
+              </div>
+            </div>
+            {/* Image */}
+            <div className="aspect-square relative">
+              <img src={images[currentImageIdx]} alt="Preview" className="w-full h-full object-cover" />
+              {images.length > 1 && (
+                <div className="absolute top-3 right-3 bg-black/60 text-white px-2 py-1 rounded-full text-xs">
+                  {currentImageIdx + 1}/{images.length}
+                </div>
+              )}
+            </div>
+            {/* Actions */}
+            <div className="p-3 flex gap-4">
+              <span className="text-xl">♡</span>
+              <span className="text-xl">💬</span>
+              <span className="text-xl">↗</span>
+            </div>
+            {/* Caption */}
+            <div className="px-3 pb-3">
+              <p className="text-sm whitespace-pre-line">
+                <span className="font-semibold">rayfield_immo</span>{' '}
+                {previewText.instagram}
+              </p>
+            </div>
+          </div>
+        );
+
+      case 'facebook':
+        return (
+          <div className="border rounded-xl overflow-hidden bg-white text-slate-900 max-w-md mx-auto">
+            {/* Facebook Header */}
+            <div className="flex items-center gap-3 p-3">
+              <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center">
+                <span className="text-white font-bold">R</span>
+              </div>
+              <div>
+                <p className="text-sm font-semibold">Rayfield Immobilien</p>
+                <p className="text-xs text-slate-500">Gerade eben · 🌐</p>
+              </div>
+            </div>
+            {/* Content */}
+            <div className="px-3 pb-3">
+              <p className="text-sm whitespace-pre-line">{previewText.facebook}</p>
+            </div>
+            {/* Image */}
+            <div className="aspect-[1.91/1]">
+              <img src={images[currentImageIdx]} alt="Preview" className="w-full h-full object-cover" />
+            </div>
+            {/* Reactions */}
+            <div className="p-3 border-t flex items-center justify-between text-xs text-slate-500">
+              <span>👍 ❤️ 12</span>
+              <span>3 Kommentare · 2 Mal geteilt</span>
+            </div>
+          </div>
+        );
+
+      case 'website':
+        return (
+          <div className="border rounded-xl overflow-hidden bg-white text-slate-900">
+            {/* Website Header */}
+            <div className="bg-slate-900 text-white px-4 py-3 flex items-center justify-between">
+              <span className="font-bold">rayfield-immobilien.de</span>
+              <div className="flex gap-4 text-sm">
+                <span>Kaufen</span>
+                <span>Mieten</span>
+                <span>Kontakt</span>
+              </div>
+            </div>
+            {/* Hero */}
+            <div className="aspect-[21/9] relative">
+              <img src={images[currentImageIdx]} alt="Immobilie" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              <div className="absolute bottom-4 left-4 text-white">
+                <Badge className="bg-white/20 text-white border-0 mb-2">Premium</Badge>
+                <h2 className="text-2xl font-bold">3-Zimmer Altbauwohnung</h2>
+                <p className="text-white/80">München-Schwabing</p>
+              </div>
+            </div>
+            {/* Details */}
+            <div className="p-4">
+              <div className="flex gap-6 mb-4">
+                <div className="text-center">
+                  <p className="text-2xl font-bold">685.000 €</p>
+                  <p className="text-xs text-slate-500">Kaufpreis</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold">85</p>
+                  <p className="text-xs text-slate-500">m²</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold">3</p>
+                  <p className="text-xs text-slate-500">Zimmer</p>
+                </div>
+              </div>
+              <p className="text-sm text-slate-700">{previewText.website}</p>
+            </div>
+          </div>
+        );
+
+      default:
+        return (
+          <div className="p-8 text-center text-muted-foreground">
+            <p>Vorschau nicht verfügbar</p>
+          </div>
+        );
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <PlatformLogo platform={account.platform} size="sm" />
+            Vorschau: {account.name}
+          </DialogTitle>
+          <DialogDescription>
+            So wird Ihr Inserat auf {account.name} aussehen
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="mt-4">
+          {renderPlatformPreview()}
+        </div>
+
+        {/* Image Thumbnails */}
+        <div className="flex gap-2 mt-4 justify-center">
+          {images.slice(0, 8).map((img, idx) => (
+            <div 
+              key={idx} 
+              className={cn(
+                "w-14 h-10 rounded overflow-hidden cursor-pointer border-2 transition-all",
+                currentImageIdx === idx ? "border-accent ring-2 ring-accent/30" : "border-border opacity-60 hover:opacity-100"
+              )}
+              onClick={() => setCurrentImageIdx(idx)}
+            >
+              <img src={img} alt="" className="w-full h-full object-cover" />
+            </div>
+          ))}
+        </div>
+
+        <div className="flex gap-2 mt-4">
+          <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>
+            Schließen
+          </Button>
+          <Button variant="outline" className="flex-1 gap-2">
+            <Edit3 className="h-4 w-4" />
+            Bearbeiten
+          </Button>
+          {account.status === 'draft' && (
+            <Button className="flex-1 gap-2" onClick={() => {
+              toast({ title: 'Veröffentlicht', description: `Ihr Inserat wurde auf ${account.name} veröffentlicht.` });
+              onOpenChange(false);
+            }}>
+              <Send className="h-4 w-4" />
+              Jetzt posten
+            </Button>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // Publishing Account Card Component
 function PublishingAccountCard({ account, images }: { account: PublishingAccount; images: string[] }) {
   const [mediaIdx, setMediaIdx] = useState(0);
+  const [previewOpen, setPreviewOpen] = useState(false);
   
   const getStatusBadge = () => {
     switch (account.status) {
@@ -187,25 +492,25 @@ function PublishingAccountCard({ account, images }: { account: PublishingAccount
     switch (account.status) {
       case 'online':
         return (
-          <Button size="sm" variant="secondary" className="gap-1.5">
+          <Button size="sm" variant="secondary" className="gap-1.5" onClick={(e) => e.stopPropagation()}>
             <RefreshCw className="h-3.5 w-3.5" /> Aktualisieren
           </Button>
         );
       case 'scheduled':
         return (
-          <Button size="sm" variant="secondary" className="gap-1.5">
+          <Button size="sm" variant="secondary" className="gap-1.5" onClick={(e) => e.stopPropagation()}>
             <Settings className="h-3.5 w-3.5" /> Bearbeiten
           </Button>
         );
       case 'draft':
         return (
-          <Button size="sm" className="gap-1.5">
+          <Button size="sm" className="gap-1.5" onClick={(e) => e.stopPropagation()}>
             <Play className="h-3.5 w-3.5" /> Jetzt posten
           </Button>
         );
       case 'not_connected':
         return (
-          <Button size="sm" variant="outline" className="gap-1.5">
+          <Button size="sm" variant="outline" className="gap-1.5" onClick={(e) => e.stopPropagation()}>
             <Link2 className="h-3.5 w-3.5" /> Verbinden
           </Button>
         );
@@ -213,107 +518,132 @@ function PublishingAccountCard({ account, images }: { account: PublishingAccount
   };
 
   return (
-    <div 
-      className={cn(
-        "border rounded-xl overflow-hidden transition-all hover:shadow-md",
-        !account.connected && "opacity-60",
-        account.status === 'draft' && "ring-1 ring-accent/40",
-        account.status === 'online' && "ring-1 ring-success/30"
-      )}
-    >
-      {/* Media Preview */}
-      <div className="relative aspect-[16/10] bg-slate-900">
-        {account.connected && account.mediaReady.photos > 0 ? (
-          <>
-            <img 
-              src={images[mediaIdx % images.length]} 
-              alt="Preview"
-              className="w-full h-full object-cover"
-            />
-            
-            {/* Navigation */}
-            <div className="absolute inset-0 flex items-center justify-between px-2 opacity-0 hover:opacity-100 transition-opacity">
-              <Button
-                size="icon"
-                variant="secondary"
-                className="h-7 w-7 rounded-full bg-black/60 hover:bg-black/80 text-white border-0"
-                onClick={() => setMediaIdx((prev) => (prev - 1 + images.length) % images.length)}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                size="icon"
-                variant="secondary"
-                className="h-7 w-7 rounded-full bg-black/60 hover:bg-black/80 text-white border-0"
-                onClick={() => setMediaIdx((prev) => (prev + 1) % images.length)}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
+    <>
+      <div 
+        className={cn(
+          "border rounded-xl overflow-hidden transition-all hover:shadow-md cursor-pointer",
+          !account.connected && "opacity-60",
+          account.status === 'draft' && "ring-1 ring-accent/40",
+          account.status === 'online' && "ring-1 ring-success/30"
+        )}
+        onClick={() => account.connected && setPreviewOpen(true)}
+      >
+        {/* Media Preview */}
+        <div className="relative aspect-[16/10] bg-slate-900">
+          {account.connected && account.mediaReady.photos > 0 ? (
+            <>
+              <img 
+                src={images[mediaIdx % images.length]} 
+                alt="Preview"
+                className="w-full h-full object-cover"
+              />
+              
+              {/* Preview Hint */}
+              <div className="absolute inset-0 bg-black/0 hover:bg-black/30 transition-colors flex items-center justify-center opacity-0 hover:opacity-100">
+                <Badge className="bg-white/90 text-slate-900 border-0 gap-1.5">
+                  <Eye className="h-3.5 w-3.5" />
+                  Vorschau
+                </Badge>
+              </div>
+              
+              {/* Navigation */}
+              <div className="absolute inset-0 flex items-center justify-between px-2 pointer-events-none">
+                <Button
+                  size="icon"
+                  variant="secondary"
+                  className="h-7 w-7 rounded-full bg-black/60 hover:bg-black/80 text-white border-0 pointer-events-auto opacity-0 hover:opacity-100 transition-opacity"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMediaIdx((prev) => (prev - 1 + images.length) % images.length);
+                  }}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="secondary"
+                  className="h-7 w-7 rounded-full bg-black/60 hover:bg-black/80 text-white border-0 pointer-events-auto opacity-0 hover:opacity-100 transition-opacity"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMediaIdx((prev) => (prev + 1) % images.length);
+                  }}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
 
-            {/* Media Count */}
-            <div className="absolute bottom-2 left-2 flex gap-1">
-              <Badge className="bg-black/70 text-white border-0 text-[10px] gap-1">
-                <Image className="h-3 w-3" />
-                {account.mediaReady.photos}/{account.totalMedia.photos}
-              </Badge>
-              {account.totalMedia.videos > 0 && (
+              {/* Media Count */}
+              <div className="absolute bottom-2 left-2 flex gap-1">
                 <Badge className="bg-black/70 text-white border-0 text-[10px] gap-1">
-                  <Video className="h-3 w-3" />
-                  {account.mediaReady.videos}/{account.totalMedia.videos}
+                  <Image className="h-3 w-3" />
+                  {account.mediaReady.photos}/{account.totalMedia.photos}
                 </Badge>
+                {account.totalMedia.videos > 0 && (
+                  <Badge className="bg-black/70 text-white border-0 text-[10px] gap-1">
+                    <Video className="h-3 w-3" />
+                    {account.mediaReady.videos}/{account.totalMedia.videos}
+                  </Badge>
+                )}
+              </div>
+
+              {/* Format */}
+              <div className="absolute bottom-2 right-2">
+                <Badge className="bg-black/50 text-white/80 border-0 text-[10px]">
+                  {account.format.label}
+                </Badge>
+              </div>
+
+              {/* Status */}
+              <div className="absolute top-2 right-2">
+                {getStatusBadge()}
+              </div>
+
+              {/* Scheduled time */}
+              {account.scheduledFor && (
+                <div className="absolute top-2 left-2">
+                  <Badge className="bg-black/70 text-white border-0 text-[10px]">
+                    {account.scheduledFor}
+                  </Badge>
+                </div>
               )}
+            </>
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center text-white/50 gap-2">
+              <Image className="h-8 w-8" />
+              <p className="text-xs">{account.connected ? 'Keine Medien' : 'Nicht verbunden'}</p>
             </div>
-
-            {/* Format */}
-            <div className="absolute bottom-2 right-2">
-              <Badge className="bg-black/50 text-white/80 border-0 text-[10px]">
-                {account.format.label}
-              </Badge>
-            </div>
-
-            {/* Status */}
-            <div className="absolute top-2 right-2">
-              {getStatusBadge()}
-            </div>
-
-            {/* Scheduled time */}
-            {account.scheduledFor && (
-              <div className="absolute top-2 left-2">
-                <Badge className="bg-black/70 text-white border-0 text-[10px]">
-                  {account.scheduledFor}
-                </Badge>
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center text-white/50 gap-2">
-            <Image className="h-8 w-8" />
-            <p className="text-xs">{account.connected ? 'Keine Medien' : 'Nicht verbunden'}</p>
-          </div>
-        )}
-      </div>
-
-      {/* Account Info */}
-      <div className="p-3 bg-card">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <PlatformLogo platform={account.platform} size="sm" />
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5">
-                <p className="font-medium text-sm truncate">{account.name}</p>
-                {account.connected && <CheckCircle2 className="h-3.5 w-3.5 text-success flex-shrink-0" />}
-              </div>
-              <p className="text-xs text-muted-foreground truncate">{account.accountHandle}</p>
-            </div>
-          </div>
-          {getActionButton()}
+          )}
         </div>
-        {account.lastPublished && (
-          <p className="text-[10px] text-muted-foreground mt-2">Zuletzt: {account.lastPublished}</p>
-        )}
+
+        {/* Account Info */}
+        <div className="p-3 bg-card">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <PlatformLogo platform={account.platform} size="sm" />
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <p className="font-medium text-sm truncate">{account.name}</p>
+                  {account.connected && <CheckCircle2 className="h-3.5 w-3.5 text-success flex-shrink-0" />}
+                </div>
+                <p className="text-xs text-muted-foreground truncate">{account.accountHandle}</p>
+              </div>
+            </div>
+            {getActionButton()}
+          </div>
+          {account.lastPublished && (
+            <p className="text-[10px] text-muted-foreground mt-2">Zuletzt: {account.lastPublished}</p>
+          )}
+        </div>
       </div>
-    </div>
+
+      {/* Preview Dialog */}
+      <PlatformPreviewDialog 
+        account={account} 
+        images={images} 
+        open={previewOpen} 
+        onOpenChange={setPreviewOpen} 
+      />
+    </>
   );
 }
 
