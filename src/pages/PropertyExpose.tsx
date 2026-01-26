@@ -17,7 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import immosmartLogo from '@/assets/immosmart-logo.svg';
+import estateLogo from '@/assets/estate-logo.png';
 
 // Property images
 import propertyLivingRoom from '@/assets/property-living-room.jpg';
@@ -146,8 +146,8 @@ export default function PropertyExpose() {
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={immosmartLogo} alt="Immosmart" className="h-8 w-auto" />
-            <span className="text-base font-semibold text-foreground hidden sm:block">Immosmart</span>
+            <img src={estateLogo} alt="Rayfield" className="h-8 w-auto" />
+            <span className="text-base font-semibold text-foreground hidden sm:block">Rayfield</span>
           </div>
           <div className="flex items-center gap-2">
             {/* Share Button */}

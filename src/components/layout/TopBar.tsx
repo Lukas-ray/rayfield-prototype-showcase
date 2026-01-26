@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { properties } from '@/data/dummyData';
 import { useNavigate } from 'react-router-dom';
-import immosmartLogo from '@/assets/immosmart-logo.svg';
+import estateLogo from '@/assets/estate-logo.png';
 
 interface TopBarProps {
   currentProperty?: string;
@@ -29,8 +29,8 @@ export function TopBar({ currentProperty, onPropertyChange }: TopBarProps) {
           className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
           onClick={() => navigate('/')}
         >
-          <img src={immosmartLogo} alt="Immosmart" className="h-8 w-8" />
-          <span className="font-semibold text-lg">Immosmart</span>
+          <img src={estateLogo} alt="Rayfield" className="h-8 w-8" />
+          <span className="font-semibold text-lg">Rayfield</span>
         </div>
         <div className="relative w-80">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -82,7 +82,7 @@ export function TopBar({ currentProperty, onPropertyChange }: TopBarProps) {
             {/* User Info */}
             <div className="px-2 py-2 border-b">
               <p className="text-sm font-medium">Anna Fischer</p>
-              <p className="text-xs text-muted-foreground">anna@immosmart.de</p>
+              <p className="text-xs text-muted-foreground">anna@rayfield.de</p>
             </div>
             
             {/* Navigation Items */}
@@ -104,7 +104,7 @@ export function TopBar({ currentProperty, onPropertyChange }: TopBarProps) {
                   <LayoutDashboard className="h-4 w-4 text-accent" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">Immosmart GmbH</p>
+                  <p className="text-sm font-medium truncate">Rayfield GmbH</p>
                   <p className="text-xs text-accent">6 aktive Objekte</p>
                 </div>
               </div>
