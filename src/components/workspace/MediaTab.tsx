@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Download, Image, Video, Box, LayoutGrid, Share2, Send, Check, ExternalLink, Instagram, Youtube, Facebook, Linkedin, Eye, Edit3, ArrowRight, Clock, ImageIcon, Sparkles, Wand2, Crop, Film } from 'lucide-react';
+import { Download, Image, Video, Box, LayoutGrid, Share2, Send, Check, ExternalLink, Instagram, Youtube, Facebook, Linkedin, Eye, Edit3, ArrowRight, Clock, ImageIcon, Sparkles, Wand2, Crop, Film, ChevronLeft, ChevronRight, Link2, Play, CheckCircle2, RefreshCw, Settings, Unlink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -66,10 +66,10 @@ interface PlatformAccount {
 }
 
 const socialAccounts: SocialAccount[] = [
-  { id: '1', name: 'Instagram', platform: 'instagram', icon: Instagram, connected: true, handle: '@immosmart_immo' },
-  { id: '2', name: 'YouTube', platform: 'youtube', icon: Youtube, connected: true, handle: 'Immosmart Immobilien' },
+  { id: '1', name: 'Instagram', platform: 'instagram', icon: Instagram, connected: true, handle: '@rayfield_immo' },
+  { id: '2', name: 'YouTube', platform: 'youtube', icon: Youtube, connected: true, handle: 'Rayfield Immobilien' },
   { id: '3', name: 'Facebook', platform: 'facebook', icon: Facebook, connected: false, handle: '' },
-  { id: '4', name: 'LinkedIn', platform: 'linkedin', icon: Linkedin, connected: true, handle: 'Immosmart GmbH' },
+  { id: '4', name: 'LinkedIn', platform: 'linkedin', icon: Linkedin, connected: true, handle: 'Rayfield GmbH' },
 ];
 
 const platformAccounts: PlatformAccount[] = [
@@ -78,6 +78,244 @@ const platformAccounts: PlatformAccount[] = [
   { id: '3', name: 'Kleinanzeigen', logo: '📢', connected: false, url: 'https://www.kleinanzeigen.de' },
   { id: '4', name: 'Immonet', logo: '🏢', connected: false, url: 'https://www.immonet.de' },
 ];
+
+// Publishing account data with status
+interface PublishingAccount {
+  id: string;
+  platform: string;
+  name: string;
+  accountHandle: string;
+  connected: boolean;
+  status: 'online' | 'scheduled' | 'draft' | 'not_connected';
+  lastPublished?: string;
+  scheduledFor?: string;
+  format: { label: string };
+  mediaReady: { photos: number; videos: number };
+  totalMedia: { photos: number; videos: number };
+}
+
+const publishingAccounts: PublishingAccount[] = [
+  {
+    id: 'immoscout',
+    platform: 'immoscout24',
+    name: 'ImmoScout24',
+    accountHandle: 'rayfield_munich',
+    connected: true,
+    status: 'online',
+    lastPublished: '12.01.2024',
+    format: { label: '3:2' },
+    mediaReady: { photos: 12, videos: 1 },
+    totalMedia: { photos: 12, videos: 1 },
+  },
+  {
+    id: 'immowelt',
+    platform: 'immowelt',
+    name: 'Immowelt',
+    accountHandle: 'rayfield-immo',
+    connected: true,
+    status: 'draft',
+    format: { label: '4:3' },
+    mediaReady: { photos: 10, videos: 0 },
+    totalMedia: { photos: 10, videos: 0 },
+  },
+  {
+    id: 'kleinanzeigen',
+    platform: 'kleinanzeigen',
+    name: 'Kleinanzeigen',
+    accountHandle: 'Rayfield München',
+    connected: true,
+    status: 'scheduled',
+    scheduledFor: '20.01.2024, 10:00',
+    format: { label: '4:3' },
+    mediaReady: { photos: 8, videos: 0 },
+    totalMedia: { photos: 8, videos: 0 },
+  },
+  {
+    id: 'instagram',
+    platform: 'instagram',
+    name: 'Instagram',
+    accountHandle: '@rayfield_immo',
+    connected: true,
+    status: 'draft',
+    format: { label: '1:1' },
+    mediaReady: { photos: 6, videos: 1 },
+    totalMedia: { photos: 8, videos: 2 },
+  },
+  {
+    id: 'facebook',
+    platform: 'facebook',
+    name: 'Facebook',
+    accountHandle: 'Rayfield Immobilien',
+    connected: false,
+    status: 'not_connected',
+    format: { label: '1.91:1' },
+    mediaReady: { photos: 0, videos: 0 },
+    totalMedia: { photos: 8, videos: 1 },
+  },
+  {
+    id: 'website',
+    platform: 'website',
+    name: 'Eigene Website',
+    accountHandle: 'rayfield-immobilien.de',
+    connected: true,
+    status: 'online',
+    lastPublished: '15.01.2024',
+    format: { label: '16:9' },
+    mediaReady: { photos: 15, videos: 2 },
+    totalMedia: { photos: 15, videos: 2 },
+  },
+];
+
+// Publishing Account Card Component
+function PublishingAccountCard({ account, images }: { account: PublishingAccount; images: string[] }) {
+  const [mediaIdx, setMediaIdx] = useState(0);
+  
+  const getStatusBadge = () => {
+    switch (account.status) {
+      case 'online':
+        return <Badge className="bg-success text-success-foreground border-0 gap-1 text-xs"><CheckCircle2 className="h-3 w-3" /> Online</Badge>;
+      case 'scheduled':
+        return <Badge className="bg-info text-info-foreground border-0 gap-1 text-xs"><Clock className="h-3 w-3" /> Geplant</Badge>;
+      case 'draft':
+        return <Badge className="bg-accent text-accent-foreground border-0 gap-1 text-xs"><Send className="h-3 w-3" /> Bereit</Badge>;
+      case 'not_connected':
+        return <Badge variant="outline" className="gap-1 text-xs text-muted-foreground"><Unlink className="h-3 w-3" /> Nicht verbunden</Badge>;
+    }
+  };
+
+  const getActionButton = () => {
+    switch (account.status) {
+      case 'online':
+        return (
+          <Button size="sm" variant="secondary" className="gap-1.5">
+            <RefreshCw className="h-3.5 w-3.5" /> Aktualisieren
+          </Button>
+        );
+      case 'scheduled':
+        return (
+          <Button size="sm" variant="secondary" className="gap-1.5">
+            <Settings className="h-3.5 w-3.5" /> Bearbeiten
+          </Button>
+        );
+      case 'draft':
+        return (
+          <Button size="sm" className="gap-1.5">
+            <Play className="h-3.5 w-3.5" /> Jetzt posten
+          </Button>
+        );
+      case 'not_connected':
+        return (
+          <Button size="sm" variant="outline" className="gap-1.5">
+            <Link2 className="h-3.5 w-3.5" /> Verbinden
+          </Button>
+        );
+    }
+  };
+
+  return (
+    <div 
+      className={cn(
+        "border rounded-xl overflow-hidden transition-all hover:shadow-md",
+        !account.connected && "opacity-60",
+        account.status === 'draft' && "ring-1 ring-accent/40",
+        account.status === 'online' && "ring-1 ring-success/30"
+      )}
+    >
+      {/* Media Preview */}
+      <div className="relative aspect-[16/10] bg-slate-900">
+        {account.connected && account.mediaReady.photos > 0 ? (
+          <>
+            <img 
+              src={images[mediaIdx % images.length]} 
+              alt="Preview"
+              className="w-full h-full object-cover"
+            />
+            
+            {/* Navigation */}
+            <div className="absolute inset-0 flex items-center justify-between px-2 opacity-0 hover:opacity-100 transition-opacity">
+              <Button
+                size="icon"
+                variant="secondary"
+                className="h-7 w-7 rounded-full bg-black/60 hover:bg-black/80 text-white border-0"
+                onClick={() => setMediaIdx((prev) => (prev - 1 + images.length) % images.length)}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                size="icon"
+                variant="secondary"
+                className="h-7 w-7 rounded-full bg-black/60 hover:bg-black/80 text-white border-0"
+                onClick={() => setMediaIdx((prev) => (prev + 1) % images.length)}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Media Count */}
+            <div className="absolute bottom-2 left-2 flex gap-1">
+              <Badge className="bg-black/70 text-white border-0 text-[10px] gap-1">
+                <Image className="h-3 w-3" />
+                {account.mediaReady.photos}/{account.totalMedia.photos}
+              </Badge>
+              {account.totalMedia.videos > 0 && (
+                <Badge className="bg-black/70 text-white border-0 text-[10px] gap-1">
+                  <Video className="h-3 w-3" />
+                  {account.mediaReady.videos}/{account.totalMedia.videos}
+                </Badge>
+              )}
+            </div>
+
+            {/* Format */}
+            <div className="absolute bottom-2 right-2">
+              <Badge className="bg-black/50 text-white/80 border-0 text-[10px]">
+                {account.format.label}
+              </Badge>
+            </div>
+
+            {/* Status */}
+            <div className="absolute top-2 right-2">
+              {getStatusBadge()}
+            </div>
+
+            {/* Scheduled time */}
+            {account.scheduledFor && (
+              <div className="absolute top-2 left-2">
+                <Badge className="bg-black/70 text-white border-0 text-[10px]">
+                  {account.scheduledFor}
+                </Badge>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center text-white/50 gap-2">
+            <Image className="h-8 w-8" />
+            <p className="text-xs">{account.connected ? 'Keine Medien' : 'Nicht verbunden'}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Account Info */}
+      <div className="p-3 bg-card">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <PlatformLogo platform={account.platform} size="sm" />
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <p className="font-medium text-sm truncate">{account.name}</p>
+                {account.connected && <CheckCircle2 className="h-3.5 w-3.5 text-success flex-shrink-0" />}
+              </div>
+              <p className="text-xs text-muted-foreground truncate">{account.accountHandle}</p>
+            </div>
+          </div>
+          {getActionButton()}
+        </div>
+        {account.lastPublished && (
+          <p className="text-[10px] text-muted-foreground mt-2">Zuletzt: {account.lastPublished}</p>
+        )}
+      </div>
+    </div>
+  );
+}
 
 // Platform image format requirements
 const platformImageFormats = [
@@ -417,41 +655,39 @@ export function MediaTab() {
             </CardContent>
           </Card>
 
-          {/* Platform Image Format Requirements */}
+          {/* Ready to Post - Account Cards */}
           <Card>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Info className="h-5 w-5 text-accent" />
-                  Bildformat-Anforderungen
-                </CardTitle>
-                <Badge variant="outline">Referenz</Badge>
+                <div>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Send className="h-5 w-5 text-accent" />
+                    Bereit zum Posten
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">Ihre verbundenen Accounts mit Medien-Status</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-4 px-3 py-1.5 rounded-lg bg-muted/50 text-sm">
+                    <span className="flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-success" />
+                      <span className="text-muted-foreground">{publishingAccounts.filter(a => a.status === 'online').length} Online</span>
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-accent" />
+                      <span className="text-muted-foreground">{publishingAccounts.filter(a => a.status === 'draft').length} Bereit</span>
+                    </span>
+                  </div>
+                  <Button size="sm" className="gap-1.5">
+                    <Play className="h-4 w-4" />
+                    Alle posten
+                  </Button>
+                </div>
               </div>
-              <p className="text-sm text-muted-foreground">Optimale Bildgrößen für verschiedene Plattformen</p>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {platformImageFormats.map((platform) => (
-                  <div key={platform.platform} className="border rounded-lg p-4 bg-secondary/20">
-                    <div className="flex items-center gap-3 mb-3">
-                      <PlatformLogo platform={platform.platform} />
-                      <h4 className="font-semibold">{platform.platform}</h4>
-                    </div>
-                    <div className="space-y-2">
-                      {platform.formats.map((format, idx) => (
-                        <div key={idx} className="text-sm bg-background rounded-md p-2">
-                          <div className="font-medium text-foreground">{format.name}</div>
-                          <div className="flex items-center gap-2 mt-1 text-muted-foreground">
-                            <Badge variant="secondary" className="text-xs font-mono">{format.ratio}</Badge>
-                            <span className="text-xs">{format.pixels}</span>
-                          </div>
-                          <div className="text-xs text-muted-foreground/70 mt-0.5">
-                            Min: {format.minPixels}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                {publishingAccounts.map((account) => (
+                  <PublishingAccountCard key={account.id} account={account} images={propertyImages} />
                 ))}
               </div>
             </CardContent>
