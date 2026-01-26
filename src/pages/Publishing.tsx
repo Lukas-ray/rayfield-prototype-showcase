@@ -1,14 +1,11 @@
 import { useState } from 'react';
-import { AlertCircle, Check, Link2, Play, ExternalLink, CheckCircle2, Image, FileText, Zap, Eye, AlertTriangle, Video, ChevronLeft, ChevronRight } from 'lucide-react';
+import { AlertCircle, Check, Link2, Play, ExternalLink, CheckCircle2, Image, FileText, Zap, Eye, AlertTriangle, Video, ChevronLeft, ChevronRight, Settings, Unlink, RefreshCw, Clock, Send } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Dialog,
   DialogContent,
@@ -26,21 +23,96 @@ import propertyBathroom from '@/assets/property-bathroom.jpg';
 import propertyBalcony from '@/assets/property-balcony.jpg';
 import propertyExterior from '@/assets/property-exterior.jpg';
 
-interface ChannelConfig {
+interface PlatformAccount {
   id: string;
-  name: string;
   platform: string;
-  status: 'ready' | 'incomplete' | 'connected' | 'disconnected';
-  publishStatus: 'online' | 'draft' | 'not_connected';
-  fieldsTotal: number;
-  fieldsMapped: number;
-  missingFields: string[];
-  format: { width: number; height: number; label: string };
+  name: string;
+  accountName: string;
+  accountHandle?: string;
+  connected: boolean;
+  status: 'online' | 'scheduled' | 'draft' | 'not_connected';
   lastPublished?: string;
-  mediaCount: { photos: number; videos: number };
+  scheduledFor?: string;
+  format: { width: number; height: number; label: string };
+  mediaReady: { photos: number; videos: number };
+  totalMedia: { photos: number; videos: number };
 }
 
-// Sample media for channels
+const platformAccounts: PlatformAccount[] = [
+  {
+    id: 'immoscout',
+    platform: 'immoscout24',
+    name: 'ImmoScout24',
+    accountName: 'Rayfield Immobilien',
+    accountHandle: 'rayfield_munich',
+    connected: true,
+    status: 'online',
+    lastPublished: '12.01.2024',
+    format: { width: 1200, height: 800, label: '3:2' },
+    mediaReady: { photos: 12, videos: 1 },
+    totalMedia: { photos: 12, videos: 1 },
+  },
+  {
+    id: 'immowelt',
+    platform: 'immowelt',
+    name: 'Immowelt',
+    accountName: 'Rayfield Immobilien',
+    accountHandle: 'rayfield-immo',
+    connected: true,
+    status: 'draft',
+    format: { width: 1024, height: 768, label: '4:3' },
+    mediaReady: { photos: 10, videos: 0 },
+    totalMedia: { photos: 10, videos: 0 },
+  },
+  {
+    id: 'kleinanzeigen',
+    platform: 'kleinanzeigen',
+    name: 'Kleinanzeigen',
+    accountName: 'Rayfield München',
+    connected: true,
+    status: 'scheduled',
+    scheduledFor: '20.01.2024, 10:00',
+    format: { width: 1200, height: 900, label: '4:3' },
+    mediaReady: { photos: 8, videos: 0 },
+    totalMedia: { photos: 8, videos: 0 },
+  },
+  {
+    id: 'instagram',
+    platform: 'instagram',
+    name: 'Instagram',
+    accountName: 'Rayfield Immobilien',
+    accountHandle: '@rayfield_immo',
+    connected: true,
+    status: 'draft',
+    format: { width: 1080, height: 1080, label: '1:1' },
+    mediaReady: { photos: 6, videos: 1 },
+    totalMedia: { photos: 8, videos: 2 },
+  },
+  {
+    id: 'facebook',
+    platform: 'facebook',
+    name: 'Facebook',
+    accountName: 'Rayfield Immobilien München',
+    connected: false,
+    status: 'not_connected',
+    format: { width: 1200, height: 630, label: '1.91:1' },
+    mediaReady: { photos: 0, videos: 0 },
+    totalMedia: { photos: 8, videos: 1 },
+  },
+  {
+    id: 'website',
+    platform: 'website',
+    name: 'Eigene Website',
+    accountName: 'rayfield-immobilien.de',
+    connected: true,
+    status: 'online',
+    lastPublished: '15.01.2024',
+    format: { width: 1920, height: 1080, label: '16:9' },
+    mediaReady: { photos: 15, videos: 2 },
+    totalMedia: { photos: 15, videos: 2 },
+  },
+];
+
 const channelMedia = [
   propertyLivingRoom,
   propertyKitchen,
@@ -50,302 +122,192 @@ const channelMedia = [
   propertyExterior,
 ];
 
-const channels: ChannelConfig[] = [
-  { 
-    id: 'immoscout', 
-    name: 'ImmoScout24', 
-    platform: 'immoscout24',
-    status: 'ready',
-    publishStatus: 'online',
-    fieldsTotal: 42,
-    fieldsMapped: 42,
-    missingFields: [],
-    format: { width: 1200, height: 800, label: '3:2' },
-    lastPublished: '12.01.2024',
-    mediaCount: { photos: 12, videos: 1 },
-  },
-  { 
-    id: 'immowelt', 
-    name: 'Immowelt', 
-    platform: 'immowelt',
-    status: 'ready',
-    publishStatus: 'draft',
-    fieldsTotal: 38,
-    fieldsMapped: 38,
-    missingFields: [],
-    format: { width: 1024, height: 768, label: '4:3' },
-    mediaCount: { photos: 10, videos: 0 },
-  },
-  { 
-    id: 'kleinanzeigen', 
-    name: 'Kleinanzeigen', 
-    platform: 'kleinanzeigen',
-    status: 'incomplete',
-    publishStatus: 'draft',
-    fieldsTotal: 28,
-    fieldsMapped: 25,
-    missingFields: ['Energieausweis-Nr.', 'Garage-Stellplätze', 'Baujahr Heizung'],
-    format: { width: 1200, height: 900, label: '4:3' },
-    mediaCount: { photos: 8, videos: 0 },
-  },
-  { 
-    id: 'website', 
-    name: 'Eigene Website', 
-    platform: 'website',
-    status: 'ready',
-    publishStatus: 'online',
-    fieldsTotal: 50,
-    fieldsMapped: 50,
-    missingFields: [],
-    format: { width: 1920, height: 1080, label: '16:9' },
-    lastPublished: '15.01.2024',
-    mediaCount: { photos: 15, videos: 2 },
-  },
-];
-
-const validationErrors = [
-  { type: 'error', field: 'Energieausweis-Nummer', message: 'Pflichtfeld für alle Portale', channels: ['kleinanzeigen'] },
-  { type: 'warning', field: 'Wohnfläche', message: 'Abweichung: Dokument 87m² vs. Scan 85m²', channels: ['all'] },
-  { type: 'warning', field: 'Baujahr Heizung', message: 'Empfohlen für Kleinanzeigen', channels: ['kleinanzeigen'] },
-];
-
-// Channel Card Component with Media Preview
-interface ChannelCardProps {
-  channel: ChannelConfig;
-  isSelected: boolean;
-  onSelect: () => void;
-  onPublish: () => void;
-  onPreview: () => void;
+interface AccountCardProps {
+  account: PlatformAccount;
   media: string[];
+  onConnect: () => void;
+  onPublish: () => void;
 }
 
-function ChannelCard({ channel, isSelected, onSelect, onPublish, onPreview, media }: ChannelCardProps) {
+function AccountCard({ account, media, onConnect, onPublish }: AccountCardProps) {
   const [mediaIndex, setMediaIndex] = useState(0);
-  
-  const getPublishStatusBadge = () => {
-    switch (channel.publishStatus) {
+
+  const getStatusInfo = () => {
+    switch (account.status) {
       case 'online':
-        return (
-          <Badge className="bg-success/10 text-success border-success/20 gap-1">
-            <CheckCircle2 className="h-3 w-3" />
-            Bereits online
-          </Badge>
-        );
+        return {
+          badge: <Badge className="bg-success text-success-foreground border-0 gap-1"><CheckCircle2 className="h-3 w-3" /> Online</Badge>,
+          action: 'Aktualisieren',
+          actionIcon: RefreshCw,
+          actionVariant: 'secondary' as const,
+        };
+      case 'scheduled':
+        return {
+          badge: <Badge className="bg-info text-info-foreground border-0 gap-1"><Clock className="h-3 w-3" /> Geplant</Badge>,
+          action: 'Bearbeiten',
+          actionIcon: Settings,
+          actionVariant: 'secondary' as const,
+        };
       case 'draft':
-        return (
-          <Badge className="bg-muted text-muted-foreground border gap-1">
-            <Play className="h-3 w-3" />
-            Posten
-          </Badge>
-        );
+        return {
+          badge: <Badge className="bg-accent text-accent-foreground border-0 gap-1"><Send className="h-3 w-3" /> Bereit</Badge>,
+          action: 'Jetzt posten',
+          actionIcon: Play,
+          actionVariant: 'default' as const,
+        };
       case 'not_connected':
-        return (
-          <Badge className="bg-warning/10 text-warning border-warning/20 gap-1">
-            <Link2 className="h-3 w-3" />
-            Connect Platform
-          </Badge>
-        );
+        return {
+          badge: <Badge variant="outline" className="gap-1 text-muted-foreground"><Unlink className="h-3 w-3" /> Nicht verbunden</Badge>,
+          action: 'Verbinden',
+          actionIcon: Link2,
+          actionVariant: 'outline' as const,
+        };
     }
   };
 
-  const getAspectRatioClass = () => {
-    switch (channel.format.label) {
-      case '16:9': return 'aspect-video';
-      case '4:3': return 'aspect-[4/3]';
-      case '3:2': return 'aspect-[3/2]';
-      default: return 'aspect-video';
-    }
-  };
+  const statusInfo = getStatusInfo();
+  const isReady = account.connected && account.mediaReady.photos > 0;
+  const allMediaReady = account.mediaReady.photos === account.totalMedia.photos && account.mediaReady.videos === account.totalMedia.videos;
 
   return (
-    <Card 
-      className={cn(
-        "transition-all cursor-pointer overflow-hidden",
-        isSelected && "ring-2 ring-accent",
-        channel.status === 'ready' && "border-success/30 hover:border-success/50",
-        channel.status === 'incomplete' && "border-warning/30 hover:border-warning/50"
-      )}
-      onClick={onSelect}
-    >
-      <CardContent className="p-4">
-        <div className="flex gap-4">
-          {/* Media Preview Section */}
-          <div className="flex-shrink-0 w-48">
-            <div className={cn("relative rounded-lg overflow-hidden bg-muted", getAspectRatioClass())}>
+    <Card className={cn(
+      "overflow-hidden transition-all hover:shadow-md",
+      !account.connected && "opacity-70",
+      account.status === 'draft' && "ring-1 ring-accent/50",
+      account.status === 'online' && "ring-1 ring-success/30"
+    )}>
+      <CardContent className="p-0">
+        {/* Media Preview Area */}
+        <div className="relative aspect-[16/10] bg-slate-900 overflow-hidden">
+          {account.connected && account.mediaReady.photos > 0 ? (
+            <>
               <img 
                 src={media[mediaIndex % media.length]} 
-                alt={`Bild ${mediaIndex + 1}`}
+                alt="Preview"
                 className="w-full h-full object-cover"
               />
               
-              {/* Navigation Arrows */}
-              <div className="absolute inset-0 flex items-center justify-between px-1">
+              {/* Navigation */}
+              <div className="absolute inset-0 flex items-center justify-between px-2 opacity-0 hover:opacity-100 transition-opacity">
                 <Button
                   size="icon"
                   variant="secondary"
-                  className="h-6 w-6 rounded-full bg-black/50 hover:bg-black/70 text-white"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setMediaIndex((prev) => (prev - 1 + media.length) % media.length);
-                  }}
+                  className="h-8 w-8 rounded-full bg-black/60 hover:bg-black/80 text-white border-0"
+                  onClick={() => setMediaIndex((prev) => (prev - 1 + media.length) % media.length)}
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
                 <Button
                   size="icon"
                   variant="secondary"
-                  className="h-6 w-6 rounded-full bg-black/50 hover:bg-black/70 text-white"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setMediaIndex((prev) => (prev + 1) % media.length);
-                  }}
+                  className="h-8 w-8 rounded-full bg-black/60 hover:bg-black/80 text-white border-0"
+                  onClick={() => setMediaIndex((prev) => (prev + 1) % media.length)}
                 >
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
 
-              {/* Format Badge */}
-              <div className="absolute top-2 left-2">
-                <Badge className="bg-black/60 text-white border-0 text-[10px] px-1.5 py-0.5">
-                  {channel.format.label}
-                </Badge>
-              </div>
-
-              {/* Media Count */}
-              <div className="absolute bottom-2 right-2 flex gap-1">
-                <Badge className="bg-black/60 text-white border-0 text-[10px] px-1.5 py-0.5 gap-1">
+              {/* Media Counter */}
+              <div className="absolute bottom-3 left-3 flex gap-1.5">
+                <Badge className="bg-black/70 text-white border-0 text-xs gap-1">
                   <Image className="h-3 w-3" />
-                  {channel.mediaCount.photos}
+                  {account.mediaReady.photos}/{account.totalMedia.photos}
                 </Badge>
-                {channel.mediaCount.videos > 0 && (
-                  <Badge className="bg-black/60 text-white border-0 text-[10px] px-1.5 py-0.5 gap-1">
+                {account.totalMedia.videos > 0 && (
+                  <Badge className="bg-black/70 text-white border-0 text-xs gap-1">
                     <Video className="h-3 w-3" />
-                    {channel.mediaCount.videos}
+                    {account.mediaReady.videos}/{account.totalMedia.videos}
                   </Badge>
                 )}
               </div>
 
-              {/* Publish Status Overlay */}
-              <div className="absolute top-2 right-2">
-                {getPublishStatusBadge()}
+              {/* Format indicator - subtle */}
+              <div className="absolute bottom-3 right-3">
+                <Badge className="bg-black/50 text-white/80 border-0 text-[10px]">
+                  {account.format.label}
+                </Badge>
               </div>
-            </div>
 
-            {/* Thumbnail Strip */}
-            <div className="flex gap-1 mt-2">
-              {media.slice(0, 4).map((img, idx) => (
-                <button
-                  key={idx}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setMediaIndex(idx);
-                  }}
-                  className={cn(
-                    "w-10 h-7 rounded overflow-hidden border-2 transition-all",
-                    idx === mediaIndex ? "border-accent" : "border-transparent opacity-60 hover:opacity-100"
-                  )}
-                >
-                  <img src={img} alt="" className="w-full h-full object-cover" />
-                </button>
-              ))}
-              {media.length > 4 && (
-                <div className="w-10 h-7 rounded bg-muted flex items-center justify-center text-[10px] text-muted-foreground">
-                  +{media.length - 4}
+              {/* Status Badge */}
+              <div className="absolute top-3 right-3">
+                {statusInfo.badge}
+              </div>
+
+              {/* Scheduled time */}
+              {account.scheduledFor && (
+                <div className="absolute top-3 left-3">
+                  <Badge className="bg-black/70 text-white border-0 text-xs">
+                    {account.scheduledFor}
+                  </Badge>
                 </div>
               )}
+            </>
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center text-white/60 gap-2">
+              <Image className="h-10 w-10" />
+              <p className="text-sm">{account.connected ? 'Keine Medien zugewiesen' : 'Account nicht verbunden'}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Account Info */}
+        <div className="p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <PlatformLogo platform={account.platform} size="md" />
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="font-semibold truncate">{account.name}</p>
+                  {account.connected && (
+                    <CheckCircle2 className="h-4 w-4 text-success flex-shrink-0" />
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground truncate">
+                  {account.accountHandle || account.accountName}
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* Channel Info Section */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <PlatformLogo platform={channel.platform} size="md" />
-                <div>
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium">{channel.name}</p>
-                    {channel.status === 'ready' && (
-                      <Badge className="bg-success/10 text-success border-success/20">
-                        <CheckCircle2 className="h-3 w-3 mr-1" />
-                        Bereit
-                      </Badge>
-                    )}
-                    {channel.status === 'incomplete' && (
-                      <Badge className="bg-warning/10 text-warning border-warning/20">
-                        <AlertCircle className="h-3 w-3 mr-1" />
-                        {channel.missingFields.length} fehlen
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-3 mt-1">
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <FileText className="h-3 w-3" />
-                      {channel.fieldsMapped}/{channel.fieldsTotal} Felder
-                    </div>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      {channel.format.width} x {channel.format.height}
-                    </div>
-                    {channel.lastPublished && (
-                      <span className="text-xs text-muted-foreground">
-                        Zuletzt: {channel.lastPublished}
-                      </span>
-                    )}
-                  </div>
+          {/* Action Row */}
+          <div className="mt-4 flex items-center justify-between gap-2">
+            {account.connected ? (
+              <>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  {account.lastPublished && (
+                    <span>Zuletzt: {account.lastPublished}</span>
+                  )}
+                  {!allMediaReady && account.status !== 'online' && (
+                    <Badge variant="outline" className="text-[10px] text-warning border-warning/30">
+                      Medien prüfen
+                    </Badge>
+                  )}
                 </div>
-              </div>
-              
-              <div className="flex items-center gap-2">
+                <Button 
+                  size="sm" 
+                  variant={statusInfo.actionVariant}
+                  onClick={onPublish}
+                  className="gap-1.5"
+                >
+                  <statusInfo.actionIcon className="h-4 w-4" />
+                  {statusInfo.action}
+                </Button>
+              </>
+            ) : (
+              <>
+                <p className="text-xs text-muted-foreground">
+                  Verbinden Sie Ihren Account
+                </p>
                 <Button 
                   size="sm" 
                   variant="outline"
-                  onClick={(e) => { e.stopPropagation(); onPreview(); }}
+                  onClick={onConnect}
+                  className="gap-1.5"
                 >
-                  <Eye className="h-4 w-4 mr-1" />
-                  Vorschau
+                  <Link2 className="h-4 w-4" />
+                  Verbinden
                 </Button>
-                {channel.publishStatus === 'online' ? (
-                  <Button 
-                    size="sm"
-                    variant="secondary"
-                    onClick={(e) => { e.stopPropagation(); }}
-                  >
-                    <ExternalLink className="h-4 w-4 mr-1" />
-                    Ansehen
-                  </Button>
-                ) : channel.publishStatus === 'not_connected' ? (
-                  <Button 
-                    size="sm"
-                    variant="outline"
-                    onClick={(e) => { e.stopPropagation(); }}
-                  >
-                    <Link2 className="h-4 w-4 mr-1" />
-                    Verbinden
-                  </Button>
-                ) : (
-                  <Button 
-                    size="sm"
-                    disabled={channel.status === 'incomplete'}
-                    onClick={(e) => { e.stopPropagation(); onPublish(); }}
-                  >
-                    <Play className="h-4 w-4 mr-1" />
-                    Veröffentlichen
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {/* Missing fields for incomplete channels */}
-            {channel.missingFields.length > 0 && (
-              <div className="mt-3 pt-3 border-t">
-                <p className="text-xs text-warning mb-2">Fehlende Pflichtfelder:</p>
-                <div className="flex flex-wrap gap-2">
-                  {channel.missingFields.map((field, i) => (
-                    <Badge key={i} variant="secondary" className="text-xs">
-                      {field}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
+              </>
             )}
           </div>
         </div>
@@ -356,238 +318,165 @@ function ChannelCard({ channel, isSelected, onSelect, onPublish, onPreview, medi
 
 export default function Publishing() {
   const { toast } = useToast();
-  const [integrationDialogOpen, setIntegrationDialogOpen] = useState(false);
-  const [selectedChannel, setSelectedChannel] = useState<ChannelConfig | null>(null);
-  const [previewChannel, setPreviewChannel] = useState<string>('immoscout');
+  const [connectDialogOpen, setConnectDialogOpen] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState<PlatformAccount | null>(null);
 
-  const totalFields = channels.reduce((sum, c) => sum + c.fieldsTotal, 0);
-  const mappedFields = channels.reduce((sum, c) => sum + c.fieldsMapped, 0);
-  const mappingPercent = Math.round((mappedFields / totalFields) * 100);
+  const connectedAccounts = platformAccounts.filter(a => a.connected);
+  const readyToPost = platformAccounts.filter(a => a.status === 'draft').length;
+  const alreadyOnline = platformAccounts.filter(a => a.status === 'online').length;
 
-  const readyChannels = channels.filter(c => c.status === 'ready').length;
-  const errorCount = validationErrors.filter(e => e.type === 'error').length;
-
-  const handleConnect = (channel: ChannelConfig) => {
-    setSelectedChannel(channel);
-    setIntegrationDialogOpen(true);
+  const handleConnect = (account: PlatformAccount) => {
+    setSelectedAccount(account);
+    setConnectDialogOpen(true);
   };
 
-  const handlePublish = (channelId: string) => {
-    const channel = channels.find(c => c.id === channelId);
-    if (channel?.missingFields.length) {
+  const handlePublish = (account: PlatformAccount) => {
+    if (account.status === 'online') {
       toast({
-        title: 'Fehlende Pflichtfelder',
-        description: `Bitte ${channel.missingFields.join(', ')} ergänzen.`,
-        variant: 'destructive',
+        title: 'Aktualisierung gestartet',
+        description: `${account.name} wird synchronisiert...`,
       });
-      return;
+    } else if (account.status === 'draft') {
+      toast({
+        title: 'Veröffentlichung gestartet',
+        description: `Post wird an ${account.name} gesendet...`,
+      });
+    } else if (account.status === 'scheduled') {
+      toast({
+        title: 'Zeitplan bearbeiten',
+        description: `Geplante Veröffentlichung: ${account.scheduledFor}`,
+      });
     }
-    toast({
-      title: 'Veröffentlichung gestartet',
-      description: `Inserat an ${channel?.name} gesendet.`,
-    });
   };
 
   const handlePublishAll = () => {
-    const readyToPublish = channels.filter(c => c.status === 'ready');
-    if (errorCount > 0) {
+    if (readyToPost === 0) {
       toast({
-        title: 'Validierungsfehler',
-        description: 'Bitte beheben Sie zuerst die Pflichtfehler.',
+        title: 'Keine Posts bereit',
+        description: 'Es gibt keine Posts zum Veröffentlichen.',
         variant: 'destructive',
       });
       return;
     }
     toast({
       title: 'Multi-Channel Veröffentlichung',
-      description: `Inserat an ${readyToPublish.length} Kanäle gesendet.`,
+      description: `${readyToPost} Posts werden veröffentlicht...`,
     });
   };
 
   return (
     <AppLayout>
-      <div className="max-w-6xl mx-auto">
-        {/* Header with Auto-Mapping Indicator */}
-        <div className="flex items-center justify-between mb-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold">Publishing</h1>
-            <p className="text-muted-foreground">Einmal erstellen, überall veröffentlichen</p>
+            <p className="text-muted-foreground">Ihre Accounts & Posts auf einen Blick</p>
           </div>
           <div className="flex items-center gap-4">
-            {/* Auto-mapping success indicator */}
-            <div className="flex items-center gap-3 px-4 py-2 rounded-lg bg-success/10 border border-success/20">
-              <Zap className="h-5 w-5 text-success" />
-              <div>
-                <p className="text-sm font-medium text-success">{mappingPercent}% automatisch gemappt</p>
-                <p className="text-xs text-muted-foreground">{channels.reduce((s, c) => s + c.missingFields.length, 0)} Felder fehlen</p>
+            {/* Stats */}
+            <div className="flex items-center gap-6 px-4 py-2 rounded-lg bg-muted/50">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-success">{alreadyOnline}</p>
+                <p className="text-xs text-muted-foreground">Online</p>
+              </div>
+              <div className="h-8 w-px bg-border" />
+              <div className="text-center">
+                <p className="text-2xl font-bold text-accent">{readyToPost}</p>
+                <p className="text-xs text-muted-foreground">Bereit</p>
+              </div>
+              <div className="h-8 w-px bg-border" />
+              <div className="text-center">
+                <p className="text-2xl font-bold">{connectedAccounts.length}</p>
+                <p className="text-xs text-muted-foreground">Verbunden</p>
               </div>
             </div>
-            <Button 
-              onClick={handlePublishAll} 
-              disabled={errorCount > 0}
-              size="lg"
-              className="gap-2"
-            >
-              <Play className="h-5 w-5" />
-              An {readyChannels} Kanäle veröffentlichen
+
+            {readyToPost > 0 && (
+              <Button 
+                onClick={handlePublishAll} 
+                size="lg"
+                className="gap-2"
+              >
+                <Play className="h-5 w-5" />
+                {readyToPost} Posts veröffentlichen
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Account Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {platformAccounts.map((account) => (
+            <AccountCard
+              key={account.id}
+              account={account}
+              media={channelMedia}
+              onConnect={() => handleConnect(account)}
+              onPublish={() => handlePublish(account)}
+            />
+          ))}
+        </div>
+
+        {/* Hint for disconnected accounts */}
+        {platformAccounts.filter(a => !a.connected).length > 0 && (
+          <div className="mt-8 p-4 rounded-lg bg-muted/50 border border-dashed flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                <Link2 className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <div>
+                <p className="font-medium">Mehr Reichweite?</p>
+                <p className="text-sm text-muted-foreground">
+                  Verbinden Sie weitere Accounts für maximale Sichtbarkeit
+                </p>
+              </div>
+            </div>
+            <Button variant="outline" className="gap-2">
+              <Settings className="h-4 w-4" />
+              Accounts verwalten
             </Button>
           </div>
-        </div>
-
-        {/* Validation Errors - Before Publish */}
-        {validationErrors.length > 0 && (
-          <Card className="mb-6 border-warning/30">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-warning" />
-                Validierung vor Veröffentlichung
-                <Badge variant="secondary">{validationErrors.length} Hinweise</Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {validationErrors.map((error, i) => (
-                  <div 
-                    key={i} 
-                    className={cn(
-                      "flex items-center justify-between p-3 rounded-lg",
-                      error.type === 'error' ? "bg-destructive/10 border border-destructive/20" : "bg-warning/10 border border-warning/20"
-                    )}
-                  >
-                    <div className="flex items-center gap-3">
-                      {error.type === 'error' ? (
-                        <AlertCircle className="h-4 w-4 text-destructive" />
-                      ) : (
-                        <AlertTriangle className="h-4 w-4 text-warning" />
-                      )}
-                      <div>
-                        <p className="text-sm font-medium">{error.field}</p>
-                        <p className="text-xs text-muted-foreground">{error.message}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {error.channels[0] !== 'all' && (
-                        <Badge variant="secondary" className="text-xs">
-                          {error.channels.join(', ')}
-                        </Badge>
-                      )}
-                      <Button size="sm" variant="outline">Beheben</Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
         )}
-
-        <div className="grid grid-cols-3 gap-6">
-          {/* Channel Checklist with Media Preview */}
-          <div className="col-span-2 space-y-4">
-            <h2 className="font-semibold">Kanal-Checkliste</h2>
-            {channels.map((channel) => (
-              <ChannelCard 
-                key={channel.id}
-                channel={channel}
-                isSelected={previewChannel === channel.id}
-                onSelect={() => setPreviewChannel(channel.id)}
-                onPublish={() => handlePublish(channel.id)}
-                onPreview={() => setPreviewChannel(channel.id)}
-                media={channelMedia}
-              />
-            ))}
-          </div>
-
-          {/* Preview per Channel */}
-          <div className="space-y-4">
-            <h2 className="font-semibold">Kanal-Vorschau</h2>
-            <Card>
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <PlatformLogo platform={channels.find(c => c.id === previewChannel)?.platform || 'immoscout24'} size="sm" />
-                    {channels.find(c => c.id === previewChannel)?.name}
-                  </CardTitle>
-                  <Badge variant="secondary" className="text-xs">
-                    {channels.find(c => c.id === previewChannel)?.format.label}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {/* Preview mockup */}
-                <div className="aspect-[4/3] rounded-lg bg-muted mb-4 flex items-center justify-center border">
-                  <div className="text-center p-4">
-                    <Image className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">Inserat-Vorschau</p>
-                    <p className="text-xs text-muted-foreground">
-                      {channels.find(c => c.id === previewChannel)?.format.width} x {channels.find(c => c.id === previewChannel)?.format.height}
-                    </p>
-                  </div>
-                </div>
-                
-                {/* Quick field preview */}
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Titel</span>
-                    <span className="font-medium truncate ml-2">3-Zi Altbau Schwabing</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Preis</span>
-                    <span className="font-medium">685.000 €</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Fläche</span>
-                    <span className="font-medium">85 m²</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Listing Form */}
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm">Inserats-Daten</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div>
-                  <Label htmlFor="title" className="text-xs">Titel</Label>
-                  <Input
-                    id="title"
-                    defaultValue="Lichtdurchflutete 3-Zimmer Altbauwohnung"
-                    className="mt-1 h-8 text-sm"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="price" className="text-xs">Preis</Label>
-                  <Input id="price" defaultValue="685.000 €" className="mt-1 h-8 text-sm" />
-                </div>
-                <Button size="sm" variant="outline" className="w-full">
-                  Alle Felder bearbeiten
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
       </div>
 
-      {/* Integration Dialog */}
-      <Dialog open={integrationDialogOpen} onOpenChange={setIntegrationDialogOpen}>
+      {/* Connect Dialog */}
+      <Dialog open={connectDialogOpen} onOpenChange={setConnectDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Mit {selectedChannel?.name} verbinden</DialogTitle>
+            <DialogTitle className="flex items-center gap-3">
+              <PlatformLogo platform={selectedAccount?.platform || ''} size="md" />
+              Mit {selectedAccount?.name} verbinden
+            </DialogTitle>
           </DialogHeader>
           <div className="py-4 space-y-4">
             <p className="text-sm text-muted-foreground">
-              Stub-Integration für Demo-Zwecke.
+              Verbinden Sie Ihren {selectedAccount?.name} Account, um Inhalte direkt zu veröffentlichen.
             </p>
+            <div className="p-4 rounded-lg bg-muted/50 space-y-2">
+              <div className="flex items-center gap-2 text-sm">
+                <CheckCircle2 className="h-4 w-4 text-success" />
+                Automatische Formatierung für {selectedAccount?.format.label}
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <CheckCircle2 className="h-4 w-4 text-success" />
+                Geplante Veröffentlichungen
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <CheckCircle2 className="h-4 w-4 text-success" />
+                Performance-Tracking
+              </div>
+            </div>
           </div>
           <Button onClick={() => {
-            setIntegrationDialogOpen(false);
+            setConnectDialogOpen(false);
             toast({
-              title: 'Verbindung simuliert',
-              description: 'Audit-Eintrag protokolliert.',
+              title: 'Verbindung hergestellt',
+              description: `${selectedAccount?.name} wurde erfolgreich verbunden.`,
             });
-          }} className="w-full">
-            Verbindung simulieren
+          }} className="w-full gap-2">
+            <ExternalLink className="h-4 w-4" />
+            Mit {selectedAccount?.name} verbinden
           </Button>
         </DialogContent>
       </Dialog>
